@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33829.357
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TalkHubAPI", "TalkHubAPI\TalkHubAPI.csproj", "{847E38AF-0B5E-4D1A-BB3C-971CB58D881B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{847E38AF-0B5E-4D1A-BB3C-971CB58D881B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{847E38AF-0B5E-4D1A-BB3C-971CB58D881B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{847E38AF-0B5E-4D1A-BB3C-971CB58D881B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{847E38AF-0B5E-4D1A-BB3C-971CB58D881B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EDB3E131-50AB-44CA-882B-4AC017F71968}
+	EndGlobalSection
+EndGlobal
