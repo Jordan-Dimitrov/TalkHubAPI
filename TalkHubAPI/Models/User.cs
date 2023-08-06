@@ -13,9 +13,7 @@ public partial class User
 
     public byte[] PasswordSalt { get; set; } = null!;
 
-    public string RefreshToken { get; set; } = null!;
+    public int? RefreshTokenId { get; set; }
 
-    public DateTime TokenCreated { get; set; }
-
-    public DateTime TokenExpires { get; set; }
+    public virtual RefreshToken? RefreshToken { get; set; }
 }
