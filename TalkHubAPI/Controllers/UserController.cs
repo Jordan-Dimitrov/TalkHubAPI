@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Metrics;
 using TalkHubAPI.Dto;
-using TalkHubAPI.Helper;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Models;
 
@@ -68,7 +68,7 @@ namespace TalkHubAPI.Controllers
             {
                 return BadRequest("User already exists!");
             }
-            _UserRepository.CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            _AuthService.CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
             User user = new User
             {
@@ -96,14 +96,55 @@ namespace TalkHubAPI.Controllers
             }
 
             User user = _UserRepository.GetUserByName(request.Username);
-            if (!_UserRepository.VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+            if (!_AuthService.VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
             {
                 return BadRequest("Wrong password.");
             }
 
-            string token = _AuthService.CreateJwtToken(user);
+            string token = _AuthService.GenerateJwtToken(user);
+
+            RefreshToken refreshToken = _AuthService.GenerateRefreshToken();
+            _UserRepository.UpdateRefreshTokenToUser(user, refreshToken);
+            SetRefreshToken(refreshToken);
 
             return Ok(token);
+        }
+        [HttpPost("refresh-token")]
+        public IActionResult GetRefreshToken([FromBody] string username)
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+            User user = _UserRepository.GetUserByName(username);
+            if (!user.RefreshToken.Token.Equals(refreshToken))
+            {
+                return Unauthorized("Invalid Refresh Token.");
+            }
+            else if (user.RefreshToken.TokenExpires < DateTime.Now)
+            {
+                return Unauthorized("Token expired.");
+            }
+
+            string token = _AuthService.GenerateJwtToken(user);
+
+            RefreshToken newRefreshToken = _AuthService.GenerateRefreshToken();
+            _UserRepository.UpdateRefreshTokenToUser(user, newRefreshToken);
+            SetRefreshToken(newRefreshToken);
+
+            return Ok(token);
+        }
+        [HttpGet("test"), Authorize(Roles = "Admin1")]
+        
+        public IActionResult AuthTest()
+        {
+            return Ok(1);
+        }
+        private void SetRefreshToken(RefreshToken newRefreshToken)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = newRefreshToken.TokenExpires
+            };
+            Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
         }
     }
 }

@@ -13,7 +13,6 @@ namespace TalkHubAPI.Interfaces
         bool UpdateUser(User user);
         bool DeleteUser(User user);
         bool Save();
-        void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt);
-        bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt);
+        bool UpdateRefreshTokenToUser(User user, RefreshToken refreshToken);
     }
 }

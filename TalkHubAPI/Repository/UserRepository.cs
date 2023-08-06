@@ -68,24 +68,13 @@ namespace TalkHubAPI.Repository
         public User GetUserByName(string username)
         {
             var user = _Context.Users.Where(x => x.Username == username).FirstOrDefault();
+            _Context.Entry(user).Reference(u => u.RefreshToken).Load();
             return user;
         }
-        public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        public bool UpdateRefreshTokenToUser(User user, RefreshToken newRefreshToken)
         {
-            using (var hmac = new HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-            }
-        }
-
-        public bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
-        {
-            using (var hmac = new HMACSHA512(passwordSalt))
-            {
-                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-                return computedHash.SequenceEqual(passwordHash);
-            }
+            user.RefreshToken = newRefreshToken;
+            return UpdateUser(user);
         }
     }
 }

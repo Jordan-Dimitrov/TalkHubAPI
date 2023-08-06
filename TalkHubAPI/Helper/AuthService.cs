@@ -1,7 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Azure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using TalkHubAPI.Interfaces;
 using TalkHubAPI.Models;
 
 namespace TalkHubAPI.Helper
@@ -14,7 +17,7 @@ namespace TalkHubAPI.Helper
         {
             _Configuration = configuration;
         }
-        public string CreateJwtToken(User user)
+        public string GenerateJwtToken(User user)
         {
             List<Claim> claims = new List<Claim>
             {
@@ -39,17 +42,31 @@ namespace TalkHubAPI.Helper
 
         public RefreshToken GenerateRefreshToken()
         {
-            throw new NotImplementedException();
+            RefreshToken refreshToken = new RefreshToken
+            {
+                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                TokenExpires = DateTime.Now.AddDays(7),
+                TokenCreated = DateTime.Now
+            };
+
+            return refreshToken;
+        }
+        public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        {
+            using (var hmac = new HMACSHA512())
+            {
+                passwordSalt = hmac.Key;
+                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            }
         }
 
-        public string RefreshToken(User user)
+        public bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
         {
-            throw new NotImplementedException();
-        }
-
-        public void SetRefreshToken(RefreshToken refreshToken)
-        {
-            throw new NotImplementedException();
+            using (var hmac = new HMACSHA512(passwordSalt))
+            {
+                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                return computedHash.SequenceEqual(passwordHash);
+            }
         }
     }
 }
