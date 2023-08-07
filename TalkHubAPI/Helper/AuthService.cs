@@ -19,10 +19,19 @@ namespace TalkHubAPI.Helper
         }
         public string GenerateJwtToken(User user)
         {
+            string role = "";
+            if (user.PermissionType == 1)
+            {
+                role = "Admin";
+            }
+            else if (user.PermissionType == 0)
+            {
+                role = "User";
+            }
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, "Admin")
+                new Claim(ClaimTypes.Role, role)
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(

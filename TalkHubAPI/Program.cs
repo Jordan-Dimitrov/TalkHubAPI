@@ -27,6 +27,8 @@ namespace TalkHubAPI
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IPhotoCategoryRepository, PhotoCategoryRepository>();
+            builder.Services.AddScoped<IPhotoRepository, PhotoRepository>();
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddEndpointsApiExplorer();

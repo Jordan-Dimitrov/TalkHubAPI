@@ -15,5 +15,7 @@ public partial class User
 
     public int? RefreshTokenId { get; set; }
 
+    public int PermissionType { get; set; }
+
     public virtual RefreshToken? RefreshToken { get; set; }
 }

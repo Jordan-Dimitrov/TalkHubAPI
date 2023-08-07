@@ -57,7 +57,7 @@ namespace TalkHubAPI.Controllers
         [HttpPost("register")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult Register(UserDto request)
+        public IActionResult Register(CreateUserDto request)
         {
             if (!ModelState.IsValid)
             {
@@ -77,13 +77,19 @@ namespace TalkHubAPI.Controllers
                 PasswordSalt = passwordSalt,
             };
 
-            _UserRepository.CreateUser(user);
-            return Ok(user);
+            if (_UserRepository.CreateUser(user))
+            {
+                return Ok(request);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
         [HttpPost("login")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult Login(UserDto request)
+        public IActionResult Login(CreateUserDto request)
         {
             if (!ModelState.IsValid)
             {
@@ -104,10 +110,15 @@ namespace TalkHubAPI.Controllers
             string token = _AuthService.GenerateJwtToken(user);
 
             RefreshToken refreshToken = _AuthService.GenerateRefreshToken();
-            _UserRepository.UpdateRefreshTokenToUser(user, refreshToken);
-            SetRefreshToken(refreshToken);
-
-            return Ok(token);
+            if (_UserRepository.UpdateRefreshTokenToUser(user, refreshToken))
+            {
+                SetRefreshToken(refreshToken);
+                return Ok(token);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
         [HttpPost("refresh-token")]
         public IActionResult GetRefreshToken([FromBody] string username)
@@ -126,12 +137,17 @@ namespace TalkHubAPI.Controllers
             string token = _AuthService.GenerateJwtToken(user);
 
             RefreshToken newRefreshToken = _AuthService.GenerateRefreshToken();
-            _UserRepository.UpdateRefreshTokenToUser(user, newRefreshToken);
-            SetRefreshToken(newRefreshToken);
-
-            return Ok(token);
+            if (_UserRepository.UpdateRefreshTokenToUser(user, newRefreshToken))
+            {
+                SetRefreshToken(newRefreshToken);
+                return Ok(token);
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
         }
-        [HttpGet("test"), Authorize(Roles = "Admin1")]
+        [HttpGet("test"), Authorize(Roles = "Admin")]
         
         public IActionResult AuthTest()
         {
