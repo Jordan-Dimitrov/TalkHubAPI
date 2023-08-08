@@ -14,37 +14,39 @@ namespace TalkHubAPI.Repository
         }
         public bool AddCategory(PhotoCategory category)
         {
-            throw new NotImplementedException();
+            _Context.Add(category);
+            return Save();
         }
 
-        public bool CategoriesExist(int id)
+        public bool CategoryExists(int id)
         {
-            throw new NotImplementedException();
+            return _Context.PhotoCategories.Any(o => o.Id == id);
         }
 
         public ICollection<PhotoCategory> GetCategories()
         {
-            throw new NotImplementedException();
+            return _Context.PhotoCategories.ToList();
         }
 
         public PhotoCategory GetCategory(int id)
         {
-            throw new NotImplementedException();
+            return _Context.PhotoCategories.Find(id);
         }
-
         public bool RemoveCategory(PhotoCategory category)
         {
-            throw new NotImplementedException();
+            _Context.Remove(category);
+            return Save();
         }
-
         public bool Save()
         {
-            throw new NotImplementedException();
+            int saved = _Context.SaveChanges();
+            return saved > 0 ? true : false;
         }
-
         public bool UpdateCategory(PhotoCategory category)
         {
-            throw new NotImplementedException();
+            _Context.Update(category);
+            return Save();
         }
+
     }
 }

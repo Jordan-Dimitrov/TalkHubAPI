@@ -55,43 +55,42 @@ namespace TalkHubAPI.Controllers
         }
 
         [HttpPost("register")]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        public IActionResult Register(CreateUserDto request)
+        public IActionResult Register([FromBody]CreateUserDto request)
         {
-            if (!ModelState.IsValid)
+            if (request==null)
             {
                 return BadRequest(ModelState);
             }
-
             if (_UserRepository.UsernameExists(request.Username))
             {
                 return BadRequest("User already exists!");
             }
-            _AuthService.CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
-
-            User user = new User
-            {
-                Username = request.Username,
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt,
-            };
-
-            if (_UserRepository.CreateUser(user))
-            {
-                return Ok(request);
-            }
-            else
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            _AuthService.CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+
+            User user = _Mapper.Map<User>(request);
+            user.PasswordHash = passwordHash;
+            user.PasswordSalt = passwordSalt;
+            user.PermissionType = 0;
+
+            if (!_UserRepository.CreateUser(user))
+            {
+                return BadRequest(ModelState);
+            }
+
+            return Ok(request.Username);
         }
         [HttpPost("login")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult Login(CreateUserDto request)
         {
-            if (!ModelState.IsValid)
+            if (request == null)
             {
                 return BadRequest(ModelState);
             }
@@ -101,7 +100,13 @@ namespace TalkHubAPI.Controllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            User user = _UserRepository.GetUserByName(request.Username);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User user = _Mapper.Map<User>(_UserRepository.GetUserByName(request.Username));
+
             if (!_AuthService.VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
             {
                 return BadRequest("Wrong password.");
@@ -110,21 +115,37 @@ namespace TalkHubAPI.Controllers
             string token = _AuthService.GenerateJwtToken(user);
 
             RefreshToken refreshToken = _AuthService.GenerateRefreshToken();
-            if (_UserRepository.UpdateRefreshTokenToUser(user, refreshToken))
-            {
-                SetRefreshToken(refreshToken);
-                return Ok(token);
-            }
-            else
+            if (!_UserRepository.UpdateRefreshTokenToUser(user, refreshToken))
             {
                 return BadRequest(ModelState);
             }
+            SetRefreshToken(refreshToken);
+            return Ok(token);
         }
         [HttpPost("refresh-token")]
-        public IActionResult GetRefreshToken([FromBody] string username)
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult GetRefreshToken(UserDto request)
         {
+            if (request == null)
+            {
+                return BadRequest(ModelState);
+            }
+
             var refreshToken = Request.Cookies["refreshToken"];
-            User user = _UserRepository.GetUserByName(username);
+
+            if (!_UserRepository.UsernameExists(request.Username))
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User user = _Mapper.Map<User>(_UserRepository.GetUserByName(request.Username));
+
             if (!user.RefreshToken.Token.Equals(refreshToken))
             {
                 return Unauthorized("Invalid Refresh Token.");
@@ -137,15 +158,13 @@ namespace TalkHubAPI.Controllers
             string token = _AuthService.GenerateJwtToken(user);
 
             RefreshToken newRefreshToken = _AuthService.GenerateRefreshToken();
-            if (_UserRepository.UpdateRefreshTokenToUser(user, newRefreshToken))
-            {
-                SetRefreshToken(newRefreshToken);
-                return Ok(token);
-            }
-            else
+            if (!_UserRepository.UpdateRefreshTokenToUser(user, newRefreshToken))
             {
                 return BadRequest(ModelState);
             }
+
+            SetRefreshToken(newRefreshToken);
+            return Ok(token);
         }
         [HttpGet("test"), Authorize(Roles = "Admin")]
         

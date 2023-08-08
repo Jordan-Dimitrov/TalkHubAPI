@@ -7,7 +7,7 @@ namespace TalkHubAPI.Interfaces
         bool AddCategory(PhotoCategory category);
         bool RemoveCategory(PhotoCategory category);
         bool UpdateCategory(PhotoCategory category);
-        bool CategoriesExist(int id);
+        bool CategoryExists(int id);
         bool Save();
         PhotoCategory GetCategory(int id);
         ICollection<PhotoCategory> GetCategories();

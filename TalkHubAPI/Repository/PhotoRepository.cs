@@ -44,7 +44,8 @@ namespace TalkHubAPI.Repository
 
         public bool Save()
         {
-            throw new NotImplementedException();
+            int saved = _Context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
         public bool UpdatePhoto(Photo photo)
