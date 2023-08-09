@@ -26,7 +26,7 @@ namespace TalkHubAPI.Controllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserDto>))]
         public IActionResult GetUsers()
         {
-            var users = _Mapper.Map<List<UserDto>>(_UserRepository.GetUsers());
+            ICollection<UserDto> users = _Mapper.Map<List<UserDto>>(_UserRepository.GetUsers());
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -44,7 +44,7 @@ namespace TalkHubAPI.Controllers
                 return NotFound();
             }
 
-            var user = _Mapper.Map<UserDto>(_UserRepository.GetUser(userId));
+            UserDto user = _Mapper.Map<UserDto>(_UserRepository.GetUser(userId));
 
             if (!ModelState.IsValid)
             {
@@ -83,7 +83,7 @@ namespace TalkHubAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            return Ok(request.Username);
+            return Ok("Successfully created");
         }
         [HttpPost("login")]
         [ProducesResponseType(200)]
@@ -174,7 +174,7 @@ namespace TalkHubAPI.Controllers
         }
         private void SetRefreshToken(RefreshToken newRefreshToken)
         {
-            var cookieOptions = new CookieOptions
+            CookieOptions cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
                 Expires = newRefreshToken.TokenExpires

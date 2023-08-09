@@ -17,5 +17,7 @@ public partial class User
 
     public int PermissionType { get; set; }
 
+    public virtual ICollection<Photo> Photos { get; set; } = new List<Photo>();
+
     public virtual RefreshToken? RefreshToken { get; set; }
 }

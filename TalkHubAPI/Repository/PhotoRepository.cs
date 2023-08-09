@@ -14,32 +14,38 @@ namespace TalkHubAPI.Repository
         }
         public bool AddPhoto(Photo photo)
         {
-            throw new NotImplementedException();
+            _Context.Add(photo);
+            return Save();
         }
 
         public Photo GetPhoto(int id)
         {
-            throw new NotImplementedException();
+            return _Context.Photos.Find(id);
         }
 
         public ICollection<Photo> GetPhotos()
         {
-            throw new NotImplementedException();
+            return _Context.Photos.ToList();
         }
 
-        public ICollection<Photo> GetPhotosByCategory(int categoryId)
+        public ICollection<Photo> GetPhotosByCategoryId(int categoryId)
         {
-            throw new NotImplementedException();
+            return _Context.Photos.Where(x=>x.CategoryId == categoryId).ToList();
+        }
+        public ICollection<Photo> GetPhotosByUserId(int userId)
+        {
+            return _Context.Photos.Where(x => x.UserId == userId).ToList();
         }
 
         public bool PhotoExists(int id)
         {
-            throw new NotImplementedException();
+            return _Context.Photos.Any(o => o.Id == id);
         }
 
         public bool RemovePhoto(Photo photo)
         {
-            throw new NotImplementedException();
+            _Context.Remove(photo);
+            return Save();
         }
 
         public bool Save()
@@ -50,7 +56,8 @@ namespace TalkHubAPI.Repository
 
         public bool UpdatePhoto(Photo photo)
         {
-            throw new NotImplementedException();
+            _Context.Update(photo);
+            return Save();
         }
     }
 }

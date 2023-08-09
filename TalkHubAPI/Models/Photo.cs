@@ -17,5 +17,9 @@ public partial class Photo
 
     public int CategoryId { get; set; }
 
+    public int UserId { get; set; }
+
     public virtual PhotoCategory Category { get; set; } = null!;
+
+    public virtual User User { get; set; } = null!;
 }

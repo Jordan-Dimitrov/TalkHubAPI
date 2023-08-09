@@ -1,4 +1,5 @@
-﻿using TalkHubAPI.Models;
+﻿using TalkHubAPI.Dto;
+using TalkHubAPI.Models;
 
 namespace TalkHubAPI.Interfaces
 {
@@ -11,5 +12,7 @@ namespace TalkHubAPI.Interfaces
         bool Save();
         PhotoCategory GetCategory(int id);
         ICollection<PhotoCategory> GetCategories();
+        bool PhotoCategoryExists(string name);
+        PhotoCategory GetCategoryByName(string categoryName);
     }
 }

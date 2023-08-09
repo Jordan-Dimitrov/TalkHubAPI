@@ -1,4 +1,5 @@
 ﻿using TalkHubAPI.Data;
+using TalkHubAPI.Dto;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Models;
 
@@ -47,6 +48,23 @@ namespace TalkHubAPI.Repository
             _Context.Update(category);
             return Save();
         }
+        public bool PhotoCategoryExists(string name)
+        {
+            var categories = _Context.PhotoCategories;
+            foreach (var category in categories)
+            {
+                if (name == category.PhotoName)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
+        public PhotoCategory GetCategoryByName(string categoryName)
+        {
+            PhotoCategory category = _Context.PhotoCategories.Where(x => x.PhotoName == categoryName).FirstOrDefault();
+            return category;
+        }
     }
 }

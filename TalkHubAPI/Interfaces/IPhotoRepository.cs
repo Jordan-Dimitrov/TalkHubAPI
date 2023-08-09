@@ -11,6 +11,7 @@ namespace TalkHubAPI.Interfaces
         bool Save();
         Photo GetPhoto (int id);
         ICollection<Photo> GetPhotos();
-        ICollection<Photo> GetPhotosByCategory(int categoryId);
+        ICollection<Photo> GetPhotosByCategoryId(int categoryId);
+        ICollection<Photo> GetPhotosByUserId(int userId);
     }
 }

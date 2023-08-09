@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using TalkHubAPI.Models;
+
 namespace TalkHubAPI.Data;
 
 public partial class TalkHubContext : DbContext
@@ -18,8 +19,6 @@ public partial class TalkHubContext : DbContext
     public virtual DbSet<Photo> Photos { get; set; }
 
     public virtual DbSet<PhotoCategory> PhotoCategories { get; set; }
-
-    public virtual DbSet<PhotosUser> PhotosUsers { get; set; }
 
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
@@ -38,6 +37,11 @@ public partial class TalkHubContext : DbContext
                 .HasForeignKey(d => d.CategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Photos_PhotoCategory");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Photos)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Photos__userId__31EC6D26");
         });
 
         modelBuilder.Entity<PhotoCategory>(entity =>
@@ -47,11 +51,6 @@ public partial class TalkHubContext : DbContext
             entity.ToTable("PhotoCategory");
 
             entity.Property(e => e.PhotoName).HasMaxLength(255);
-        });
-
-        modelBuilder.Entity<PhotosUser>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__PhotosUs__3214EC079F452C94");
         });
 
         modelBuilder.Entity<RefreshToken>(entity =>
