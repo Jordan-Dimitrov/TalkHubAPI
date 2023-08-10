@@ -4,50 +4,47 @@ using System.Net;
 using TalkHubAPI.Dto;
 using System.IO;
 using TalkHubAPI.Interfaces;
+using Microsoft.AspNetCore.Cors;
+using Azure.Core;
+using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TalkHubAPI.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class PhotoController : Controller
     {
         private readonly IPhotoRepository _PhotoRepository;
         private readonly IMapper _Mapper;
-        public PhotoController(IPhotoRepository photoRepository, IMapper mapper)
+        private readonly IFileProcessingService _FileProcessingService;
+        public PhotoController(IPhotoRepository photoRepository, IMapper mapper, IFileProcessingService fileProcessingService)
         {
             _PhotoRepository = photoRepository;
             _Mapper = mapper;
+            _FileProcessingService = fileProcessingService;
         }
-        private readonly string UploadsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Media");
         [HttpPost]
         public IActionResult UploadMedia(IFormFile file)
         {
-            string fileName = Path.GetFileName(file.FileName);
-            string filePath = Path.Combine(UploadsDirectory, fileName);
-
-            using (FileStream stream = new FileStream(filePath, FileMode.Create))
+            if (file == null || file.Length == 0)
             {
-                file.CopyTo(stream);
+                return BadRequest(ModelState);
             }
-
-            return Ok("Media uploaded successfully.");
+            string response = _FileProcessingService.UploadMedia(file);
+            return Ok(response);
         }
-        [HttpGet]
-        [Route("api/media/{fileName}")]
+        [HttpGet("{fileName}")]
+        [ProducesResponseType(typeof(FileStreamResult), 200)]
+        [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetMedia(string fileName)
         {
-            var filePath = Path.Combine(UploadsDirectory, fileName);
-
-            if (System.IO.File.Exists(filePath))
-            {
-                byte[] fileBytes = System.IO.File.ReadAllBytes(filePath);
-                return new FileContentResult(fileBytes, "image/png");
-            }
-            else
+            FileContentResult file = _FileProcessingService.GetMedia(fileName);
+            if (file == null)
             {
                 return NotFound();
             }
+            return file;
         }
-
     }
 }

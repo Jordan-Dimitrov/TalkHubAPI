@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
@@ -63,7 +64,6 @@ namespace TalkHubAPI
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("SDR"));
             });
-
 
             var app = builder.Build();
 
