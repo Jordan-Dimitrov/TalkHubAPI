@@ -47,7 +47,7 @@ namespace TalkHubAPI.Helper
         {
             if (file == null || file.Length == 0)
             {
-                return "Empty!";
+                return "Empty";
             }
 
             string fileName = Path.GetFileName(file.FileName);
@@ -55,10 +55,15 @@ namespace TalkHubAPI.Helper
 
             if (fileExtension != ".jpg" && fileExtension != ".jpeg" && fileExtension != ".png" && fileExtension != ".mp4")
             {
-                return "Invalid file format. Only jpg, jpeg, png, and mp4 are supported.";
+                return "Invalid file format";
             }
 
             string filePath = Path.Combine(_UploadsDirectory, fileName);
+
+            if (File.Exists(filePath))
+            {
+                return "File already exists";
+            }
 
             using (FileStream stream = new FileStream(filePath, FileMode.Create))
             {
@@ -66,6 +71,19 @@ namespace TalkHubAPI.Helper
             }
 
             return fileName;
+        }
+
+        public bool RemoveMedia(string fileName)
+        {
+            string filePath = Path.Combine(_UploadsDirectory, fileName);
+
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+                return true;
+            }
+
+            return false;
         }
     }
 }

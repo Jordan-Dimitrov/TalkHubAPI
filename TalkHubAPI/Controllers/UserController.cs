@@ -27,10 +27,12 @@ namespace TalkHubAPI.Controllers
         public IActionResult GetUsers()
         {
             ICollection<UserDto> users = _Mapper.Map<List<UserDto>>(_UserRepository.GetUsers());
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
             return Ok(users);
         }
 
@@ -63,14 +65,17 @@ namespace TalkHubAPI.Controllers
             {
                 return BadRequest(ModelState);
             }
+
             if (_UserRepository.UsernameExists(request.Username))
             {
                 return BadRequest("User already exists!");
             }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
             _AuthService.CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
             User user = _Mapper.Map<User>(request);
@@ -115,11 +120,14 @@ namespace TalkHubAPI.Controllers
             string token = _AuthService.GenerateJwtToken(user);
 
             RefreshToken refreshToken = _AuthService.GenerateRefreshToken();
+
             if (!_UserRepository.UpdateRefreshTokenToUser(user, refreshToken))
             {
                 return BadRequest(ModelState);
             }
+
             SetRefreshToken(refreshToken);
+
             return Ok(token);
         }
         [HttpPost("refresh-token")]
@@ -150,6 +158,7 @@ namespace TalkHubAPI.Controllers
             {
                 return Unauthorized("Invalid Refresh Token.");
             }
+
             else if (user.RefreshToken.TokenExpires < DateTime.Now)
             {
                 return Unauthorized("Token expired.");
@@ -158,12 +167,14 @@ namespace TalkHubAPI.Controllers
             string token = _AuthService.GenerateJwtToken(user);
 
             RefreshToken newRefreshToken = _AuthService.GenerateRefreshToken();
+
             if (!_UserRepository.UpdateRefreshTokenToUser(user, newRefreshToken))
             {
                 return BadRequest(ModelState);
             }
 
             SetRefreshToken(newRefreshToken);
+
             return Ok(token);
         }
         [HttpGet("test"), Authorize(Roles = "Admin")]
@@ -179,6 +190,7 @@ namespace TalkHubAPI.Controllers
                 HttpOnly = true,
                 Expires = newRefreshToken.TokenExpires
             };
+
             Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
         }
     }

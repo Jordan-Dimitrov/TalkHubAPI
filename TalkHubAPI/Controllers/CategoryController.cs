@@ -19,7 +19,7 @@ namespace TalkHubAPI.Controllers
             _PhotoCategoryRepository = photoCategoryRepository;
             _Mapper = mapper;
         }
-        [HttpGet, Authorize(Roles = "User")]
+        [HttpGet, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoCategoryDto>))]
         public IActionResult GetCategories()
         {
@@ -33,7 +33,7 @@ namespace TalkHubAPI.Controllers
             return Ok(categories);
         }
 
-        [HttpGet("{categoryId}"), Authorize(Roles = "User")]
+        [HttpGet("{categoryId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(PhotoCategoryDto))]
         [ProducesResponseType(400)]
         public IActionResult GetCategory(int categoryId)
@@ -52,7 +52,7 @@ namespace TalkHubAPI.Controllers
 
             return Ok(category);
         }
-        [HttpPost("createCategory"), Authorize(Roles = "User")]
+        [HttpPost("createCategory"), Authorize(Roles = "Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         public IActionResult CreateCategory([FromBody] PhotoCategoryDto categoryCreate)

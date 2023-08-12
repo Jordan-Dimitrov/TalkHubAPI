@@ -6,7 +6,8 @@ namespace TalkHubAPI.Interfaces
     public interface IFileProcessingService
     {
         string UploadMedia(IFormFile file);
-        FileContentResult GetMedia(string name);
+        FileContentResult GetMedia(string fileName);
         string GetContentType(string fileName);
+        bool RemoveMedia(string fileName);
     }
 }

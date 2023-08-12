@@ -34,17 +34,17 @@ namespace TalkHubAPI.Helper
                 new Claim(ClaimTypes.Role, role)
             };
 
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
+            SymmetricSecurityKey key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
                 _Configuration.GetSection("AppSettings:Token").Value));
 
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-            var token = new JwtSecurityToken(
+            JwtSecurityToken token = new JwtSecurityToken(
                 claims: claims,
                 expires: DateTime.Now.AddDays(1),
                 signingCredentials: creds);
 
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            string jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
             return jwt;
         }
@@ -62,7 +62,7 @@ namespace TalkHubAPI.Helper
         }
         public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
-            using (var hmac = new HMACSHA512())
+            using (HMACSHA512 hmac = new HMACSHA512())
             {
                 passwordSalt = hmac.Key;
                 passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
@@ -71,11 +71,21 @@ namespace TalkHubAPI.Helper
 
         public bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
         {
-            using (var hmac = new HMACSHA512(passwordSalt))
+            using (HMACSHA512 hmac = new HMACSHA512(passwordSalt))
             {
-                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                byte[] computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
                 return computedHash.SequenceEqual(passwordHash);
             }
+        }
+        public string GetUsernameFromJwtToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var jwtToken = tokenHandler.ReadJwtToken(token);
+
+            string username = jwtToken.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value;
+
+            return username;
         }
     }
 }

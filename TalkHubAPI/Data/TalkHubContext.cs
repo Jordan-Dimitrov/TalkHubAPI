@@ -30,7 +30,6 @@ public partial class TalkHubContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK__Photos__3214EC07370B195E");
 
             entity.Property(e => e.FileName).HasMaxLength(255);
-            entity.Property(e => e.FilePath).HasMaxLength(255);
             entity.Property(e => e.Timestamp).HasColumnType("datetime");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Photos)
@@ -80,3 +79,4 @@ public partial class TalkHubContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
+

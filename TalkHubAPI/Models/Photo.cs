@@ -9,8 +9,6 @@ public partial class Photo
 
     public string FileName { get; set; } = null!;
 
-    public string FilePath { get; set; } = null!;
-
     public DateTime Timestamp { get; set; }
 
     public string Description { get; set; } = null!;

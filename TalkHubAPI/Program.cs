@@ -59,6 +59,15 @@ namespace TalkHubAPI
                     ValidateAudience = false
                 };
             });
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowOrigin", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
+                });
+            });
 
             builder.Services.AddDbContext<TalkHubContext>(options =>
             {
@@ -89,6 +98,8 @@ namespace TalkHubAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseCors("AllowOrigin");
 
             app.UseHttpsRedirection();
 
