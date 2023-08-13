@@ -23,6 +23,7 @@ public partial class TalkHubContext : DbContext
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Photo>(entity =>
@@ -47,9 +48,7 @@ public partial class TalkHubContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__PhotoCat__3214EC072A92E285");
 
-            entity.ToTable("PhotoCategory");
-
-            entity.Property(e => e.PhotoName).HasMaxLength(255);
+            entity.Property(e => e.CategoryName).HasMaxLength(255);
         });
 
         modelBuilder.Entity<RefreshToken>(entity =>
@@ -65,8 +64,6 @@ public partial class TalkHubContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__User__3214EC07617E5831");
 
-            entity.ToTable("User");
-
             entity.Property(e => e.Username).HasMaxLength(255);
 
             entity.HasOne(d => d.RefreshToken).WithMany(p => p.Users)
@@ -79,4 +76,3 @@ public partial class TalkHubContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-

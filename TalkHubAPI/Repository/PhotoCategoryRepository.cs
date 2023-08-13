@@ -53,7 +53,7 @@ namespace TalkHubAPI.Repository
             var categories = _Context.PhotoCategories;
             foreach (var category in categories)
             {
-                if (name == category.PhotoName)
+                if (name == category.CategoryName)
                 {
                     return true;
                 }
@@ -63,7 +63,7 @@ namespace TalkHubAPI.Repository
 
         public PhotoCategory GetCategoryByName(string categoryName)
         {
-            PhotoCategory category = _Context.PhotoCategories.Where(x => x.PhotoName == categoryName).FirstOrDefault();
+            PhotoCategory category = _Context.PhotoCategories.Where(x => x.CategoryName == categoryName).FirstOrDefault();
             return category;
         }
     }

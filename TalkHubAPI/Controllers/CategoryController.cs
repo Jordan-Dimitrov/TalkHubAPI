@@ -62,7 +62,7 @@ namespace TalkHubAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (_PhotoCategoryRepository.PhotoCategoryExists(categoryCreate.PhotoName))
+            if (_PhotoCategoryRepository.PhotoCategoryExists(categoryCreate.CategoryName))
             {
                 ModelState.AddModelError("", "Category already exists");
                 return StatusCode(422, ModelState);
@@ -77,7 +77,7 @@ namespace TalkHubAPI.Controllers
 
             if (!_PhotoCategoryRepository.AddCategory(category))
             {
-                ModelState.AddModelError("", "Something went wrong while savin");
+                ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
             }
 
