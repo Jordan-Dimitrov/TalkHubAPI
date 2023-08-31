@@ -18,6 +18,8 @@ namespace TalkHubAPI.Helper
             CreateMap<CreatePhotoDto, Photo>();
             CreateMap<Photo, PhotoDto>();
             CreateMap<PhotoDto, Photo>();
+            CreateMap<ForumThread, ForumThreadDto>();
+            CreateMap<ForumThreadDto, ForumThread>();
         }
     }
 }

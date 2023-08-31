@@ -21,7 +21,7 @@ namespace TalkHubAPI.Repository
 
         public bool CategoryExists(int id)
         {
-            return _Context.PhotoCategories.Any(o => o.Id == id);
+            return _Context.PhotoCategories.Any(x => x.Id == id);
         }
 
         public ICollection<PhotoCategory> GetCategories()

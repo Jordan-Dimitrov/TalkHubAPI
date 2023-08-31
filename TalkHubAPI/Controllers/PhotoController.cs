@@ -93,7 +93,7 @@ namespace TalkHubAPI.Controllers
             return Ok("Successfully created");
         }
         [HttpGet("{fileName}"), Authorize(Roles = "User,Admin")]
-        [ProducesResponseType(typeof(FileStreamResult), 200)]
+        [ProducesResponseType(200, Type = typeof(PhotoDto))]
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetMedia(string fileName)
         {
@@ -107,7 +107,7 @@ namespace TalkHubAPI.Controllers
             return file;
         }
         [HttpGet, Authorize(Roles = "User,Admin")]
-        [ProducesResponseType(typeof(FileStreamResult), 200)]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetAllMedia()
         {
@@ -127,7 +127,7 @@ namespace TalkHubAPI.Controllers
             return Ok(photosDto);
         }
         [HttpGet("category/{categoryId}"), Authorize(Roles = "User,Admin")]
-        [ProducesResponseType(typeof(FileStreamResult), 200)]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetAllMediaByCategory(int categoryId)
         {
@@ -147,7 +147,7 @@ namespace TalkHubAPI.Controllers
             return Ok(photosDto);
         }
         [HttpGet("user/{userId}"), Authorize(Roles = "User,Admin")]
-        [ProducesResponseType(typeof(FileStreamResult), 200)]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetAllMediaByUser(int userId)
         {

@@ -51,7 +51,7 @@ namespace TalkHubAPI.Repository
 
         public bool UserExists(int id)
         {
-            return _Context.Users.Any(o => o.Id == id);
+            return _Context.Users.Any(x => x.Id == id);
         }
         public bool UsernameExists(string name)
         {

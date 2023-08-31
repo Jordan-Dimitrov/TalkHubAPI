@@ -30,7 +30,7 @@ namespace TalkHubAPI.Repository
 
         public ICollection<Photo> GetPhotosByCategoryId(int categoryId)
         {
-            return _Context.Photos.Where(x=>x.CategoryId == categoryId).ToList();
+            return _Context.Photos.Where(x => x.CategoryId == categoryId).ToList();
         }
         public ICollection<Photo> GetPhotosByUserId(int userId)
         {
@@ -39,7 +39,7 @@ namespace TalkHubAPI.Repository
 
         public bool PhotoExists(int id)
         {
-            return _Context.Photos.Any(o => o.Id == id);
+            return _Context.Photos.Any(x => x.Id == id);
         }
 
         public bool RemovePhoto(Photo photo)

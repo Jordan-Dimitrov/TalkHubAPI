@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using TalkHubAPI.Models;
-
 namespace TalkHubAPI.Data;
 
 public partial class TalkHubContext : DbContext
@@ -16,6 +15,12 @@ public partial class TalkHubContext : DbContext
     {
     }
 
+    public virtual DbSet<ForumMessage> ForumMessages { get; set; }
+
+    public virtual DbSet<ForumThread> ForumThreads { get; set; }
+
+    public virtual DbSet<ForumUpvote> ForumUpvotes { get; set; }
+
     public virtual DbSet<Photo> Photos { get; set; }
 
     public virtual DbSet<PhotoCategory> PhotoCategories { get; set; }
@@ -24,8 +29,52 @@ public partial class TalkHubContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=TalkHub;Integrated Security=True;");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<ForumMessage>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__ForumMes__3214EC0755C27262");
+
+            entity.Property(e => e.DateCreated).HasColumnType("datetime");
+            entity.Property(e => e.FileName).IsUnicode(false);
+            entity.Property(e => e.MessageContent).IsUnicode(false);
+
+            entity.HasOne(d => d.ForumThread).WithMany(p => p.ForumMessages)
+                .HasForeignKey(d => d.ForumThreadId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ForumMess__Forum__5CD6CB2B");
+
+            entity.HasOne(d => d.Reply).WithMany(p => p.InverseReply)
+                .HasForeignKey(d => d.ReplyId)
+                .HasConstraintName("FK__ForumMess__Reply__5AEE82B9");
+
+            entity.HasOne(d => d.User).WithMany(p => p.ForumMessages)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__ForumMess__UserI__5BE2A6F2");
+        });
+
+        modelBuilder.Entity<ForumThread>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__ForumThr__3214EC07B31A0EE4");
+
+            entity.Property(e => e.ThreadDescription)
+                .HasMaxLength(45)
+                .IsUnicode(false);
+            entity.Property(e => e.ThreadName)
+                .HasMaxLength(45)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<ForumUpvote>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__ForumUpv__3214EC07226852B3");
+        });
+
         modelBuilder.Entity<Photo>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Photos__3214EC07370B195E");

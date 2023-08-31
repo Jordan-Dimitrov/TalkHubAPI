@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TalkHubAPI.Models;
 
 namespace TalkHubAPI.Models;
 
@@ -16,6 +17,8 @@ public partial class User
     public int? RefreshTokenId { get; set; }
 
     public int PermissionType { get; set; }
+
+    public virtual ICollection<ForumMessage> ForumMessages { get; set; } = new List<ForumMessage>();
 
     public virtual ICollection<Photo> Photos { get; set; } = new List<Photo>();
 

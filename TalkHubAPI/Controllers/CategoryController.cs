@@ -89,12 +89,7 @@ namespace TalkHubAPI.Controllers
         [ProducesResponseType(404)]
         public IActionResult UpdateCategory(int categoryId, [FromBody] PhotoCategoryDto updatedCategory)
         {
-            if (updatedCategory == null)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (categoryId != updatedCategory.Id)
+            if (updatedCategory == null || categoryId != updatedCategory.Id)
             {
                 return BadRequest(ModelState);
             }
@@ -140,6 +135,7 @@ namespace TalkHubAPI.Controllers
             if (!_PhotoCategoryRepository.RemoveCategory(categoryToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong deleting category");
+                return StatusCode(500, ModelState);
             }
 
             return NoContent();
