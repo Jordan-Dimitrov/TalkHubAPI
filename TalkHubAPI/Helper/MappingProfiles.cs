@@ -20,6 +20,10 @@ namespace TalkHubAPI.Helper
             CreateMap<PhotoDto, Photo>();
             CreateMap<ForumThread, ForumThreadDto>();
             CreateMap<ForumThreadDto, ForumThread>();
+            CreateMap<ForumMessage, CreateForumMessageDto>();
+            CreateMap<CreateForumMessageDto, ForumMessage>();
+            CreateMap<ForumMessage,ForumMessageDto>();
+            CreateMap<ForumMessageDto, ForumMessage>();
         }
     }
 }

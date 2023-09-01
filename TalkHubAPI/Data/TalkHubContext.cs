@@ -46,7 +46,6 @@ public partial class TalkHubContext : DbContext
 
             entity.HasOne(d => d.Reply).WithMany(p => p.InverseReply)
                 .HasForeignKey(d => d.ReplyId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__ForumMess__Reply__5AEE82B9");
 
             entity.HasOne(d => d.User).WithMany(p => p.ForumMessages)

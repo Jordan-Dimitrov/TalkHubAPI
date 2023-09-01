@@ -93,7 +93,7 @@ namespace TalkHubAPI.Controllers
             return Ok("Successfully created");
         }
         [HttpGet("{fileName}"), Authorize(Roles = "User,Admin")]
-        [ProducesResponseType(200, Type = typeof(PhotoDto))]
+        [ProducesResponseType(200)]
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetMedia(string fileName)
         {
@@ -142,6 +142,7 @@ namespace TalkHubAPI.Controllers
             for (int i = 0; i < photos.Count; i++)
             {
                 photosDto[i].Category = _Mapper.Map<PhotoCategoryDto>(_PhotoCategoryRepository.GetCategory(photos[i].CategoryId));
+                photosDto[i].User = _Mapper.Map<UserDto>(_UserRepository.GetUser(photos[i].UserId));
             }
 
             return Ok(photosDto);
@@ -162,6 +163,7 @@ namespace TalkHubAPI.Controllers
             for (int i = 0; i < photos.Count; i++)
             {
                 photosDto[i].Category = _Mapper.Map<PhotoCategoryDto>(_PhotoCategoryRepository.GetCategory(photos[i].CategoryId));
+                photosDto[i].User = _Mapper.Map<UserDto>(_UserRepository.GetUser(photos[i].UserId));
             }
 
             return Ok(photosDto);

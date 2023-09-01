@@ -82,6 +82,61 @@ namespace TalkHubAPI
 
                 _Context.Photos.AddRange(photos);
                 _Context.SaveChanges();
+
+                List<ForumThread> forumThreads = new List<ForumThread>()
+                {
+                    new ForumThread()
+                    {
+                        ThreadName = "BOTW discussion",
+                        ThreadDescription = "A place to discuss fun moments from the BOTW game"
+                    },
+                    new ForumThread()
+                    {
+                        ThreadName = "Jojo discussion",
+                        ThreadDescription = "A place to discuss fun moments from the Jojo anime"
+                    }
+                };
+
+                _Context.ForumThreads.AddRange(forumThreads);
+                _Context.SaveChanges();
+
+                List<ForumMessage> forumMessages = new List<ForumMessage>()
+                {
+                    new ForumMessage()
+                    {
+                        MessageContent = "Starting area glitch",
+                        FileName = "link.png",
+                        UserId = _Context.Users.First().Id,
+                        DateCreated = DateTime.Now,
+                        ForumThreadId = _Context.ForumThreads.First().Id,
+                        UpvoteCount = 1
+                    },
+                    new ForumMessage()
+                    {
+                        MessageContent = "Good one",
+                        FileName = "jotaro.png",
+                        UserId = _Context.Users.First().Id + 1,
+                        DateCreated = DateTime.Now,
+                        ForumThreadId = _Context.ForumThreads.First().Id,
+                        UpvoteCount = 0
+                    },
+                };
+
+                _Context.ForumMessages.AddRange(forumMessages);
+                _Context.SaveChanges();
+
+                List<UserUpvote> userUpvotes = new List<UserUpvote>()
+                {
+                    new UserUpvote()
+                    {
+                        UserId = _Context.Users.First().Id,
+                        MessageId = _Context.ForumMessages.First().Id,
+                        Rating = 1,
+                    }
+                };
+
+                _Context.UserUpvotes.AddRange(userUpvotes);
+                _Context.SaveChanges();
             }
         }
     }

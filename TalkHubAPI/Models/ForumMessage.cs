@@ -11,7 +11,7 @@ public partial class ForumMessage
 
     public string FileName { get; set; } = null!;
 
-    public int ReplyId { get; set; }
+    public int? ReplyId { get; set; }
 
     public int UserId { get; set; }
 
@@ -25,7 +25,7 @@ public partial class ForumMessage
 
     public virtual ICollection<ForumMessage> InverseReply { get; set; } = new List<ForumMessage>();
 
-    public virtual ForumMessage Reply { get; set; } = null!;
+    public virtual ForumMessage? Reply { get; set; }
 
     public virtual User User { get; set; } = null!;
 

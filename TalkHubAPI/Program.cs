@@ -33,6 +33,7 @@ namespace TalkHubAPI
             builder.Services.AddScoped<IFileProcessingService, FileProcessingService>();
             builder.Services.AddScoped<IForumMessageRepository, ForumMessageRepository>();
             builder.Services.AddScoped<IForumThreadRepository, ForumThreadRepository>();
+            builder.Services.AddScoped<IUserUpvoteRepository, UserUpvoteRepository>();
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddEndpointsApiExplorer();

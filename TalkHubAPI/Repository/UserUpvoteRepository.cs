@@ -25,6 +25,11 @@ namespace TalkHubAPI.Repository
             return _Context.UserUpvotes.Find(id);
         }
 
+        public UserUpvote GetUserUpvoteByMessageAndUser(int messageId, int userId)
+        {
+            return _Context.UserUpvotes.Where(x => x.MessageId == messageId && x.UserId == userId).FirstOrDefault();    
+        }
+
         public ICollection<UserUpvote> GetUserUpvotes()
         {
             return _Context.UserUpvotes.ToList();
@@ -51,6 +56,11 @@ namespace TalkHubAPI.Repository
         public bool UserUpvoteExists(int id)
         {
             return _Context.UserUpvotes.Any(x => x.Id == id);
+        }
+
+        public bool UserUpvoteExistsForMessageAndUser(int messageId, int userId)
+        {
+            return _Context.UserUpvotes.Any(x => x.MessageId == messageId && x.UserId == userId);
         }
     }
 }
