@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using TalkHubAPI.Models;
 
 namespace TalkHubAPI.Models;
 
@@ -23,4 +22,6 @@ public partial class User
     public virtual ICollection<Photo> Photos { get; set; } = new List<Photo>();
 
     public virtual RefreshToken? RefreshToken { get; set; }
+
+    public virtual ICollection<UserUpvote> UserUpvotes { get; set; } = new List<UserUpvote>();
 }

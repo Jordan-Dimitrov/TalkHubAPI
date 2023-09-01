@@ -19,8 +19,6 @@ public partial class TalkHubContext : DbContext
 
     public virtual DbSet<ForumThread> ForumThreads { get; set; }
 
-    public virtual DbSet<ForumUpvote> ForumUpvotes { get; set; }
-
     public virtual DbSet<Photo> Photos { get; set; }
 
     public virtual DbSet<PhotoCategory> PhotoCategories { get; set; }
@@ -29,9 +27,7 @@ public partial class TalkHubContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=TalkHub;Integrated Security=True;");
+    public virtual DbSet<UserUpvote> UserUpvotes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -50,6 +46,7 @@ public partial class TalkHubContext : DbContext
 
             entity.HasOne(d => d.Reply).WithMany(p => p.InverseReply)
                 .HasForeignKey(d => d.ReplyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__ForumMess__Reply__5AEE82B9");
 
             entity.HasOne(d => d.User).WithMany(p => p.ForumMessages)
@@ -68,11 +65,6 @@ public partial class TalkHubContext : DbContext
             entity.Property(e => e.ThreadName)
                 .HasMaxLength(45)
                 .IsUnicode(false);
-        });
-
-        modelBuilder.Entity<ForumUpvote>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__ForumUpv__3214EC07226852B3");
         });
 
         modelBuilder.Entity<Photo>(entity =>
@@ -118,6 +110,21 @@ public partial class TalkHubContext : DbContext
             entity.HasOne(d => d.RefreshToken).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RefreshTokenId)
                 .HasConstraintName("FK_Tokens_Users");
+        });
+
+        modelBuilder.Entity<UserUpvote>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__UserUpvo__3214EC076B4006A6");
+
+            entity.HasOne(d => d.Message).WithMany(p => p.UserUpvotes)
+                .HasForeignKey(d => d.MessageId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__UserUpvot__Messa__74AE54BC");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserUpvotes)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__UserUpvot__UserI__73BA3083");
         });
 
         OnModelCreatingPartial(modelBuilder);

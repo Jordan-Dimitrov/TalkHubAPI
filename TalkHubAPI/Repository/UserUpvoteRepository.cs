@@ -1,40 +1,36 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Models;
 
 namespace TalkHubAPI.Repository
 {
-    public class ForumUpvoteRepository : IForumUpvoteRepository
+    public class UserUpvoteRepository : IUserUpvoteRepository
     {
         private readonly TalkHubContext _Context;
 
-        public ForumUpvoteRepository(TalkHubContext context)
+        public UserUpvoteRepository(TalkHubContext context)
         {
             _Context = context;
         }
-        public bool AddForumUpvote(ForumUpvote upvote)
+        public bool AddUserUpvote(UserUpvote upvote)
         {
             _Context.Add(upvote);
             return Save();
         }
 
-        public bool ForumUpvoteExists(int id)
+        public UserUpvote GetUserUpvote(int id)
         {
-            return _Context.ForumUpvotes.Any(x => x.Id == id);
+            return _Context.UserUpvotes.Find(id);
         }
 
-        public ForumUpvote GetForumUpvote(int id)
+        public ICollection<UserUpvote> GetUserUpvotes()
         {
-            return _Context.ForumUpvotes.Find(id);
+            return _Context.UserUpvotes.ToList();
         }
 
-        public ICollection<ForumUpvote> GetForumUpvotes()
-        {
-            return _Context.ForumUpvotes.ToList();
-        }
-
-        public bool RemoveForumUpvote(ForumUpvote upvote)
+        public bool RemoveUserUpvote(UserUpvote upvote)
         {
             _Context.Remove(upvote);
             return Save();
@@ -46,10 +42,15 @@ namespace TalkHubAPI.Repository
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateForumUpvote(ForumUpvote upvote)
+        public bool UpdateUserUpvote(UserUpvote upvote)
         {
             _Context.Update(upvote);
             return Save();
+        }
+
+        public bool UserUpvoteExists(int id)
+        {
+            return _Context.UserUpvotes.Any(x => x.Id == id);
         }
     }
 }

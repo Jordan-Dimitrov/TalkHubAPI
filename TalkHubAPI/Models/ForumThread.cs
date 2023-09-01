@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using TalkHubAPI.Models;
 
 namespace TalkHubAPI.Models;
 
