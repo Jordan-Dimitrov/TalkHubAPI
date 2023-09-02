@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33829.357
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TalkHubAPI", "TalkHubAPI\TalkHubAPI.csproj", "{847E38AF-0B5E-4D1A-BB3C-971CB58D881B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TalkHubAPI", "TalkHubAPI\TalkHubAPI.csproj", "{847E38AF-0B5E-4D1A-BB3C-971CB58D881B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TalkHubAPI.Tests", "TalkHubAPI.Tests\TalkHubAPI.Tests.csproj", "{0101EDEF-FB52-42B6-8DE0-806D7581C951}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{847E38AF-0B5E-4D1A-BB3C-971CB58D881B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{847E38AF-0B5E-4D1A-BB3C-971CB58D881B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{847E38AF-0B5E-4D1A-BB3C-971CB58D881B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0101EDEF-FB52-42B6-8DE0-806D7581C951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0101EDEF-FB52-42B6-8DE0-806D7581C951}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0101EDEF-FB52-42B6-8DE0-806D7581C951}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0101EDEF-FB52-42B6-8DE0-806D7581C951}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
