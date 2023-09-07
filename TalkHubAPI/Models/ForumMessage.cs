@@ -9,7 +9,7 @@ public partial class ForumMessage
 
     public string MessageContent { get; set; } = null!;
 
-    public string FileName { get; set; } = null!;
+    public string? FileName { get; set; }
 
     public int? ReplyId { get; set; }
 

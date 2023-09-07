@@ -36,13 +36,64 @@ namespace TalkHubAPI.Controllers
             _ForumThreadRepository = forumThreadRepository;
             _UserUpvoteRepository = userUpvoteRepository;
         }
+
         [HttpPost("addMedia"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [Authorize]
-        public IActionResult CreateMessage(IFormFile file, [FromForm] CreateForumMessageDto messageDto)
+        public IActionResult CreateMessage(CreateForumMessageDto messageDto)
         {
-            if (file == null || file.Length == 0)
+            if (messageDto == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!_UserRepository.UsernameExists(username))
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            if (!_ForumThreadRepository.ForumThreadExists(messageDto.ForumThreadId))
+            {
+                return BadRequest("This thread does not exist");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            ForumMessage message = _Mapper.Map<ForumMessage>(messageDto);
+            message.ForumThread = _Mapper.Map<ForumThread>(_ForumThreadRepository.GetForumThread(message.ForumThreadId));
+
+            User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
+            message.DateCreated = DateTime.Now;
+            message.User = user;
+            message.UpvoteCount = 0;
+
+            if (!_ForumMessageRepository.AddForumMessage(message))
+            {
+                return BadRequest(ModelState);
+            }
+
+            return Ok("Successfully created");
+        }
+
+        [HttpPost("addMediaWithFile"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        [Authorize]
+        public IActionResult CreateMessageWithFile(IFormFile file, [FromForm] CreateForumMessageDto messageDto)
+        {
+            if (file == null || file.Length == 0 || messageDto == null)
             {
                 return BadRequest(ModelState);
             }
@@ -99,6 +150,11 @@ namespace TalkHubAPI.Controllers
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetAllMessagesByForumThread(int threadId)
         {
+            if (!_ForumThreadRepository.ForumThreadExists(threadId))
+            {
+                return BadRequest("This thread does not exist");
+            }
+
             List<ForumMessage> messages = _ForumMessageRepository.GetForumMessagesByForumThreadId(threadId).ToList();
             List<ForumMessageDto> messageDto = _Mapper.Map<List<ForumMessageDto>>(_ForumMessageRepository.GetForumMessagesByForumThreadId(threadId).ToList());
 

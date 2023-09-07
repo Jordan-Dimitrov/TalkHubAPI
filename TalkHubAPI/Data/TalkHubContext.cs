@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using TalkHubAPI.Models;
+
 namespace TalkHubAPI.Data;
 
 public partial class TalkHubContext : DbContext

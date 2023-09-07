@@ -42,7 +42,7 @@ namespace TalkHubAPI.Controllers
         [Authorize]
         public IActionResult UploadMedia(IFormFile file, [FromForm] CreatePhotoDto photoDto)
         {
-            if (file == null || file.Length == 0)
+            if (file == null || file.Length == 0 || photoDto == null)
             {
                 return BadRequest(ModelState);
             }
@@ -131,6 +131,12 @@ namespace TalkHubAPI.Controllers
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetAllMediaByCategory(int categoryId)
         {
+
+            if (!_PhotoCategoryRepository.CategoryExists(categoryId))
+            {
+                return BadRequest("This category does not exist");
+            }
+
             List<Photo> photos = _PhotoRepository.GetPhotosByCategoryId(categoryId).ToList();
             List<PhotoDto> photosDto = _Mapper.Map<List<PhotoDto>>(_PhotoRepository.GetPhotosByCategoryId(categoryId));
 
@@ -152,6 +158,12 @@ namespace TalkHubAPI.Controllers
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetAllMediaByUser(int userId)
         {
+
+            if (!_UserRepository.UserExists(userId))
+            {
+                return BadRequest("This user does not exist");
+            }
+
             List<Photo> photos = _PhotoRepository.GetPhotosByUserId(userId).ToList();
             List<PhotoDto> photosDto = _Mapper.Map<List<PhotoDto>>(_PhotoRepository.GetPhotosByUserId(userId));
 
