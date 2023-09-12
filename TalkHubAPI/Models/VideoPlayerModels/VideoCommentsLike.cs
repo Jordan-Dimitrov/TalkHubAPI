@@ -13,5 +13,7 @@ public partial class VideoCommentsLike
 
     public int Rating { get; set; }
 
+    public virtual User User { get; set; } = null!;
+
     public virtual VideoComment VideoComment { get; set; } = null!;
 }

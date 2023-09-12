@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;
 using TalkHubAPI.Models.PhotosManagerModels;
 using TalkHubAPI.Models.VideoPlayerModels;
-
+using TalkHubAPI.Models;
 namespace TalkHubAPI.Data;
 
 public partial class TalkHubContext : DbContext
@@ -40,8 +39,6 @@ public partial class TalkHubContext : DbContext
 
     public virtual DbSet<UserMessageRoom> UserMessageRooms { get; set; }
 
-    public virtual DbSet<UserRoom> UserRooms { get; set; }
-
     public virtual DbSet<UserUpvote> UserUpvotes { get; set; }
 
     public virtual DbSet<Video> Videos { get; set; }
@@ -53,10 +50,6 @@ public partial class TalkHubContext : DbContext
     public virtual DbSet<VideoPlaylist> VideoPlaylists { get; set; }
 
     public virtual DbSet<VideoTag> VideoTags { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=TalkHub;Integrated Security=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -180,32 +173,17 @@ public partial class TalkHubContext : DbContext
 
         modelBuilder.Entity<UserMessageRoom>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__UserMess__3214EC07FF3707BC");
+            entity.HasKey(e => e.Id).HasName("PK__UserMess__3214EC07D2F91607");
 
             entity.HasOne(d => d.Room).WithMany(p => p.UserMessageRooms)
                 .HasForeignKey(d => d.RoomId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__UserMessa__RoomI__29221CFB");
+                .HasConstraintName("FK__UserMessa__RoomI__4D5F7D71");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserMessageRooms)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__UserMessa__UserI__2A164134");
-        });
-
-        modelBuilder.Entity<UserRoom>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__UserRoom__3214EC07D16F1851");
-
-            entity.HasOne(d => d.Room).WithMany(p => p.UserRooms)
-                .HasForeignKey(d => d.RoomId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__UserRooms__RoomI__2FCF1A8A");
-
-            entity.HasOne(d => d.User).WithMany(p => p.UserRooms)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__UserRooms__UserI__2EDAF651");
+                .HasConstraintName("FK__UserMessa__UserI__4C6B5938");
         });
 
         modelBuilder.Entity<UserUpvote>(entity =>
@@ -269,12 +247,17 @@ public partial class TalkHubContext : DbContext
 
         modelBuilder.Entity<VideoCommentsLike>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__VideoCom__3214EC0711BA0C9B");
+            entity.HasKey(e => e.Id).HasName("PK__VideoCom__3214EC076CC6E6B7");
+
+            entity.HasOne(d => d.User).WithMany(p => p.VideoCommentsLikes)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__VideoComm__UserI__498EEC8D");
 
             entity.HasOne(d => d.VideoComment).WithMany(p => p.VideoCommentsLikes)
                 .HasForeignKey(d => d.VideoCommentId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__VideoComm__Video__41EDCAC5");
+                .HasConstraintName("FK__VideoComm__Video__489AC854");
         });
 
         modelBuilder.Entity<VideoPlaylist>(entity =>

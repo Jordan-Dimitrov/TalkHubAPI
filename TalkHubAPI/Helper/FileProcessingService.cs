@@ -28,10 +28,9 @@ namespace TalkHubAPI.Helper
             {
                 return "image/png";
             }
-            else if (fileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                     fileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
+            else if (fileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase))
             {
-                return "image/jpeg";
+                return "image/jpg";
             }
             else if (fileName.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase))
             {

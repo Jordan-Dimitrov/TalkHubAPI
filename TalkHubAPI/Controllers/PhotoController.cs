@@ -50,6 +50,11 @@ namespace TalkHubAPI.Controllers
                 return BadRequest(ModelState);
             }
 
+            if (_FileProcessingService.GetContentType(file.FileName) == "video/mp4")
+            {
+                return BadRequest(ModelState);
+            }
+
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
