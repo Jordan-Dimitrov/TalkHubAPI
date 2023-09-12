@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TalkHubAPI.Controllers;
-using TalkHubAPI.Dto;
+using TalkHubAPI.Dto.UserDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Models;
 

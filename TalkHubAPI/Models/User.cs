@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using TalkHubAPI.Data;
+using TalkHubAPI.Models.ForumModels;
+using TalkHubAPI.Models.MessengerModels;
+using TalkHubAPI.Models.PhotosManagerModels;
+using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Models;
 

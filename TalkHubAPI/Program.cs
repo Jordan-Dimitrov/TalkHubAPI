@@ -9,7 +9,11 @@ using System.Text.Json.Serialization;
 using TalkHubAPI.Data;
 using TalkHubAPI.Helper;
 using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.ForumInterfaces;
+using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
 using TalkHubAPI.Repository;
+using TalkHubAPI.Repository.ForumRepositories;
+using TalkHubAPI.Repository.PhotosManagerRepositories;
 
 namespace TalkHubAPI
 {

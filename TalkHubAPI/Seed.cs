@@ -4,6 +4,8 @@ using System.Linq;
 using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Models;
+using TalkHubAPI.Models.ForumModels;
+using TalkHubAPI.Models.PhotosManagerModels;
 
 namespace TalkHubAPI
 {

@@ -3,7 +3,7 @@ using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Metrics;
-using TalkHubAPI.Dto;
+using TalkHubAPI.Dto.UserDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Models;
 

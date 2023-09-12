@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
-using TalkHubAPI.Dto;
+using TalkHubAPI.Dto.ForumDtos;
+using TalkHubAPI.Dto.PhotosDtos;
+using TalkHubAPI.Dto.UserDtos;
 using TalkHubAPI.Models;
+using TalkHubAPI.Models.ForumModels;
+using TalkHubAPI.Models.PhotosManagerModels;
 
 namespace TalkHubAPI.Helper
 {

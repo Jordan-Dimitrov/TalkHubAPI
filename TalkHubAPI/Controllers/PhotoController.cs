@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using TalkHubAPI.Dto;
 using System.IO;
 using TalkHubAPI.Interfaces;
 using Microsoft.AspNetCore.Cors;
@@ -9,6 +8,10 @@ using Azure.Core;
 using System;
 using Microsoft.AspNetCore.Authorization;
 using TalkHubAPI.Models;
+using TalkHubAPI.Dto.UserDtos;
+using TalkHubAPI.Dto.PhotosDtos;
+using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
+using TalkHubAPI.Models.PhotosManagerModels;
 
 namespace TalkHubAPI.Controllers
 {

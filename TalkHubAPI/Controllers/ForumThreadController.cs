@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TalkHubAPI.Dto;
-using TalkHubAPI.Interfaces;
-using TalkHubAPI.Models;
+using TalkHubAPI.Dto.ForumDtos;
+using TalkHubAPI.Interfaces.ForumInterfaces;
+using TalkHubAPI.Models.ForumModels;
 
 namespace TalkHubAPI.Controllers
 {

@@ -2,9 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
-using TalkHubAPI.Dto;
+using TalkHubAPI.Dto.ForumDtos;
+using TalkHubAPI.Dto.PhotosDtos;
+using TalkHubAPI.Dto.UserDtos;
 using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.ForumInterfaces;
 using TalkHubAPI.Models;
+using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Repository;
 
 namespace TalkHubAPI.Controllers

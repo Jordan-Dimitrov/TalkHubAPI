@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using TalkHubAPI.Models;
+using TalkHubAPI.Models.ForumModels;
+using TalkHubAPI.Models.MessengerModels;
+using TalkHubAPI.Models.PhotosManagerModels;
+using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Data;
 
