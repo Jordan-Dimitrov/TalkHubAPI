@@ -22,7 +22,7 @@ namespace TalkHubAPI.Controllers
             _Mapper = mapper;
             _AuthService = authService;
         }
-        [HttpGet]
+        [HttpGet, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserDto>))]
         public IActionResult GetUsers()
         {
@@ -36,7 +36,7 @@ namespace TalkHubAPI.Controllers
             return Ok(users);
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet("{userId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(UserDto))]
         [ProducesResponseType(400)]
         public IActionResult GetUser(int userId)
@@ -130,7 +130,7 @@ namespace TalkHubAPI.Controllers
 
             return Ok(token);
         }
-        [HttpPost("refresh-token")]
+        [HttpPost("refresh-token"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult GetRefreshToken(UserDto request)

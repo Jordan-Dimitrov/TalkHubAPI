@@ -34,7 +34,6 @@ namespace TalkHubAPI.Migrations
                         .HasColumnType("datetime");
 
                     b.Property<string>("FileName")
-                        .IsRequired()
                         .IsUnicode(false)
                         .HasColumnType("varchar(max)");
 
@@ -93,6 +92,61 @@ namespace TalkHubAPI.Migrations
                     b.ToTable("ForumThreads");
                 });
 
+            modelBuilder.Entity("TalkHubAPI.Models.MessageRoom", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("RoomName")
+                        .IsRequired()
+                        .HasMaxLength(45)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(45)");
+
+                    b.HasKey("Id")
+                        .HasName("PK__MessageR__3214EC07ED42FBDE");
+
+                    b.ToTable("MessageRooms");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.MessengerMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("DateCreated")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("FileName")
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(max)");
+
+                    b.Property<string>("MessageContent")
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(max)");
+
+                    b.Property<int?>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PK__Messenge__3214EC07417F862B");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("MessengerMessages");
+                });
+
             modelBuilder.Entity("TalkHubAPI.Models.Photo", b =>
                 {
                     b.Property<int>("Id")
@@ -146,6 +200,30 @@ namespace TalkHubAPI.Migrations
                         .HasName("PK__PhotoCat__3214EC072A92E285");
 
                     b.ToTable("PhotoCategories");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.Playlist", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("PlaylistName")
+                        .IsRequired()
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PK__Playlist__3214EC071252C5C2");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Playlists");
                 });
 
             modelBuilder.Entity("TalkHubAPI.Models.RefreshToken", b =>
@@ -208,6 +286,54 @@ namespace TalkHubAPI.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("TalkHubAPI.Models.UserMessageRoom", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PK__UserMess__3214EC07FF3707BC");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserMessageRooms");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.UserRoom", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("RoomId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PK__UserRoom__3214EC07D16F1851");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserRooms");
+                });
+
             modelBuilder.Entity("TalkHubAPI.Models.UserUpvote", b =>
                 {
                     b.Property<int>("Id")
@@ -233,6 +359,163 @@ namespace TalkHubAPI.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserUpvotes");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.Video", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Mp4name")
+                        .IsRequired()
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(max)")
+                        .HasColumnName("MP4Name");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ThumbnailName")
+                        .IsRequired()
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VideoDescription")
+                        .IsRequired()
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(max)");
+
+                    b.Property<string>("VideoName")
+                        .IsRequired()
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(max)");
+
+                    b.HasKey("Id")
+                        .HasName("PK__Videos__3214EC07412B2B44");
+
+                    b.HasIndex("TagId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Videos");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.VideoComment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DateCreated")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MessageContent")
+                        .IsRequired()
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(max)");
+
+                    b.Property<int?>("ReplyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VideoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PK__VideoCom__3214EC0796C7F708");
+
+                    b.HasIndex("ReplyId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("VideoId");
+
+                    b.ToTable("VideoComments");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.VideoCommentsLike", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VideoCommentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PK__VideoCom__3214EC0711BA0C9B");
+
+                    b.HasIndex("VideoCommentId");
+
+                    b.ToTable("VideoCommentsLikes");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.VideoPlaylist", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PlaylistId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VideoId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PK__VideoPla__3214EC07F06C00FA");
+
+                    b.HasIndex("PlaylistId");
+
+                    b.HasIndex("VideoId");
+
+                    b.ToTable("VideoPlaylists");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.VideoTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("TagName")
+                        .IsRequired()
+                        .HasMaxLength(45)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(45)");
+
+                    b.HasKey("Id")
+                        .HasName("PK__VideoTag__3214EC07AF11C7AA");
+
+                    b.ToTable("VideoTags");
                 });
 
             modelBuilder.Entity("TalkHubAPI.Models.ForumMessage", b =>
@@ -261,6 +544,23 @@ namespace TalkHubAPI.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TalkHubAPI.Models.MessengerMessage", b =>
+                {
+                    b.HasOne("TalkHubAPI.Models.MessageRoom", "Room")
+                        .WithMany("MessengerMessages")
+                        .HasForeignKey("RoomId")
+                        .HasConstraintName("FK__Messenger__RoomI__18EBB532");
+
+                    b.HasOne("TalkHubAPI.Models.User", "User")
+                        .WithMany("MessengerMessages")
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("FK__Messenger__UserI__17F790F9");
+
+                    b.Navigation("Room");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TalkHubAPI.Models.Photo", b =>
                 {
                     b.HasOne("TalkHubAPI.Models.PhotoCategory", "Category")
@@ -280,6 +580,17 @@ namespace TalkHubAPI.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TalkHubAPI.Models.Playlist", b =>
+                {
+                    b.HasOne("TalkHubAPI.Models.User", "User")
+                        .WithMany("Playlists")
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK__Playlists__UserI__367C1819");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TalkHubAPI.Models.User", b =>
                 {
                     b.HasOne("TalkHubAPI.Models.RefreshToken", "RefreshToken")
@@ -288,6 +599,44 @@ namespace TalkHubAPI.Migrations
                         .HasConstraintName("FK_Tokens_Users");
 
                     b.Navigation("RefreshToken");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.UserMessageRoom", b =>
+                {
+                    b.HasOne("TalkHubAPI.Models.MessageRoom", "Room")
+                        .WithMany("UserMessageRooms")
+                        .HasForeignKey("RoomId")
+                        .IsRequired()
+                        .HasConstraintName("FK__UserMessa__RoomI__29221CFB");
+
+                    b.HasOne("TalkHubAPI.Models.User", "User")
+                        .WithMany("UserMessageRooms")
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK__UserMessa__UserI__2A164134");
+
+                    b.Navigation("Room");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.UserRoom", b =>
+                {
+                    b.HasOne("TalkHubAPI.Models.MessageRoom", "Room")
+                        .WithMany("UserRooms")
+                        .HasForeignKey("RoomId")
+                        .IsRequired()
+                        .HasConstraintName("FK__UserRooms__RoomI__2FCF1A8A");
+
+                    b.HasOne("TalkHubAPI.Models.User", "User")
+                        .WithMany("UserRooms")
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK__UserRooms__UserI__2EDAF651");
+
+                    b.Navigation("Room");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TalkHubAPI.Models.UserUpvote", b =>
@@ -309,6 +658,81 @@ namespace TalkHubAPI.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TalkHubAPI.Models.Video", b =>
+                {
+                    b.HasOne("TalkHubAPI.Models.VideoTag", "Tag")
+                        .WithMany("Videos")
+                        .HasForeignKey("TagId")
+                        .IsRequired()
+                        .HasConstraintName("FK__Videos__TagId__339FAB6E");
+
+                    b.HasOne("TalkHubAPI.Models.User", "User")
+                        .WithMany("Videos")
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK__Videos__UserId__32AB8735");
+
+                    b.Navigation("Tag");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.VideoComment", b =>
+                {
+                    b.HasOne("TalkHubAPI.Models.VideoComment", "Reply")
+                        .WithMany("InverseReply")
+                        .HasForeignKey("ReplyId")
+                        .HasConstraintName("FK__VideoComm__Reply__3D2915A8");
+
+                    b.HasOne("TalkHubAPI.Models.User", "User")
+                        .WithMany("VideoComments")
+                        .HasForeignKey("UserId")
+                        .IsRequired()
+                        .HasConstraintName("FK__VideoComm__UserI__3E1D39E1");
+
+                    b.HasOne("TalkHubAPI.Models.Video", "Video")
+                        .WithMany("VideoComments")
+                        .HasForeignKey("VideoId")
+                        .IsRequired()
+                        .HasConstraintName("FK__VideoComm__Video__3F115E1A");
+
+                    b.Navigation("Reply");
+
+                    b.Navigation("User");
+
+                    b.Navigation("Video");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.VideoCommentsLike", b =>
+                {
+                    b.HasOne("TalkHubAPI.Models.VideoComment", "VideoComment")
+                        .WithMany("VideoCommentsLikes")
+                        .HasForeignKey("VideoCommentId")
+                        .IsRequired()
+                        .HasConstraintName("FK__VideoComm__Video__41EDCAC5");
+
+                    b.Navigation("VideoComment");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.VideoPlaylist", b =>
+                {
+                    b.HasOne("TalkHubAPI.Models.Playlist", "Playlist")
+                        .WithMany("VideoPlaylists")
+                        .HasForeignKey("PlaylistId")
+                        .IsRequired()
+                        .HasConstraintName("FK__VideoPlay__Playl__395884C4");
+
+                    b.HasOne("TalkHubAPI.Models.Video", "Video")
+                        .WithMany("VideoPlaylists")
+                        .HasForeignKey("VideoId")
+                        .IsRequired()
+                        .HasConstraintName("FK__VideoPlay__Video__3A4CA8FD");
+
+                    b.Navigation("Playlist");
+
+                    b.Navigation("Video");
+                });
+
             modelBuilder.Entity("TalkHubAPI.Models.ForumMessage", b =>
                 {
                     b.Navigation("InverseReply");
@@ -321,9 +745,23 @@ namespace TalkHubAPI.Migrations
                     b.Navigation("ForumMessages");
                 });
 
+            modelBuilder.Entity("TalkHubAPI.Models.MessageRoom", b =>
+                {
+                    b.Navigation("MessengerMessages");
+
+                    b.Navigation("UserMessageRooms");
+
+                    b.Navigation("UserRooms");
+                });
+
             modelBuilder.Entity("TalkHubAPI.Models.PhotoCategory", b =>
                 {
                     b.Navigation("Photos");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.Playlist", b =>
+                {
+                    b.Navigation("VideoPlaylists");
                 });
 
             modelBuilder.Entity("TalkHubAPI.Models.RefreshToken", b =>
@@ -335,9 +773,40 @@ namespace TalkHubAPI.Migrations
                 {
                     b.Navigation("ForumMessages");
 
+                    b.Navigation("MessengerMessages");
+
                     b.Navigation("Photos");
 
+                    b.Navigation("Playlists");
+
+                    b.Navigation("UserMessageRooms");
+
+                    b.Navigation("UserRooms");
+
                     b.Navigation("UserUpvotes");
+
+                    b.Navigation("VideoComments");
+
+                    b.Navigation("Videos");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.Video", b =>
+                {
+                    b.Navigation("VideoComments");
+
+                    b.Navigation("VideoPlaylists");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.VideoComment", b =>
+                {
+                    b.Navigation("InverseReply");
+
+                    b.Navigation("VideoCommentsLikes");
+                });
+
+            modelBuilder.Entity("TalkHubAPI.Models.VideoTag", b =>
+                {
+                    b.Navigation("Videos");
                 });
 #pragma warning restore 612, 618
         }

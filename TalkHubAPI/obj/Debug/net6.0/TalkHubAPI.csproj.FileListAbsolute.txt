@@ -184,3 +184,5 @@ C:\Users\PC\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\TalkHubAPI.r
 C:\Users\PC\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\TalkHubAPI.pdb
 C:\Users\PC\Desktop\Projects\TalkHubAPI\TalkHubAPI\obj\Debug\net6.0\TalkHubAPI.genruntimeconfig.cache
 C:\Users\PC\Desktop\Projects\TalkHubAPI\TalkHubAPI\obj\Debug\net6.0\ref\TalkHubAPI.dll
+C:\Users\PC\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\Newtonsoft.Json.dll
+C:\Users\PC\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\System.Net.WebSockets.WebSocketProtocol.dll
