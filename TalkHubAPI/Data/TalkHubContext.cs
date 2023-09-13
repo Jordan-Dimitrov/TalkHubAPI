@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;
 using TalkHubAPI.Models.PhotosManagerModels;
 using TalkHubAPI.Models.VideoPlayerModels;
-using TalkHubAPI.Models;
+
 namespace TalkHubAPI.Data;
 
 public partial class TalkHubContext : DbContext
@@ -50,6 +51,10 @@ public partial class TalkHubContext : DbContext
     public virtual DbSet<VideoPlaylist> VideoPlaylists { get; set; }
 
     public virtual DbSet<VideoTag> VideoTags { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=TalkHub;Integrated Security=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -107,10 +112,12 @@ public partial class TalkHubContext : DbContext
 
             entity.HasOne(d => d.Room).WithMany(p => p.MessengerMessages)
                 .HasForeignKey(d => d.RoomId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Messenger__RoomI__18EBB532");
 
             entity.HasOne(d => d.User).WithMany(p => p.MessengerMessages)
                 .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Messenger__UserI__17F790F9");
         });
 

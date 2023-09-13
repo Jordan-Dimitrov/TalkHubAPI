@@ -11,7 +11,9 @@ namespace TalkHubAPI.Interfaces.MessengerInterfaces
         bool Save();
         MessengerMessage GetMessengerMessage(int id);
         ICollection<MessengerMessage> GetMessengerMessages();
+        ICollection<MessengerMessage> GetLastTenMessengerMessagesFromLastMessageId(int messageId, int roomId);
         ICollection<MessengerMessage> GetMessengerMessagesByRoomId(int roomId);
         ICollection<MessengerMessage> GetMessengerMessagesByUserId(int userId);
+        MessengerMessage GetLastMessage();
     }
 }

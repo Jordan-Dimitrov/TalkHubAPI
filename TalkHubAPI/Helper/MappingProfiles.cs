@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using TalkHubAPI.Dto.ForumDtos;
+using TalkHubAPI.Dto.MessengerDtos;
 using TalkHubAPI.Dto.PhotosDtos;
 using TalkHubAPI.Dto.UserDtos;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
+using TalkHubAPI.Models.MessengerModels;
 using TalkHubAPI.Models.PhotosManagerModels;
 
 namespace TalkHubAPI.Helper
@@ -28,6 +30,12 @@ namespace TalkHubAPI.Helper
             CreateMap<CreateForumMessageDto, ForumMessage>();
             CreateMap<ForumMessage,ForumMessageDto>();
             CreateMap<ForumMessageDto, ForumMessage>();
+            CreateMap<MessageRoom, MessageRoomDto>();
+            CreateMap<MessageRoomDto, MessageRoom>();
+            CreateMap<MessengerMessage, MessengerMessageDto>();
+            CreateMap<MessengerMessageDto, MessengerMessage>();
+            CreateMap<MessengerMessage, SendMessengerMessageDto>();
+            CreateMap<MessengerMessageDto, MessengerMessage>();
         }
     }
 }

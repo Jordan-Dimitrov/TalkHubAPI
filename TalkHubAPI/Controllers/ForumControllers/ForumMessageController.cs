@@ -11,7 +11,7 @@ using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Repository;
 
-namespace TalkHubAPI.Controllers
+namespace TalkHubAPI.Controllers.ForumControllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -85,7 +85,8 @@ namespace TalkHubAPI.Controllers
 
             if (!_ForumMessageRepository.AddForumMessage(message))
             {
-                return BadRequest(ModelState);
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
             }
 
             return Ok("Successfully created");
@@ -148,7 +149,8 @@ namespace TalkHubAPI.Controllers
 
             if (!_ForumMessageRepository.AddForumMessage(message))
             {
-                return BadRequest(ModelState);
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
             }
 
             return Ok("Successfully created");
@@ -186,6 +188,11 @@ namespace TalkHubAPI.Controllers
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetMedia(string fileName)
         {
+            if (_FileProcessingService.GetContentType(fileName) == "video/mp4")
+            {
+                return BadRequest(ModelState);
+            }
+
             FileContentResult file = _FileProcessingService.GetMedia(fileName);
 
             if (file == null)
@@ -195,7 +202,7 @@ namespace TalkHubAPI.Controllers
 
             return file;
         }
-        [HttpPut("{forumMessageId}"), Authorize(Roles = "Admin")]
+        [HttpPut("hide/{forumMessageId}"), Authorize(Roles = "Admin")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -213,17 +220,21 @@ namespace TalkHubAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (!_FileProcessingService.RemoveMedia(messageToHide.FileName))
+            if (messageToHide.FileName!=null)
             {
-                return BadRequest("Unexpected error");
+                if (!_FileProcessingService.RemoveMedia(messageToHide.FileName))
+                {
+                    return BadRequest("Unexpected error");
+                }
+                messageToHide.FileName = "hidden.png";
             }
 
             messageToHide.MessageContent = "Message was hidden";
-            messageToHide.FileName = "hidden.png";
 
             if (!_ForumMessageRepository.UpdateForumMessage(messageToHide))
             {
                 ModelState.AddModelError("", "Something went wrong updating message");
+                return StatusCode(500, ModelState);
             }
 
             return NoContent();
@@ -268,6 +279,7 @@ namespace TalkHubAPI.Controllers
             UserUpvote upvote = new UserUpvote();
             upvote.Message = message;
             upvote.User = _UserRepository.GetUserByName(username);
+
             if (_UserUpvoteRepository.UserUpvoteExistsForMessageAndUser(message.Id, message.UserId))
             {
                 upvote = _UserUpvoteRepository.GetUserUpvoteByMessageAndUser(message.Id, message.UserId);
@@ -280,7 +292,7 @@ namespace TalkHubAPI.Controllers
                 {
                     int temp = upvote.Rating;
                     upvote.Rating = upvoteValue;
-                    message.UpvoteCount += (upvoteValue - temp);
+                    message.UpvoteCount += upvoteValue - temp;
                 }
             }
             else
@@ -295,7 +307,8 @@ namespace TalkHubAPI.Controllers
 
             if (!_ForumMessageRepository.UpdateForumMessage(message) || !_UserUpvoteRepository.UpdateUserUpvote(upvote))
             {
-                return BadRequest(ModelState);
+                ModelState.AddModelError("", "Something went wrong while updating");
+                return StatusCode(500, ModelState);
             }
 
             return NoContent();

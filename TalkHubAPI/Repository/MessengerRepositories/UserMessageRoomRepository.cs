@@ -1,43 +1,59 @@
-﻿using TalkHubAPI.Interfaces.MessengerInterfaces;
+﻿using TalkHubAPI.Data;
+using TalkHubAPI.Interfaces.MessengerInterfaces;
 using TalkHubAPI.Models.MessengerModels;
 
 namespace TalkHubAPI.Repository.MessengerRepositories
 {
     public class UserMessageRoomRepository : IUserMessageRoomRepository
     {
+        private readonly TalkHubContext _Context;
+
+        public UserMessageRoomRepository(TalkHubContext context)
+        {
+            _Context = context;
+        }
         public bool AddUserMessageRoom(UserMessageRoom userMessageRoom)
         {
-            throw new NotImplementedException();
+            _Context.Add(userMessageRoom);
+            return Save();
         }
 
         public UserMessageRoom GetUserMessageRoom(int id)
         {
-            throw new NotImplementedException();
+            return _Context.UserMessageRooms.Find(id);
         }
 
         public ICollection<UserMessageRoom> GetUserMessageRooms()
         {
-            throw new NotImplementedException();
+            return _Context.UserMessageRooms.ToList();
         }
 
         public bool RemoveUserMessageRoom(UserMessageRoom userMessageRoom)
         {
-            throw new NotImplementedException();
+            _Context.Remove(userMessageRoom);
+            return Save();
         }
 
         public bool Save()
         {
-            throw new NotImplementedException();
+            int saved = _Context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
         public bool UpdateUserMessageRoom(UserMessageRoom userMessageRoom)
         {
-            throw new NotImplementedException();
+            _Context.Update(userMessageRoom);
+            return Save();
         }
 
         public bool UserMessageRoomExists(int id)
         {
-            throw new NotImplementedException();
+            return _Context.UserMessageRooms.Any(x => x.Id == id);
+        }
+
+        public bool UserMessageRoomExistsForRoomAndUser(int roomId, int userId)
+        {
+            return _Context.UserMessageRooms.Any(x => x.RoomId == roomId && x.UserId == userId);
         }
     }
 }

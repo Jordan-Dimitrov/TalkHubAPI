@@ -28,7 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Dto\MessengerDtos\" />
     <Folder Include="Dto\VideoPlayerDtos\" />
   </ItemGroup>
 

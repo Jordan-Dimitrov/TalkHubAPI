@@ -10,11 +10,15 @@ using TalkHubAPI.Data;
 using TalkHubAPI.Helper;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.ForumInterfaces;
+using TalkHubAPI.Interfaces.MessengerInterfaces;
 using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
+using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Repository;
 using TalkHubAPI.Repository.ForumRepositories;
+using TalkHubAPI.Repository.MessengerRepositories;
 using TalkHubAPI.Repository.PhotosManagerRepositories;
-
+using TalkHubAPI.Repository.VideoPlayerRepositories;
+using TalkHubAPI.Hubs;
 namespace TalkHubAPI
 {
     public class Program
@@ -38,7 +42,17 @@ namespace TalkHubAPI
             builder.Services.AddScoped<IForumMessageRepository, ForumMessageRepository>();
             builder.Services.AddScoped<IForumThreadRepository, ForumThreadRepository>();
             builder.Services.AddScoped<IUserUpvoteRepository, UserUpvoteRepository>();
+            builder.Services.AddScoped<IMessageRoomRepository, MessageRoomRepository>();
+            builder.Services.AddScoped<IMessengerMessageRepository, MessengerMessageRepository>();
+            builder.Services.AddScoped<IUserMessageRoomRepository, UserMessageRoomRepository>();
+            builder.Services.AddScoped<IPlaylistRepository, PlaylistRepository>();
+            builder.Services.AddScoped<IVideoCommentRepository, VideoCommentRepository>();
+            builder.Services.AddScoped<IVideoCommentsLikeRepository, VideoCommentsLikeRepository>();
+            builder.Services.AddScoped<IVideoPlaylistRepository, VideoPlaylistRepository>();
+            builder.Services.AddScoped<IVideoRepository, VideoRepository>();
+            builder.Services.AddScoped<IVideoTagRepository, VideoTagRepository>();
 
+            builder.Services.AddSignalR();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
@@ -110,11 +124,15 @@ namespace TalkHubAPI
 
             app.UseHttpsRedirection();
 
+            app.UseRouting();
+
             app.UseAuthentication();
 
             app.UseAuthorization();
 
             app.MapControllers();
+
+            app.MapHub<ChatHub>("/chatHub");
 
             app.Run();
         }

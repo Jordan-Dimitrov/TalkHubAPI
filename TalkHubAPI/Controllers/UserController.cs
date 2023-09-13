@@ -85,7 +85,8 @@
 
                 if (!_UserRepository.CreateUser(user))
                 {
-                    return BadRequest(ModelState);
+                    ModelState.AddModelError("", "Something went wrong while saving");
+                    return StatusCode(500, ModelState);
                 }
 
                 return Ok("Successfully created");
@@ -123,7 +124,8 @@
 
                 if (!_UserRepository.UpdateRefreshTokenToUser(user, refreshToken))
                 {
-                    return BadRequest(ModelState);
+                    ModelState.AddModelError("", "Something went wrong while updating the refresh token");
+                    return StatusCode(500, ModelState);
                 }
 
                 SetRefreshToken(refreshToken);
@@ -173,7 +175,8 @@
 
                 if (!_UserRepository.UpdateRefreshTokenToUser(user, newRefreshToken))
                 {
-                    return BadRequest(ModelState);
+                    ModelState.AddModelError("", "Something went wrong while updating the refresh token");
+                    return StatusCode(500, ModelState);
                 }
 
                 SetRefreshToken(newRefreshToken);

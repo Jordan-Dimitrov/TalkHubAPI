@@ -6,7 +6,7 @@ using TalkHubAPI.Dto.PhotosDtos;
 using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
 using TalkHubAPI.Models.PhotosManagerModels;
 
-namespace TalkHubAPI.Controllers
+namespace TalkHubAPI.Controllers.PhotosManagerControllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -104,9 +104,9 @@ namespace TalkHubAPI.Controllers
                 return BadRequest();
             }
 
-            PhotoCategory categoryMap = _Mapper.Map<PhotoCategory>(updatedCategory);
+            PhotoCategory categoryToUpdate = _Mapper.Map<PhotoCategory>(updatedCategory);
 
-            if (!_PhotoCategoryRepository.UpdateCategory(categoryMap))
+            if (!_PhotoCategoryRepository.UpdateCategory(categoryToUpdate))
             {
                 ModelState.AddModelError("", "Something went wrong updating the category");
                 return StatusCode(500, ModelState);

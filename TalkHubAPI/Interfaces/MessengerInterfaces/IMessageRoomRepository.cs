@@ -14,5 +14,6 @@ namespace TalkHubAPI.Interfaces.MessengerInterfaces
         bool MessageRoomExists(string name);
         MessageRoom GetMessageRoomByName(string name);
         ICollection<MessageRoom> GetMessageRooms();
+        ICollection<MessageRoom> GetMessageRoomsForUser(int userId);
     }
 }

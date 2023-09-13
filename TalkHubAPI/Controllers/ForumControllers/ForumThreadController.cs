@@ -5,7 +5,7 @@ using TalkHubAPI.Dto.ForumDtos;
 using TalkHubAPI.Interfaces.ForumInterfaces;
 using TalkHubAPI.Models.ForumModels;
 
-namespace TalkHubAPI.Controllers
+namespace TalkHubAPI.Controllers.ForumControllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -107,9 +107,9 @@ namespace TalkHubAPI.Controllers
                 return BadRequest();
             }
 
-            ForumThread threadMap = _Mapper.Map<ForumThread>(updatedThread);
+            ForumThread threadToUpdate = _Mapper.Map<ForumThread>(updatedThread);
 
-            if (!_ForumThreadRepository.UpdateForumThread(threadMap))
+            if (!_ForumThreadRepository.UpdateForumThread(threadToUpdate))
             {
                 ModelState.AddModelError("", "Something went wrong updating the thread");
                 return StatusCode(500, ModelState);
@@ -139,7 +139,6 @@ namespace TalkHubAPI.Controllers
             if (!_ForumThreadRepository.RemoveForumThread(threadToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong deleting the thread");
-                return StatusCode(500, ModelState);
             }
 
             return NoContent();

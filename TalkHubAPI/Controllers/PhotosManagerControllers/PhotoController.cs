@@ -13,7 +13,7 @@ using TalkHubAPI.Dto.PhotosDtos;
 using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
 using TalkHubAPI.Models.PhotosManagerModels;
 
-namespace TalkHubAPI.Controllers
+namespace TalkHubAPI.Controllers.PhotosManagerControllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -95,7 +95,8 @@ namespace TalkHubAPI.Controllers
 
             if (!_PhotoRepository.AddPhoto(photo))
             {
-                return BadRequest(ModelState);
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
             }
 
             return Ok("Successfully created");
@@ -105,6 +106,11 @@ namespace TalkHubAPI.Controllers
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetMedia(string fileName)
         {
+            if (_FileProcessingService.GetContentType(fileName) == "video/mp4")
+            {
+                return BadRequest(ModelState);
+            }
+
             FileContentResult file = _FileProcessingService.GetMedia(fileName);
 
             if (file == null)
