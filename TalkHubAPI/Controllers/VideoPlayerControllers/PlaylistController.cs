@@ -18,15 +18,21 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         private readonly IMapper _Mapper;
         private readonly IAuthService _AuthService;
         private readonly IUserRepository _UserRepository;
+        private readonly IVideoPlaylistRepository _VideoPlaylistRepository;
+        private readonly IVideoRepository _VideoRepository;
         public PlaylistController(IPlaylistRepository playlistRepository,
             IMapper mapper,
             IAuthService authService,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            IVideoPlaylistRepository videoPlaylistRepository,
+            IVideoRepository videoRepository)
         {
             _PlaylistRepository = playlistRepository;
             _Mapper = mapper;
             _AuthService = authService;
             _UserRepository = userRepository;
+            _VideoPlaylistRepository = videoPlaylistRepository;
+            _VideoRepository = videoRepository;
         }
 
         [HttpGet, Authorize(Roles = "User,Admin")]
@@ -42,9 +48,9 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             return Ok(playlists);
         }
-        [HttpGet("playlist/{userId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("playlistsByUser/{userId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PlaylistDto>))]
-        public IActionResult GetPlaylists(int userId)
+        public IActionResult GetPlaylistsByUser(int userId)
         {
             ICollection<PlaylistDto> playlists = _Mapper.Map<List<PlaylistDto>>(_PlaylistRepository.GetPlaylistsByUserId(userId));
 
@@ -75,7 +81,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return Ok(playlist);
         }
 
-        [HttpPost("createPlaylist"), Authorize(Roles = "User,Admin")]
+        [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         public IActionResult CreatePlaylist([FromBody] PlaylistDto playlistCreate)
@@ -163,6 +169,107 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             if (!_PlaylistRepository.UpdatePlaylist(playlistToUpdate))
             {
                 ModelState.AddModelError("", "Something went wrong updating the playlist");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+
+        [HttpPost("addToPlaylist"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult AddVideoToPlaylist([FromQuery] int videoId, [FromBody] PlaylistDto playlistCreate)
+        {
+            if (playlistCreate == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!_PlaylistRepository.PlaylistExists(playlistCreate.Id))
+            {
+                return BadRequest("This playlist does not exist");
+            }
+
+            string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!_UserRepository.UsernameExists(username))
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
+            Playlist playlist = _Mapper.Map<Playlist>(_PlaylistRepository.GetPlaylist(playlistCreate.Id));
+            VideoPlaylist videoPlaylist = new VideoPlaylist();
+            videoPlaylist.Playlist = playlist;
+            videoPlaylist.Video = _Mapper.Map<Video>(_VideoRepository.GetVideo(videoId));
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!_VideoPlaylistRepository.AddVideoPlaylist(videoPlaylist))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+        }
+
+        [HttpDelete("deleteFromPlaylist"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult DeleteVideoFromPlaylist([FromQuery] int videoId, [FromBody] PlaylistDto playlistCreate)
+        {
+            if (playlistCreate == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!_PlaylistRepository.PlaylistExists(playlistCreate.Id))
+            {
+                return BadRequest("This playlist does not exist");
+            }
+
+            string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!_UserRepository.UsernameExists(username))
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            if (_VideoPlaylistRepository.VideoPlaylistExistsForVideoAndPlaylist(videoId, playlistCreate.Id))
+            {
+                return BadRequest("Video in this playlist does not exist!");
+            }
+
+            User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
+            Playlist playlist = _Mapper.Map<Playlist>(_PlaylistRepository.GetPlaylist(playlistCreate.Id));
+            VideoPlaylist videoPlaylist = _Mapper
+                .Map<VideoPlaylist>(_VideoPlaylistRepository
+                .GetVideoPlaylistByVideoIdAndPlaylistId(videoId, playlist.Id));
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!_VideoPlaylistRepository.RemoveVideoPlaylist(videoPlaylist))
+            {
+                ModelState.AddModelError("", "Something went wrong deleting the playlist");
                 return StatusCode(500, ModelState);
             }
 

@@ -54,7 +54,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             return Ok(thread);
         }
 
-        [HttpPost("createThread"), Authorize(Roles = "User,Admin")]
+        [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         public IActionResult CreateThread([FromBody] ForumThreadDto threadCreate)

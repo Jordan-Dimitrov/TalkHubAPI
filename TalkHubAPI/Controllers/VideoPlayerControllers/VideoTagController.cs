@@ -55,7 +55,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return Ok(tag);
         }
 
-        [HttpPost("createTag"), Authorize(Roles = "User,Admin")]
+        [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         public IActionResult CreateTag([FromBody] VideoTagDto tagCreate)

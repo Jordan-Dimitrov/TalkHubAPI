@@ -84,7 +84,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             return Ok(messages);
         }
 
-        [HttpGet("message/{messageId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("{messageId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(MessageRoomDto))]
         [ProducesResponseType(400)]
         public IActionResult GetLastTenMessengerMessages([FromQuery] int roomId, int messageId)

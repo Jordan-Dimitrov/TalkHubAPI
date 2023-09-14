@@ -40,7 +40,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             _UserUpvoteRepository = userUpvoteRepository;
         }
 
-        [HttpPost("addMedia"), Authorize(Roles = "User,Admin")]
+        [HttpPost("forumMessage"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [Authorize]
@@ -91,7 +91,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             return Ok("Successfully created");
         }
 
-        [HttpPost("addMediaWithFile"), Authorize(Roles = "User,Admin")]
+        [HttpPost("forumMessageWithFile"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [Authorize]
@@ -155,7 +155,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             return Ok("Successfully created");
         }
 
-        [HttpGet("forumMessage/{threadId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("forumMessagesByForumThread/{threadId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ForumMessageDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetAllMessagesByForumThread(int threadId)
@@ -182,7 +182,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             return Ok(messageDto);
         }
 
-        [HttpGet("{fileName}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("file/{fileName}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetMedia(string fileName)
@@ -201,6 +201,30 @@ namespace TalkHubAPI.Controllers.ForumControllers
 
             return file;
         }
+
+        [HttpGet("{forumMessageId}"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(200, Type = typeof(ForumMessageDto))]
+        [ProducesResponseType(400)]
+        public IActionResult GetForumMessage(int forumMessageId)
+        {
+            if (!_ForumMessageRepository.ForumMessageExists(forumMessageId))
+            {
+                return NotFound();
+            }
+
+            ForumMessage message = _ForumMessageRepository.GetForumMessage(forumMessageId);
+            ForumMessageDto messageDto = _Mapper.Map<ForumMessageDto>(_ForumMessageRepository.GetForumMessage(forumMessageId));
+            messageDto.User = _Mapper.Map<UserDto>(_UserRepository.GetUser(message.UserId));
+            messageDto.ForumThread = _Mapper.Map<ForumThreadDto>(_ForumThreadRepository.GetForumThread(message.ForumThreadId));
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            return Ok(messageDto);
+        }
+
         [HttpPut("hide/{forumMessageId}"), Authorize(Roles = "Admin")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]

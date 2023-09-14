@@ -1,5 +1,7 @@
-﻿using TalkHubAPI.Data;
+﻿using System.ComponentModel.Design;
+using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
+using TalkHubAPI.Models;
 using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Repository.VideoPlayerRepositories
@@ -20,6 +22,13 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
         public VideoPlaylist GetVideoPlaylist(int id)
         {
             return _Context.VideoPlaylists.Find(id);
+        }
+
+        public VideoPlaylist GetVideoPlaylistByVideoIdAndPlaylistId(int videoId, int playlistId)
+        {
+            return _Context.VideoPlaylists
+                            .Where(x => x.PlaylistId == playlistId && x.VideoId == videoId)
+                            .FirstOrDefault();
         }
 
         public ICollection<VideoPlaylist> GetVideoPlaylists()
@@ -48,6 +57,11 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
         public bool VideoPlaylistExists(int id)
         {
             return _Context.VideoPlaylists.Any(x => x.Id == id);
+        }
+
+        public bool VideoPlaylistExistsForVideoAndPlaylist(int videoId, int playlistId)
+        {
+            return _Context.VideoPlaylists.Any(x => x.VideoId == videoId && x.PlaylistId == playlistId);
         }
     }
 }

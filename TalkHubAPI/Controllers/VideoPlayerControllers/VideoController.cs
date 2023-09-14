@@ -8,7 +8,6 @@ using TalkHubAPI.Interfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Dto.VideoPlayerDtos;
 using TalkHubAPI.Models.VideoPlayerModels;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TalkHubAPI.Controllers.VideoPlayerControllers
 {
@@ -23,13 +22,15 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         private readonly IFileProcessingService _FileProcessingService;
         private readonly IVideoUserLikeRepository _VideoUserLikeRepository;
         private readonly IVideoTagRepository _VideoTagRepository;
+        private IPlaylistRepository _PlaylistRepository;
         public VideoController(IVideoRepository videoRepository,
             IMapper mapper,
             IAuthService authService,
             IUserRepository userRepository,
             IFileProcessingService fileProcessingService,
             IVideoUserLikeRepository videoUserLikeRepository,
-            IVideoTagRepository videoTagRepository)
+            IVideoTagRepository videoTagRepository,
+            IPlaylistRepository playlistRepository)
         {
             _VideoRepository = videoRepository;
             _Mapper = mapper;
@@ -38,8 +39,32 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             _FileProcessingService = fileProcessingService;
             _VideoUserLikeRepository = videoUserLikeRepository;
             _VideoTagRepository = videoTagRepository;
+            _PlaylistRepository = playlistRepository;
         }
-        [HttpPost("addMedia"), Authorize(Roles = "User,Admin")]
+
+        [HttpGet("{videoId}"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(200, Type = typeof(VideoDto))]
+        [ProducesResponseType(400)]
+        public IActionResult GetVideo(int videoId)
+        {
+            if (!_VideoRepository.VideoExists(videoId))
+            {
+                return NotFound();
+            }
+            Video video = _VideoRepository.GetVideo(videoId);
+            VideoDto videoDto = _Mapper.Map<VideoDto>(_VideoRepository.GetVideo(videoId));
+            videoDto.User = _Mapper.Map<UserDto>(_UserRepository.GetUser(video.UserId));
+            videoDto.Tag = _Mapper.Map<VideoTagDto>(_VideoTagRepository.GetVideoTag(video.TagId));
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            return Ok(videoDto);
+        }
+
+        [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [Authorize]
@@ -128,6 +153,61 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             }
             List<Video> videos = _VideoRepository.GetVideosByTagId(tagId).ToList();
             List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(_VideoRepository.GetVideosByTagId(tagId)).ToList();
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            for (int i = 0; i < videos.Count; i++)
+            {
+                videoDtos[i].User = _Mapper.Map<UserDto>(_UserRepository.GetUser(videos[i].UserId));
+                videoDtos[i].Tag = _Mapper.Map<VideoTagDto>(_VideoTagRepository.GetVideoTag(videos[i].TagId));
+            }
+
+            return Ok(videoDtos);
+        }
+
+        [HttpGet("videosByUser/{userId}"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<VideoDto>))]
+        [ProducesResponseType(typeof(void), 404)]
+        public IActionResult GetAllVideosByUser(int userId)
+        {
+            if (!_UserRepository.UserExists(userId))
+            {
+                return BadRequest("This user does not exist");
+            }
+            List<Video> videos = _VideoRepository.GetVideosByUserId(userId).ToList();
+            List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(_VideoRepository.GetVideosByUserId(userId)).ToList();
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            for (int i = 0; i < videos.Count; i++)
+            {
+                videoDtos[i].User = _Mapper.Map<UserDto>(_UserRepository.GetUser(videos[i].UserId));
+                videoDtos[i].Tag = _Mapper.Map<VideoTagDto>(_VideoTagRepository.GetVideoTag(videos[i].TagId));
+            }
+
+            return Ok(videoDtos);
+        }
+
+        [HttpGet("videosByPlaylist/{playlistId}"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<VideoDto>))]
+        [ProducesResponseType(typeof(void), 404)]
+        public IActionResult GetAllVideosByPlaylistId(int playlistId)
+        {
+            if (!_PlaylistRepository.PlaylistExists(playlistId))
+            {
+                return BadRequest("This playlist does not exist");
+            }
+
+            List<Video> videos = _VideoRepository.GetVideosByPlaylistId(playlistId).ToList();
+            List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(_VideoRepository
+                .GetVideosByPlaylistId(playlistId))
+                .ToList();
 
             if (!ModelState.IsValid)
             {

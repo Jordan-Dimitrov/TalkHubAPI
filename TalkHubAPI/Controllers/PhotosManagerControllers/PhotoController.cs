@@ -39,7 +39,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             _AuthService = authService;
             _PhotoCategoryRepository = photoCategoryRepository;
         }
-        [HttpPost("addMedia"), Authorize(Roles = "User,Admin")]
+        [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [Authorize]
@@ -101,7 +101,31 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
             return Ok("Successfully created");
         }
-        [HttpGet("{fileName}"), Authorize(Roles = "User,Admin")]
+
+        [HttpGet("{photoId}"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(200, Type = typeof(PhotoDto))]
+        [ProducesResponseType(400)]
+        public IActionResult GetPhoto(int photoId)
+        {
+            if (!_PhotoRepository.PhotoExists(photoId))
+            {
+                return NotFound();
+            }
+
+            Photo photo = _PhotoRepository.GetPhoto(photoId);
+            PhotoDto photoDto = _Mapper.Map<PhotoDto>(_PhotoRepository.GetPhoto(photoId));
+            photoDto.Category = _Mapper.Map<PhotoCategoryDto>(_PhotoCategoryRepository.GetCategory(photo.CategoryId));
+            photoDto.User = _Mapper.Map<UserDto>(_UserRepository.GetUser(photo.UserId));
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            return Ok(photoDto);
+        }
+
+        [HttpGet("file/{fileName}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetMedia(string fileName)
@@ -127,7 +151,6 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         {
             List<Photo> photos = _PhotoRepository.GetPhotos().ToList();
             List<PhotoDto> photosDto = _Mapper.Map<List<PhotoDto>>(_PhotoRepository.GetPhotos());
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -136,11 +159,12 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             for (int i = 0; i < photos.Count; i++)
             {
                 photosDto[i].Category = _Mapper.Map<PhotoCategoryDto>(_PhotoCategoryRepository.GetCategory(photos[i].CategoryId));
+                photosDto[i].User = _Mapper.Map<UserDto>(_UserRepository.GetUser(photos[i].UserId));
             }
 
             return Ok(photosDto);
         }
-        [HttpGet("category/{categoryId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("photosByCategory/{categoryId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetAllMediaByCategory(int categoryId)
@@ -167,7 +191,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
             return Ok(photosDto);
         }
-        [HttpGet("user/{userId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("photosByUser/{userId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetAllMediaByUser(int userId)

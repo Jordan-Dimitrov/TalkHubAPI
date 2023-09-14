@@ -52,7 +52,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
             return Ok(category);
         }
-        [HttpPost("createCategory"), Authorize(Roles = "Admin")]
+        [HttpPost, Authorize(Roles = "Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         public IActionResult CreateCategory([FromBody] PhotoCategoryDto categoryCreate)

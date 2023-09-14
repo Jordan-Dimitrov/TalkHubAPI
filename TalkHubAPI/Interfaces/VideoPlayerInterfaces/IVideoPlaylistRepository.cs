@@ -9,6 +9,8 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
         bool VideoPlaylistExists(int id);
         bool Save();
         VideoPlaylist GetVideoPlaylist(int id);
+        VideoPlaylist GetVideoPlaylistByVideoIdAndPlaylistId(int videoId, int playlistId);
+        bool VideoPlaylistExistsForVideoAndPlaylist(int videoId, int playlistId);
         ICollection<VideoPlaylist> GetVideoPlaylists();
     }
 }
