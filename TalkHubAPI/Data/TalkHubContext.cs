@@ -52,9 +52,7 @@ public partial class TalkHubContext : DbContext
 
     public virtual DbSet<VideoTag> VideoTags { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=TalkHub;Integrated Security=True;");
+    public virtual DbSet<VideoUserLike> VideoUserLikes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -289,6 +287,21 @@ public partial class TalkHubContext : DbContext
             entity.Property(e => e.TagName)
                 .HasMaxLength(45)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<VideoUserLike>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__VideoUse__3214EC07BDE52B56");
+
+            entity.HasOne(d => d.User).WithMany(p => p.VideoUserLikes)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__VideoUser__Ratin__625A9A57");
+
+            entity.HasOne(d => d.Video).WithMany(p => p.VideoUserLikes)
+                .HasForeignKey(d => d.VideoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__VideoUser__Video__634EBE90");
         });
 
         OnModelCreatingPartial(modelBuilder);

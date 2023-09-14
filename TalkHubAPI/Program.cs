@@ -51,6 +51,7 @@ namespace TalkHubAPI
             builder.Services.AddScoped<IVideoPlaylistRepository, VideoPlaylistRepository>();
             builder.Services.AddScoped<IVideoRepository, VideoRepository>();
             builder.Services.AddScoped<IVideoTagRepository, VideoTagRepository>();
+            builder.Services.AddScoped<IVideoUserLikeRepository, VideoUserLikeRepository>();
 
             builder.Services.AddSignalR();
             builder.Services.AddHttpContextAccessor();

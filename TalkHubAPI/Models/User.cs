@@ -39,5 +39,7 @@ public partial class User
 
     public virtual ICollection<VideoCommentsLike> VideoCommentsLikes { get; set; } = new List<VideoCommentsLike>();
 
+    public virtual ICollection<VideoUserLike> VideoUserLikes { get; set; } = new List<VideoUserLike>();
+
     public virtual ICollection<Video> Videos { get; set; } = new List<Video>();
 }

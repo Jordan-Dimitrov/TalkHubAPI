@@ -28,4 +28,6 @@ public partial class Video
     public virtual ICollection<VideoComment> VideoComments { get; set; } = new List<VideoComment>();
 
     public virtual ICollection<VideoPlaylist> VideoPlaylists { get; set; } = new List<VideoPlaylist>();
+
+    public virtual ICollection<VideoUserLike> VideoUserLikes { get; set; } = new List<VideoUserLike>();
 }
