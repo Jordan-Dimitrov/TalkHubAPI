@@ -6,9 +6,9 @@ This is an ASP.NET Web API project that provides various features, including a v
 ### Prerequisites
 Before you begin, ensure you have the following installed:
 
-ASP.NET Core
+1. ASP.NET Core
 
-SQL Server
+2. SQL Server
 
 ### Installation
 1. Navigate to the project directory
