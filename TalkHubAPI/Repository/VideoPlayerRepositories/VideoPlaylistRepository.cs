@@ -1,43 +1,53 @@
-﻿using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
+﻿using TalkHubAPI.Data;
+using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Repository.VideoPlayerRepositories
 {
     public class VideoPlaylistRepository : IVideoPlaylistRepository
     {
+        private readonly TalkHubContext _Context;
+        public VideoPlaylistRepository(TalkHubContext context)
+        {
+            _Context = context;
+        }
         public bool AddVideoPlaylist(VideoPlaylist videoPlaylist)
         {
-            throw new NotImplementedException();
+            _Context.Add(videoPlaylist);
+            return Save();
         }
 
         public VideoPlaylist GetVideoPlaylist(int id)
         {
-            throw new NotImplementedException();
+            return _Context.VideoPlaylists.Find(id);
         }
 
         public ICollection<VideoPlaylist> GetVideoPlaylists()
         {
-            throw new NotImplementedException();
+            return _Context.VideoPlaylists.ToList();
         }
 
         public bool RemoveVideoPlaylist(VideoPlaylist videoPlaylist)
         {
-            throw new NotImplementedException();
+            _Context.Remove(videoPlaylist);
+            return Save();
         }
 
         public bool Save()
         {
-            throw new NotImplementedException();
+            int saved = _Context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
         public bool UpdateVideoPlaylist(VideoPlaylist videoPlaylist)
         {
-            throw new NotImplementedException();
+            _Context.Update(videoPlaylist);
+            return Save();
         }
 
         public bool VideoPlaylistExists(int id)
         {
-            throw new NotImplementedException();
+            return _Context.VideoPlaylists.Any(x => x.Id == id);
         }
     }
 }

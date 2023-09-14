@@ -1,53 +1,65 @@
-﻿using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
+﻿using TalkHubAPI.Data;
+using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Repository.VideoPlayerRepositories
 {
     public class VideoCommentsLikeRepository : IVideoCommentsLikeRepository
     {
+        private readonly TalkHubContext _Context;
+        public VideoCommentsLikeRepository(TalkHubContext context)
+        {
+            _Context = context;
+        }
         public bool AddVideoCommentsLike(VideoCommentsLike videoCommentsLike)
         {
-            throw new NotImplementedException();
+            _Context.Add(videoCommentsLike);
+            return Save();
         }
 
         public VideoCommentsLike GetVideoCommentsLike(int id)
         {
-            throw new NotImplementedException();
+            return _Context.VideoCommentsLikes.Find(id);
         }
 
         public VideoCommentsLike GetVideoCommentsLikeByCommentAndUser(int commenteId, int userId)
         {
-            throw new NotImplementedException();
+            return _Context.VideoCommentsLikes
+                .Where(x => x.VideoCommentId == commenteId && x.UserId == userId)
+                .FirstOrDefault();
         }
 
         public ICollection<VideoCommentsLike> GetVideoCommentsLikes()
         {
-            throw new NotImplementedException();
+            return _Context.VideoCommentsLikes.ToList();
         }
 
         public bool RemoveVideoCommentsLike(VideoCommentsLike videoCommentsLike)
         {
-            throw new NotImplementedException();
+            _Context.Remove(videoCommentsLike);
+            return Save();
         }
 
         public bool Save()
         {
-            throw new NotImplementedException();
+            int saved = _Context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
         public bool UpdateVideoCommentsLike(VideoCommentsLike videoCommentsLike)
         {
-            throw new NotImplementedException();
+            _Context.Update(videoCommentsLike);
+            return Save();
         }
 
         public bool VideoCommentsLikeExists(int id)
         {
-            throw new NotImplementedException();
+            return _Context.VideoCommentsLikes.Any(x => x.Id == id);
         }
 
         public bool VideoCommentsLikeExistsForCommentAndUser(int commentId, int userId)
         {
-            throw new NotImplementedException();
+            return _Context.VideoCommentsLikes.Any(x => x.VideoCommentId == commentId && x.UserId == userId);
         }
     }
 }

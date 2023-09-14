@@ -27,8 +27,4 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.8" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Dto\VideoPlayerDtos\" />
-  </ItemGroup>
-
 </Project>

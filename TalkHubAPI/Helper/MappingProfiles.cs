@@ -3,10 +3,12 @@ using TalkHubAPI.Dto.ForumDtos;
 using TalkHubAPI.Dto.MessengerDtos;
 using TalkHubAPI.Dto.PhotosDtos;
 using TalkHubAPI.Dto.UserDtos;
+using TalkHubAPI.Dto.VideoPlayerDtos;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;
 using TalkHubAPI.Models.PhotosManagerModels;
+using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Helper
 {
@@ -36,6 +38,8 @@ namespace TalkHubAPI.Helper
             CreateMap<MessengerMessageDto, MessengerMessage>();
             CreateMap<MessengerMessage, SendMessengerMessageDto>();
             CreateMap<MessengerMessageDto, MessengerMessage>();
+            CreateMap<VideoTag, VideoTagDto>();
+            CreateMap<VideoTagDto, VideoTag>();
         }
     }
 }

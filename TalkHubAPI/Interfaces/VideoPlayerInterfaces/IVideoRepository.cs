@@ -3,9 +3,9 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
 {
     public interface IVideoRepository
     {
-        bool AddVideo(Video tag);
-        bool RemoveVideo(Video tag);
-        bool UpdateVideo(Video tag);
+        bool AddVideo(Video video);
+        bool RemoveVideo(Video video);
+        bool UpdateVideo(Video video);
         bool VideoExists(int id);
         bool Save();
         Video GetVideo(int id);

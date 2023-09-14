@@ -1,58 +1,69 @@
-﻿using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
+﻿using TalkHubAPI.Data;
+using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Repository.VideoPlayerRepositories
 {
     public class PlaylistRepository : IPlaylistRepository
     {
+        private readonly TalkHubContext _Context;
+
+        public PlaylistRepository(TalkHubContext context)
+        {
+            _Context = context;
+        }
         public bool AddPlaylist(Playlist playlist)
         {
-            throw new NotImplementedException();
+            _Context.Add(playlist);
+            return Save();
         }
 
         public Playlist GetPlaylist(int id)
         {
-            throw new NotImplementedException();
+            return _Context.Playlists.Find(id);
         }
 
         public Playlist GetPlaylistByName(string name)
         {
-            throw new NotImplementedException();
+            return _Context.Playlists.FirstOrDefault(x => x.PlaylistName == name);
         }
 
         public ICollection<Playlist> GetPlaylists()
         {
-            throw new NotImplementedException();
+            return _Context.Playlists.ToList();
         }
 
         public ICollection<Playlist> GetPlaylistsByUserId(int userId)
         {
-            throw new NotImplementedException();
+            return _Context.Playlists.Where(x => x.UserId == userId).ToList();
         }
 
         public bool PlaylistExists(int id)
         {
-            throw new NotImplementedException();
+            return _Context.Playlists.Any(x => x.Id == id);
         }
 
         public bool PlaylistExists(string name)
         {
-            throw new NotImplementedException();
+            return _Context.Playlists.Any(x => x.PlaylistName == name);
         }
 
         public bool RemovePlaylist(Playlist playlist)
         {
-            throw new NotImplementedException();
+            _Context.Remove(playlist);
+            return Save();
         }
 
         public bool Save()
         {
-            throw new NotImplementedException();
+            int saved = _Context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
         public bool UpdatePlaylist(Playlist playlist)
         {
-            throw new NotImplementedException();
+            _Context.Update(playlist);
+            return Save();
         }
     }
 }

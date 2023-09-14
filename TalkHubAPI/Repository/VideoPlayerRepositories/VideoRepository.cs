@@ -1,68 +1,84 @@
-﻿using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using TalkHubAPI.Data;
+using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
+using TalkHubAPI.Models;
 using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Repository.VideoPlayerRepositories
 {
     public class VideoRepository : IVideoRepository
     {
-        public bool AddVideo(Video tag)
+        private readonly TalkHubContext _Context;
+        public VideoRepository(TalkHubContext context)
         {
-            throw new NotImplementedException();
+            _Context = context;
+        }
+        public bool AddVideo(Video video)
+        {
+            _Context.Add(video);
+            return Save();
         }
 
         public Video GetVideo(int id)
         {
-            throw new NotImplementedException();
+            return _Context.Videos.Find(id);
         }
 
         public Video GetVideoByName(string name)
         {
-            throw new NotImplementedException();
+            return _Context.Videos.FirstOrDefault(x => x.VideoName == name);
         }
 
         public ICollection<Video> GetVideos()
         {
-            throw new NotImplementedException();
+            return _Context.Videos.ToList();
         }
 
         public ICollection<Video> GetVideosByPlaylistId(int playlistId)
         {
-            throw new NotImplementedException();
+            return _Context.Videos
+                .Where(x => x.VideoPlaylists.Any(a => a.PlaylistId == playlistId))
+                .Include(x => x.User)
+                .Include(x => x.Tag)
+                .ToList();
         }
 
         public ICollection<Video> GetVideosByTagId(int tagId)
         {
-            throw new NotImplementedException();
+            return _Context.Videos.Where(x => x.TagId == tagId).ToList();
         }
 
         public ICollection<Video> GetVideosByUserId(int userId)
         {
-            throw new NotImplementedException();
+            return _Context.Videos.Where(x => x.UserId == userId).ToList();
         }
 
-        public bool RemoveVideo(Video tag)
+        public bool RemoveVideo(Video video)
         {
-            throw new NotImplementedException();
+            _Context.Remove(video);
+            return Save();
         }
 
         public bool Save()
         {
-            throw new NotImplementedException();
+            int saved = _Context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
-        public bool UpdateVideo(Video tag)
+        public bool UpdateVideo(Video video)
         {
-            throw new NotImplementedException();
+            _Context.Update(video);
+            return Save();
         }
 
         public bool VideoExists(int id)
         {
-            throw new NotImplementedException();
+            return _Context.Videos.Any(x => x.Id == id);
         }
 
         public bool VideoExists(string name)
         {
-            throw new NotImplementedException();
+            return _Context.Videos.Any(x => x.VideoName == name);
         }
     }
 }
