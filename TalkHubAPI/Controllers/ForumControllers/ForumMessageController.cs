@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using TalkHubAPI.Dto.ForumDtos;
-using TalkHubAPI.Dto.PhotosDtos;
 using TalkHubAPI.Dto.UserDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.ForumInterfaces;
@@ -157,7 +156,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
         }
 
         [HttpGet("forumMessage/{threadId}"), Authorize(Roles = "User,Admin")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoDto>))]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<ForumMessageDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetAllMessagesByForumThread(int threadId)
         {
@@ -301,7 +300,8 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 message.UpvoteCount += upvoteValue;
                 if (!_UserUpvoteRepository.AddUserUpvote(upvote))
                 {
-                    return BadRequest(ModelState);
+                    ModelState.AddModelError("", "Something went wrong while saving");
+                    return StatusCode(500, ModelState);
                 }
             }
 
