@@ -46,10 +46,16 @@ namespace TalkHubAPI.Helper
             CreateMap<VideoTagDto, VideoTag>();
             CreateMap<Playlist, PlaylistDto>();
             CreateMap<PlaylistDto, Playlist>();
+
             CreateMap<Video, VideoDto>();
             CreateMap<VideoDto, Video>();
             CreateMap<Video, CreateVideoDto>();
             CreateMap<CreateVideoDto, Video>();
+
+            CreateMap<VideoComment, VideoCommentDto>();
+            CreateMap<VideoCommentDto, VideoComment>();
+            CreateMap<VideoComment, CreateVideoCommentDto>().ReverseMap();
+            CreateMap<CreateVideoCommentDto, VideoCommentDto>();
         }
     }
 }

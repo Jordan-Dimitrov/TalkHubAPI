@@ -298,38 +298,40 @@ namespace TalkHubAPI.Controllers.ForumControllers
             }
 
             ForumMessage message = _ForumMessageRepository.GetForumMessage(forumMessageId);
+            User user = _UserRepository.GetUserByName(username);
 
-            UserUpvote upvote = new UserUpvote();
-            upvote.Message = message;
-            upvote.User = _UserRepository.GetUserByName(username);
-
-            if (_UserUpvoteRepository.UserUpvoteExistsForMessageAndUser(message.Id, message.UserId))
+            if (!_UserUpvoteRepository.UserUpvoteExistsForMessageAndUser(message.Id, user.Id))
             {
-                upvote = _UserUpvoteRepository.GetUserUpvoteByMessageAndUser(message.Id, message.UserId);
-                if (upvoteValue == upvote.Rating)
-                {
-                    upvote.Rating = 0;
-                    message.UpvoteCount -= upvoteValue;
-                }
-                else
-                {
-                    int temp = upvote.Rating;
-                    upvote.Rating = upvoteValue;
-                    message.UpvoteCount += upvoteValue - temp;
-                }
-            }
-            else
-            {
-                upvote.Rating = upvoteValue;
+                UserUpvote upvoteToAdd = new UserUpvote();
+                upvoteToAdd.Rating = upvoteValue;
+                upvoteToAdd.Message = message;
+                upvoteToAdd.User = user;
                 message.UpvoteCount += upvoteValue;
-                if (!_UserUpvoteRepository.AddUserUpvote(upvote))
+
+                if (!_UserUpvoteRepository.AddUserUpvote(upvoteToAdd))
                 {
                     ModelState.AddModelError("", "Something went wrong while saving");
                     return StatusCode(500, ModelState);
                 }
+
+                return NoContent();
             }
 
-            if (!_ForumMessageRepository.UpdateForumMessage(message) || !_UserUpvoteRepository.UpdateUserUpvote(upvote))
+            UserUpvote upvote = _UserUpvoteRepository.GetUserUpvoteByMessageAndUser(message.Id, user.Id);
+
+            if (upvoteValue == upvote.Rating)
+            {
+                upvote.Rating = 0;
+                message.UpvoteCount -= upvoteValue;
+            }
+            else
+            {
+                int temp = upvote.Rating;
+                upvote.Rating = upvoteValue;
+                message.UpvoteCount += upvoteValue - temp;
+            }
+
+            if (!_UserUpvoteRepository.UpdateUserUpvote(upvote) || !_ForumMessageRepository.UpdateForumMessage(message))
             {
                 ModelState.AddModelError("", "Something went wrong while updating");
                 return StatusCode(500, ModelState);

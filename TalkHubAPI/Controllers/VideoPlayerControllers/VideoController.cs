@@ -8,6 +8,7 @@ using TalkHubAPI.Interfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Dto.VideoPlayerDtos;
 using TalkHubAPI.Models.VideoPlayerModels;
+using TalkHubAPI.Repository.VideoPlayerRepositories;
 
 namespace TalkHubAPI.Controllers.VideoPlayerControllers
 {
@@ -335,40 +336,40 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             }
 
             Video video = _VideoRepository.GetVideo(videoId);
+            User user = _UserRepository.GetUserByName(username);
 
-            VideoUserLike userLike = new VideoUserLike();
-            userLike.Video = video;
-            userLike.User = _UserRepository.GetUserByName(username);
-
-
-
-            if (_VideoUserLikeRepository.VideoUserLikeExistsForVideoAndUser(video.Id, video.UserId))
+            if (!_VideoUserLikeRepository.VideoUserLikeExistsForVideoAndUser(video.Id, user.Id))
             {
-                userLike = _VideoUserLikeRepository.GetVideoUserLikeByVideoAndUser(video.Id, video.UserId);
-                if (upvoteValue == userLike.Rating)
-                {
-                    userLike.Rating = 0;
-                    video.LikeCount -= upvoteValue;
-                }
-                else
-                {
-                    int temp = userLike.Rating;
-                    userLike.Rating = upvoteValue;
-                    video.LikeCount += upvoteValue - temp;
-                }
-            }
-            else
-            {
-                userLike.Rating = upvoteValue;
+                VideoUserLike videoUserLikeToAdd = new VideoUserLike();
+                videoUserLikeToAdd.Rating = upvoteValue;
+                videoUserLikeToAdd.Video = video;
+                videoUserLikeToAdd.User = user;
                 video.LikeCount += upvoteValue;
-                if (!_VideoUserLikeRepository.AddVideoUserLike(userLike))
+
+                if (!_VideoUserLikeRepository.AddVideoUserLike(videoUserLikeToAdd))
                 {
                     ModelState.AddModelError("", "Something went wrong while saving");
                     return StatusCode(500, ModelState);
                 }
+                return NoContent();
             }
 
-            if (!_VideoRepository.UpdateVideo(video) || !_VideoUserLikeRepository.UpdateVideoUserLike(userLike))
+            VideoUserLike videoUserLike = _VideoUserLikeRepository
+                .GetVideoUserLikeByVideoAndUser(video.Id, user.Id);
+
+            if (upvoteValue == videoUserLike.Rating)
+            {
+                videoUserLike.Rating = 0;
+                video.LikeCount -= upvoteValue;
+            }
+            else
+            {
+                int temp = videoUserLike.Rating;
+                videoUserLike.Rating = upvoteValue;
+                video.LikeCount += upvoteValue - temp;
+            }
+
+            if (!_VideoRepository.UpdateVideo(video) || !_VideoUserLikeRepository.UpdateVideoUserLike(videoUserLike))
             {
                 ModelState.AddModelError("", "Something went wrong while updating");
                 return StatusCode(500, ModelState);
