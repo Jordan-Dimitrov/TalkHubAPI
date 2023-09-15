@@ -60,6 +60,12 @@ public partial class TalkHubContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__ForumMes__3214EC0755C27262");
 
+            entity.HasIndex(e => e.ForumThreadId, "IX_ForumMessages_ForumThreadId");
+
+            entity.HasIndex(e => e.ReplyId, "IX_ForumMessages_ReplyId");
+
+            entity.HasIndex(e => e.UserId, "IX_ForumMessages_UserId");
+
             entity.Property(e => e.DateCreated).HasColumnType("datetime");
             entity.Property(e => e.FileName).IsUnicode(false);
             entity.Property(e => e.MessageContent).IsUnicode(false);
@@ -104,6 +110,10 @@ public partial class TalkHubContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Messenge__3214EC07417F862B");
 
+            entity.HasIndex(e => e.RoomId, "IX_MessengerMessages_RoomId");
+
+            entity.HasIndex(e => e.UserId, "IX_MessengerMessages_UserId");
+
             entity.Property(e => e.DateCreated).HasColumnType("datetime");
             entity.Property(e => e.FileName).IsUnicode(false);
             entity.Property(e => e.MessageContent).IsUnicode(false);
@@ -122,6 +132,10 @@ public partial class TalkHubContext : DbContext
         modelBuilder.Entity<Photo>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Photos__3214EC07370B195E");
+
+            entity.HasIndex(e => e.CategoryId, "IX_Photos_CategoryId");
+
+            entity.HasIndex(e => e.UserId, "IX_Photos_UserId");
 
             entity.Property(e => e.FileName).HasMaxLength(255);
             entity.Property(e => e.Timestamp).HasColumnType("datetime");
@@ -148,6 +162,8 @@ public partial class TalkHubContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Playlist__3214EC071252C5C2");
 
+            entity.HasIndex(e => e.UserId, "IX_Playlists_UserId");
+
             entity.Property(e => e.PlaylistName).IsUnicode(false);
 
             entity.HasOne(d => d.User).WithMany(p => p.Playlists)
@@ -169,6 +185,8 @@ public partial class TalkHubContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__User__3214EC07617E5831");
 
+            entity.HasIndex(e => e.RefreshTokenId, "IX_Users_RefreshTokenId");
+
             entity.Property(e => e.Username).HasMaxLength(255);
 
             entity.HasOne(d => d.RefreshToken).WithMany(p => p.Users)
@@ -179,6 +197,10 @@ public partial class TalkHubContext : DbContext
         modelBuilder.Entity<UserMessageRoom>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__UserMess__3214EC07D2F91607");
+
+            entity.HasIndex(e => e.RoomId, "IX_UserMessageRooms_RoomId");
+
+            entity.HasIndex(e => e.UserId, "IX_UserMessageRooms_UserId");
 
             entity.HasOne(d => d.Room).WithMany(p => p.UserMessageRooms)
                 .HasForeignKey(d => d.RoomId)
@@ -195,6 +217,10 @@ public partial class TalkHubContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__UserUpvo__3214EC076B4006A6");
 
+            entity.HasIndex(e => e.MessageId, "IX_UserUpvotes_MessageId");
+
+            entity.HasIndex(e => e.UserId, "IX_UserUpvotes_UserId");
+
             entity.HasOne(d => d.Message).WithMany(p => p.UserUpvotes)
                 .HasForeignKey(d => d.MessageId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -209,6 +235,10 @@ public partial class TalkHubContext : DbContext
         modelBuilder.Entity<Video>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Videos__3214EC07412B2B44");
+
+            entity.HasIndex(e => e.TagId, "IX_Videos_TagId");
+
+            entity.HasIndex(e => e.UserId, "IX_Videos_UserId");
 
             entity.Property(e => e.Mp4name)
                 .IsUnicode(false)
@@ -232,6 +262,12 @@ public partial class TalkHubContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__VideoCom__3214EC0796C7F708");
 
+            entity.HasIndex(e => e.ReplyId, "IX_VideoComments_ReplyId");
+
+            entity.HasIndex(e => e.UserId, "IX_VideoComments_UserId");
+
+            entity.HasIndex(e => e.VideoId, "IX_VideoComments_VideoId");
+
             entity.Property(e => e.DateCreated).HasColumnType("datetime");
             entity.Property(e => e.MessageContent).IsUnicode(false);
 
@@ -254,6 +290,10 @@ public partial class TalkHubContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__VideoCom__3214EC076CC6E6B7");
 
+            entity.HasIndex(e => e.UserId, "IX_VideoCommentsLikes_UserId");
+
+            entity.HasIndex(e => e.VideoCommentId, "IX_VideoCommentsLikes_VideoCommentId");
+
             entity.HasOne(d => d.User).WithMany(p => p.VideoCommentsLikes)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -268,6 +308,10 @@ public partial class TalkHubContext : DbContext
         modelBuilder.Entity<VideoPlaylist>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__VideoPla__3214EC07F06C00FA");
+
+            entity.HasIndex(e => e.PlaylistId, "IX_VideoPlaylists_PlaylistId");
+
+            entity.HasIndex(e => e.VideoId, "IX_VideoPlaylists_VideoId");
 
             entity.HasOne(d => d.Playlist).WithMany(p => p.VideoPlaylists)
                 .HasForeignKey(d => d.PlaylistId)
@@ -291,17 +335,17 @@ public partial class TalkHubContext : DbContext
 
         modelBuilder.Entity<VideoUserLike>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__VideoUse__3214EC07BDE52B56");
+            entity.HasKey(e => e.Id).HasName("PK__VideoUse__3214EC071132BA91");
 
             entity.HasOne(d => d.User).WithMany(p => p.VideoUserLikes)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__VideoUser__Ratin__625A9A57");
+                .HasConstraintName("FK__VideoUser__UserI__6FE99F9F");
 
             entity.HasOne(d => d.Video).WithMany(p => p.VideoUserLikes)
                 .HasForeignKey(d => d.VideoId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__VideoUser__Video__634EBE90");
+                .HasConstraintName("FK__VideoUser__Video__70DDC3D8");
         });
 
         OnModelCreatingPartial(modelBuilder);
