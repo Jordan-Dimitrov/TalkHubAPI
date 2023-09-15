@@ -335,7 +335,7 @@ public partial class TalkHubContext : DbContext
 
         modelBuilder.Entity<VideoUserLike>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__VideoUse__3214EC071132BA91");
+            entity.HasKey(e => e.Id).HasName("PK__VideoUse__3214EC07710CAE9C");
 
             entity.HasOne(d => d.User).WithMany(p => p.VideoUserLikes)
                 .HasForeignKey(d => d.UserId)
