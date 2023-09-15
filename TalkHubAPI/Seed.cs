@@ -35,7 +35,8 @@ namespace TalkHubAPI
                         Username = "TOMAAAA",
                         PasswordHash = passwordHash,
                         PasswordSalt = passwordSalt,
-                        RefreshToken = _AuthService.GenerateRefreshToken()
+                        RefreshToken = _AuthService.GenerateRefreshToken(),
+                        PermissionType = 1
                     },
                     new User()
                     {
@@ -92,12 +93,12 @@ namespace TalkHubAPI
                     new ForumThread()
                     {
                         ThreadName = "BOTW discussion",
-                        ThreadDescription = "A place to discuss fun moments from the BOTW game"
+                        ThreadDescription = "BOTW Related stuff"
                     },
                     new ForumThread()
                     {
                         ThreadName = "Jojo discussion",
-                        ThreadDescription = "A place to discuss fun moments from the Jojo anime"
+                        ThreadDescription = "Jojo related stuff"
                     }
                 };
 

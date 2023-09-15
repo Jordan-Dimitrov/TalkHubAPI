@@ -12,8 +12,8 @@ using TalkHubAPI.Data;
 namespace TalkHubAPI.Migrations
 {
     [DbContext(typeof(TalkHubContext))]
-    [Migration("20230915083235_MinorFixes")]
-    partial class MinorFixes
+    [Migration("20230915083624_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
