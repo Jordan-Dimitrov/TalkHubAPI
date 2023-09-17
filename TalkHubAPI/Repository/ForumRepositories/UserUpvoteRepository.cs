@@ -14,53 +14,54 @@ namespace TalkHubAPI.Repository.ForumRepositories
         {
             _Context = context;
         }
-        public bool AddUserUpvote(UserUpvote upvote)
+
+        public async Task<bool> AddUserUpvoteAsync(UserUpvote upvote)
         {
             _Context.Add(upvote);
-            return Save();
+            return await SaveAsync();
         }
 
-        public UserUpvote GetUserUpvote(int id)
+        public async Task<UserUpvote> GetUserUpvoteAsync(int id)
         {
-            return _Context.UserUpvotes.Find(id);
+            return await _Context.UserUpvotes.FindAsync(id);
         }
 
-        public UserUpvote GetUserUpvoteByMessageAndUser(int messageId, int userId)
+        public async Task<UserUpvote> GetUserUpvoteByMessageAndUserAsync(int messageId, int userId)
         {
-            return _Context.UserUpvotes.Where(x => x.MessageId == messageId && x.UserId == userId).FirstOrDefault();
+            return await _Context.UserUpvotes.FirstOrDefaultAsync(x => x.MessageId == messageId && x.UserId == userId);
         }
 
-        public ICollection<UserUpvote> GetUserUpvotes()
+        public async Task<IList<UserUpvote>> GetUserUpvotesAsync()
         {
-            return _Context.UserUpvotes.ToList();
+            return await _Context.UserUpvotes.ToListAsync();
         }
 
-        public bool RemoveUserUpvote(UserUpvote upvote)
+        public async Task<bool> RemoveUserUpvoteAsync(UserUpvote upvote)
         {
             _Context.Remove(upvote);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
             int saved = _Context.SaveChanges();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateUserUpvote(UserUpvote upvote)
+        public async Task<bool> UpdateUserUpvoteAsync(UserUpvote upvote)
         {
             _Context.Update(upvote);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool UserUpvoteExists(int id)
+        public async Task<bool> UserUpvoteExistsAsync(int id)
         {
-            return _Context.UserUpvotes.Any(x => x.Id == id);
+            return await _Context.UserUpvotes.AnyAsync(x => x.Id == id);
         }
 
-        public bool UserUpvoteExistsForMessageAndUser(int messageId, int userId)
+        public async Task<bool> UserUpvoteExistsForMessageAndUserAsync(int messageId, int userId)
         {
-            return _Context.UserUpvotes.Any(x => x.MessageId == messageId && x.UserId == userId);
+            return await _Context.UserUpvotes.AnyAsync(x => x.MessageId == messageId && x.UserId == userId);
         }
     }
 }

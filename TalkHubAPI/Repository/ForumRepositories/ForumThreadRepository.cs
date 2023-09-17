@@ -1,4 +1,5 @@
-﻿using TalkHubAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.ForumInterfaces;
 using TalkHubAPI.Models.ForumModels;
 
@@ -13,53 +14,53 @@ namespace TalkHubAPI.Repository.ForumRepositories
             _Context = context;
         }
 
-        public bool AddForumThread(ForumThread thread)
+        public async Task<bool> AddForumThreadAsync(ForumThread thread)
         {
             _Context.Add(thread);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool ForumThreadExists(int id)
+        public async Task<bool> ForumThreadExistsAsync(int id)
         {
-            return _Context.ForumThreads.Any(x => x.Id == id);
+            return await _Context.ForumThreads.AnyAsync(x => x.Id == id);
         }
 
-        public bool ForumThreadExists(string name)
+        public async Task<bool> ForumThreadExistsAsync(string name)
         {
-            return _Context.ForumThreads.Any(x => x.ThreadName == name);
+            return await _Context.ForumThreads.AnyAsync(x => x.ThreadName == name);
         }
 
-        public ForumThread GetForumThread(int id)
+        public async Task<ForumThread> GetForumThreadAsync(int id)
         {
-            return _Context.ForumThreads.Find(id);
+            return await _Context.ForumThreads.FindAsync(id);
         }
 
-        public ForumThread GetForumThreadByName(string name)
+        public async Task<ForumThread> GetForumThreadByNameAsync(string name)
         {
-            return _Context.ForumThreads.FirstOrDefault(x => x.ThreadName == name);
+            return await _Context.ForumThreads.FirstOrDefaultAsync(x => x.ThreadName == name);
         }
 
-        public ICollection<ForumThread> GetForumThreads()
+        public async Task<IList<ForumThread>> GetForumThreadsAsync()
         {
-            return _Context.ForumThreads.ToList();
+            return await _Context.ForumThreads.ToListAsync();
         }
 
-        public bool RemoveForumThread(ForumThread thread)
+        public async Task<bool> RemoveForumThreadAsync(ForumThread thread)
         {
             _Context.Remove(thread);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            int saved = _Context.SaveChanges();
+            int saved = await _Context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateForumThread(ForumThread thread)
+        public async Task<bool> UpdateForumThreadAsync(ForumThread thread)
         {
             _Context.Update(thread);
-            return Save();
+            return await SaveAsync();
         }
     }
 }

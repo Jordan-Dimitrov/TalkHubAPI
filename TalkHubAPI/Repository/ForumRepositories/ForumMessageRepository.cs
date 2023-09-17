@@ -1,4 +1,5 @@
-﻿using TalkHubAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.ForumInterfaces;
 using TalkHubAPI.Models.ForumModels;
 
@@ -13,63 +14,67 @@ namespace TalkHubAPI.Repository.ForumRepositories
             _Context = context;
         }
 
-        public bool AddForumMessage(ForumMessage message)
+        public async Task<bool> AddForumMessageAsync(ForumMessage message)
         {
             _Context.Add(message);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool ForumMessageExists(int id)
+        public async Task<bool> ForumMessageExistsAsync(int id)
         {
-            return _Context.ForumMessages.Any(x => x.Id == id);
+            return await _Context.ForumMessages.AnyAsync(x => x.Id == id);
         }
 
-        public bool ForumMessageExists(string name)
+        public async Task<bool> ForumMessageExistsAsync(string name)
         {
-            return _Context.ForumMessages.Any(x => x.MessageContent == name);
+            return await _Context.ForumMessages.AnyAsync(x => x.MessageContent == name);
         }
 
-        public ForumMessage GetForumMessage(int id)
+        public async Task<ForumMessage> GetForumMessageAsync(int id)
         {
-            return _Context.ForumMessages.Find(id);
+            return await _Context.ForumMessages.FindAsync(id);
         }
 
-        public ForumMessage GetForumMessageByName(string name)
+        public async Task<ForumMessage> GetForumMessageByNameAsync(string name)
         {
-            return _Context.ForumMessages.FirstOrDefault(x => x.MessageContent == name);
+            return await _Context.ForumMessages.FirstOrDefaultAsync(x => x.MessageContent == name);
         }
 
-        public ICollection<ForumMessage> GetForumMessages()
+        public async Task<IList<ForumMessage>> GetForumMessagesAsync()
         {
-            return _Context.ForumMessages.ToList();
+            return await _Context.ForumMessages.ToListAsync();
         }
 
-        public ICollection<ForumMessage> GetForumMessagesByForumThreadId(int forumThreadId)
+        public async Task<IList<ForumMessage>> GetForumMessagesByForumThreadIdAsync(int forumThreadId)
         {
-            return _Context.ForumMessages.Where(x => x.ForumThreadId == forumThreadId).ToList();
+            return await _Context.ForumMessages
+                .Where(x => x.ForumThreadId == forumThreadId)
+                .ToListAsync();
         }
 
-        public ICollection<ForumMessage> GetForumMessagesByUserId(int userId)
+        public async Task<IList<ForumMessage>> GetForumMessagesByUserIdAsync(int userId)
         {
-            return _Context.ForumMessages.Where(x => x.UserId == userId).ToList();
+            return await _Context.ForumMessages
+                .Where(x => x.UserId == userId)
+                .ToListAsync();
         }
 
-        public bool RemoveForumMessage(ForumMessage message)
+        public async Task<bool> RemoveForumMessageAsync(ForumMessage message)
         {
             _Context.Remove(message);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            int saved = _Context.SaveChanges();
+            int saved = await _Context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateForumMessage(ForumMessage message)
+        public async Task<bool> UpdateForumMessageAsync(ForumMessage message)
         {
             _Context.Update(message);
-            return Save();
+            return await SaveAsync();
         }
     }
 }

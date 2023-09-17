@@ -4,16 +4,16 @@ namespace TalkHubAPI.Interfaces.ForumInterfaces
 {
     public interface IForumMessageRepository
     {
-        bool AddForumMessage(ForumMessage message);
-        bool RemoveForumMessage(ForumMessage message);
-        bool UpdateForumMessage(ForumMessage message);
-        bool ForumMessageExists(int id);
-        bool Save();
-        ForumMessage GetForumMessage(int id);
-        bool ForumMessageExists(string name);
-        ForumMessage GetForumMessageByName(string name);
-        ICollection<ForumMessage> GetForumMessages();
-        ICollection<ForumMessage> GetForumMessagesByForumThreadId(int forumThreadId);
-        ICollection<ForumMessage> GetForumMessagesByUserId(int userId);
+        Task<bool> AddForumMessageAsync(ForumMessage message);
+        Task<bool> RemoveForumMessageAsync(ForumMessage message);
+        Task<bool> UpdateForumMessageAsync(ForumMessage message);
+        Task<bool> ForumMessageExistsAsync(int id);
+        Task<bool> SaveAsync();
+        Task<ForumMessage> GetForumMessageAsync(int id);
+        Task<bool> ForumMessageExistsAsync(string name);
+        Task<ForumMessage> GetForumMessageByNameAsync(string name);
+        Task<IList<ForumMessage>> GetForumMessagesAsync();
+        Task<IList<ForumMessage>> GetForumMessagesByForumThreadIdAsync(int forumThreadId);
+        Task<IList<ForumMessage>> GetForumMessagesByUserIdAsync(int userId);
     }
 }

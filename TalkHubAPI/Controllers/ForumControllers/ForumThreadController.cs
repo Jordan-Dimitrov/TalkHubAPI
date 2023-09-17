@@ -22,9 +22,9 @@ namespace TalkHubAPI.Controllers.ForumControllers
 
         [HttpGet, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ForumThreadDto>))]
-        public IActionResult GetThreads()
+        public async Task<IActionResult> GetThreads()
         {
-            ICollection<ForumThreadDto> threads = _Mapper.Map<List<ForumThreadDto>>(_ForumThreadRepository.GetForumThreads());
+            ICollection<ForumThreadDto> threads = _Mapper.Map<List<ForumThreadDto>>(await _ForumThreadRepository.GetForumThreadsAsync());
 
             if (!ModelState.IsValid)
             {
@@ -37,14 +37,14 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [HttpGet("{threadId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(ForumThreadDto))]
         [ProducesResponseType(400)]
-        public IActionResult GetThread(int threadId)
+        public async Task<IActionResult> GetThread(int threadId)
         {
-            if (!_ForumThreadRepository.ForumThreadExists(threadId))
+            if (!await _ForumThreadRepository.ForumThreadExistsAsync(threadId))
             {
                 return NotFound();
             }
 
-            ForumThreadDto thread = _Mapper.Map<ForumThreadDto>(_ForumThreadRepository.GetForumThread(threadId));
+            ForumThreadDto thread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository.GetForumThreadAsync(threadId));
 
             if (!ModelState.IsValid)
             {
@@ -57,14 +57,14 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateThread([FromBody] ForumThreadDto threadCreate)
+        public async Task<IActionResult> CreateThread([FromBody] ForumThreadDto threadCreate)
         {
             if (threadCreate == null)
             {
                 return BadRequest(ModelState);
             }
 
-            if (_ForumThreadRepository.ForumThreadExists(threadCreate.ThreadName))
+            if (await _ForumThreadRepository.ForumThreadExistsAsync(threadCreate.ThreadName))
             {
                 ModelState.AddModelError("", "Thread already exists");
                 return StatusCode(422, ModelState);
@@ -77,7 +77,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
 
             ForumThread thread = _Mapper.Map<ForumThread>(threadCreate);
 
-            if (!_ForumThreadRepository.AddForumThread(thread))
+            if (!await _ForumThreadRepository.AddForumThreadAsync(thread))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -90,14 +90,14 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateThread(int threadId, [FromBody] ForumThreadDto updatedThread)
+        public async Task<IActionResult> UpdateThread(int threadId, [FromBody] ForumThreadDto updatedThread)
         {
             if (updatedThread == null || threadId != updatedThread.Id)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!_ForumThreadRepository.ForumThreadExists(threadId))
+            if (!await _ForumThreadRepository.ForumThreadExistsAsync(threadId))
             {
                 return NotFound();
             }
@@ -109,7 +109,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
 
             ForumThread threadToUpdate = _Mapper.Map<ForumThread>(updatedThread);
 
-            if (!_ForumThreadRepository.UpdateForumThread(threadToUpdate))
+            if (!await _ForumThreadRepository.UpdateForumThreadAsync(threadToUpdate))
             {
                 ModelState.AddModelError("", "Something went wrong updating the thread");
                 return StatusCode(500, ModelState);
@@ -122,21 +122,21 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteThread(int threadId)
+        public async Task<IActionResult> DeleteThread(int threadId)
         {
-            if (!_ForumThreadRepository.ForumThreadExists(threadId))
+            if (!await _ForumThreadRepository.ForumThreadExistsAsync(threadId))
             {
                 return NotFound();
             }
 
-            ForumThread threadToDelete = _ForumThreadRepository.GetForumThread(threadId);
+            ForumThread threadToDelete = await _ForumThreadRepository.GetForumThreadAsync(threadId);
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!_ForumThreadRepository.RemoveForumThread(threadToDelete))
+            if (!await _ForumThreadRepository.RemoveForumThreadAsync(threadToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong deleting the thread");
             }

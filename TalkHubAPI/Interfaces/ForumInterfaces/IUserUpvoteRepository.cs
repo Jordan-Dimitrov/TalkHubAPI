@@ -4,14 +4,14 @@ namespace TalkHubAPI.Interfaces.ForumInterfaces
 {
     public interface IUserUpvoteRepository
     {
-        bool AddUserUpvote(UserUpvote upvote);
-        bool RemoveUserUpvote(UserUpvote upvote);
-        bool UpdateUserUpvote(UserUpvote upvote);
-        bool UserUpvoteExists(int id);
-        bool Save();
-        bool UserUpvoteExistsForMessageAndUser(int messageId, int userId);
-        UserUpvote GetUserUpvoteByMessageAndUser(int messageId, int userId);
-        UserUpvote GetUserUpvote(int id);
-        ICollection<UserUpvote> GetUserUpvotes();
+        Task<bool> AddUserUpvoteAsync(UserUpvote upvote);
+        Task<bool> RemoveUserUpvoteAsync(UserUpvote upvote);
+        Task<bool> UpdateUserUpvoteAsync(UserUpvote upvote);
+        Task<bool> UserUpvoteExistsAsync(int id);
+        Task<bool> SaveAsync();
+        Task<bool> UserUpvoteExistsForMessageAndUserAsync(int messageId, int userId);
+        Task<UserUpvote> GetUserUpvoteByMessageAndUserAsync(int messageId, int userId);
+        Task<UserUpvote> GetUserUpvoteAsync(int id);
+        Task<IList<UserUpvote>> GetUserUpvotesAsync();
     }
 }
