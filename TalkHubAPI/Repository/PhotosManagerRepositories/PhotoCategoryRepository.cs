@@ -1,4 +1,5 @@
-﻿using TalkHubAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TalkHubAPI.Data;
 using TalkHubAPI.Dto;
 using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
 using TalkHubAPI.Models.PhotosManagerModels;
@@ -13,58 +14,52 @@ namespace TalkHubAPI.Repository.PhotosManagerRepositories
         {
             _Context = context;
         }
-        public bool AddCategory(PhotoCategory category)
+
+        public async Task<bool> AddCategoryAsync(PhotoCategory category)
         {
-            _Context.Add(category);
-            return Save();
+            await _Context.AddAsync(category);
+            return await SaveAsync();
         }
 
-        public bool CategoryExists(int id)
+        public async Task<bool> CategoryExistsAsync(int id)
         {
-            return _Context.PhotoCategories.Any(x => x.Id == id);
+            return await _Context.PhotoCategories.AnyAsync(x => x.Id == id);
         }
 
-        public ICollection<PhotoCategory> GetCategories()
+        public async Task<ICollection<PhotoCategory>> GetCategoriesAsync()
         {
-            return _Context.PhotoCategories.ToList();
+            return await _Context.PhotoCategories.ToListAsync();
         }
 
-        public PhotoCategory GetCategory(int id)
+        public async Task<PhotoCategory> GetCategoryAsync(int id)
         {
-            return _Context.PhotoCategories.Find(id);
+            return await _Context.PhotoCategories.FindAsync(id);
         }
-        public bool RemoveCategory(PhotoCategory category)
+
+        public async Task<bool> RemoveCategoryAsync(PhotoCategory category)
         {
             _Context.Remove(category);
-            return Save();
+            return await SaveAsync();
         }
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            int saved = _Context.SaveChanges();
+            int saved = await _Context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
-        public bool UpdateCategory(PhotoCategory category)
+        public async Task<bool> UpdateCategoryAsync(PhotoCategory category)
         {
             _Context.Update(category);
-            return Save();
-        }
-        public bool PhotoCategoryExists(string name)
-        {
-            var categories = _Context.PhotoCategories;
-            foreach (var category in categories)
-            {
-                if (name == category.CategoryName)
-                {
-                    return true;
-                }
-            }
-            return false;
+            return await SaveAsync();
         }
 
-        public PhotoCategory GetCategoryByName(string categoryName)
+        public async Task<bool> PhotoCategoryExistsAsync(string name)
         {
-            PhotoCategory category = _Context.PhotoCategories.Where(x => x.CategoryName == categoryName).FirstOrDefault();
-            return category;
+            return await _Context.PhotoCategories.AnyAsync(x => x.CategoryName == name);
+        }
+
+        public async Task<PhotoCategory> GetCategoryByNameAsync(string categoryName)
+        {
+            return await _Context.PhotoCategories.FirstOrDefaultAsync(x => x.CategoryName == categoryName);
         }
     }
 }

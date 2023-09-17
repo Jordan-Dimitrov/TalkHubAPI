@@ -21,9 +21,10 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         }
         [HttpGet, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoCategoryDto>))]
-        public IActionResult GetCategories()
+        public async Task<IActionResult> GetCategories()
         {
-            ICollection<PhotoCategoryDto> categories = _Mapper.Map<List<PhotoCategoryDto>>(_PhotoCategoryRepository.GetCategories());
+            ICollection<PhotoCategoryDto> categories = _Mapper.Map<List<PhotoCategoryDto>>(await _PhotoCategoryRepository
+                .GetCategoriesAsync());
 
             if (!ModelState.IsValid)
             {
@@ -36,14 +37,15 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [HttpGet("{categoryId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(PhotoCategoryDto))]
         [ProducesResponseType(400)]
-        public IActionResult GetCategory(int categoryId)
+        public async Task<IActionResult> GetCategory(int categoryId)
         {
-            if (!_PhotoCategoryRepository.CategoryExists(categoryId))
+            if (!await _PhotoCategoryRepository.CategoryExistsAsync(categoryId))
             {
                 return NotFound();
             }
 
-            PhotoCategoryDto category = _Mapper.Map<PhotoCategoryDto>(_PhotoCategoryRepository.GetCategory(categoryId));
+            PhotoCategoryDto category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
+                .GetCategoryAsync(categoryId));
 
             if (!ModelState.IsValid)
             {
@@ -55,14 +57,14 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [HttpPost, Authorize(Roles = "Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateCategory([FromBody] PhotoCategoryDto categoryCreate)
+        public async Task<IActionResult> CreateCategory([FromBody] PhotoCategoryDto categoryCreate)
         {
             if (categoryCreate == null)
             {
                 return BadRequest(ModelState);
             }
 
-            if (_PhotoCategoryRepository.PhotoCategoryExists(categoryCreate.CategoryName))
+            if (await _PhotoCategoryRepository.PhotoCategoryExistsAsync(categoryCreate.CategoryName))
             {
                 ModelState.AddModelError("", "Category already exists");
                 return StatusCode(422, ModelState);
@@ -75,7 +77,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
             PhotoCategory category = _Mapper.Map<PhotoCategory>(categoryCreate);
 
-            if (!_PhotoCategoryRepository.AddCategory(category))
+            if (!await _PhotoCategoryRepository.AddCategoryAsync(category))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -87,14 +89,14 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateCategory(int categoryId, [FromBody] PhotoCategoryDto updatedCategory)
+        public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] PhotoCategoryDto updatedCategory)
         {
             if (updatedCategory == null || categoryId != updatedCategory.Id)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!_PhotoCategoryRepository.CategoryExists(categoryId))
+            if (!await _PhotoCategoryRepository.CategoryExistsAsync(categoryId))
             {
                 return NotFound();
             }
@@ -106,7 +108,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
             PhotoCategory categoryToUpdate = _Mapper.Map<PhotoCategory>(updatedCategory);
 
-            if (!_PhotoCategoryRepository.UpdateCategory(categoryToUpdate))
+            if (!await _PhotoCategoryRepository.UpdateCategoryAsync(categoryToUpdate))
             {
                 ModelState.AddModelError("", "Something went wrong updating the category");
                 return StatusCode(500, ModelState);
@@ -118,21 +120,21 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteCategory(int categoryId)
+        public async Task<IActionResult> DeleteCategory(int categoryId)
         {
-            if (!_PhotoCategoryRepository.CategoryExists(categoryId))
+            if (!await _PhotoCategoryRepository.CategoryExistsAsync(categoryId))
             {
                 return NotFound();
             }
 
-            PhotoCategory categoryToDelete = _PhotoCategoryRepository.GetCategory(categoryId);
+            PhotoCategory categoryToDelete = await _PhotoCategoryRepository.GetCategoryAsync(categoryId);
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!_PhotoCategoryRepository.RemoveCategory(categoryToDelete))
+            if (!await _PhotoCategoryRepository.RemoveCategoryAsync(categoryToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong deleting category");
                 return StatusCode(500, ModelState);

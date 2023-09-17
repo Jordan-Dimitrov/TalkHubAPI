@@ -4,14 +4,14 @@ namespace TalkHubAPI.Interfaces.PhotosManagerInterfaces
 {
     public interface IPhotoRepository
     {
-        bool AddPhoto(Photo photo);
-        bool RemovePhoto(Photo photo);
-        bool UpdatePhoto(Photo photo);
-        bool PhotoExists(int id);
-        bool Save();
-        Photo GetPhoto(int id);
-        ICollection<Photo> GetPhotos();
-        ICollection<Photo> GetPhotosByCategoryId(int categoryId);
-        ICollection<Photo> GetPhotosByUserId(int userId);
+        Task<bool> AddPhotoAsync(Photo photo);
+        Task<bool> RemovePhotoAsync(Photo photo);
+        Task<bool> UpdatePhotoAsync(Photo photo);
+        Task<bool> PhotoExistsAsync(int id);
+        Task<bool> SaveAsync();
+        Task<Photo> GetPhotoAsync(int id);
+        Task<ICollection<Photo>> GetPhotosAsync();
+        Task<ICollection<Photo>> GetPhotosByCategoryIdAsync(int categoryId);
+        Task<ICollection<Photo>> GetPhotosByUserIdAsync(int userId);
     }
 }

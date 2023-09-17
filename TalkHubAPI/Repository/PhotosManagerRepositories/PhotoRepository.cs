@@ -1,4 +1,5 @@
-﻿using TalkHubAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
 using TalkHubAPI.Models.PhotosManagerModels;
 
@@ -12,52 +13,53 @@ namespace TalkHubAPI.Repository.PhotosManagerRepositories
         {
             _Context = context;
         }
-        public bool AddPhoto(Photo photo)
+        public async Task<bool> AddPhotoAsync(Photo photo)
         {
             _Context.Add(photo);
-            return Save();
+            return await SaveAsync();
         }
 
-        public Photo GetPhoto(int id)
+        public async Task<Photo> GetPhotoAsync(int id)
         {
-            return _Context.Photos.Find(id);
+            return await _Context.Photos.FindAsync(id);
         }
 
-        public ICollection<Photo> GetPhotos()
+        public async Task<ICollection<Photo>> GetPhotosAsync()
         {
-            return _Context.Photos.ToList();
+            return await _Context.Photos.ToListAsync();
         }
 
-        public ICollection<Photo> GetPhotosByCategoryId(int categoryId)
+        public async Task<ICollection<Photo>> GetPhotosByCategoryIdAsync(int categoryId)
         {
-            return _Context.Photos.Where(x => x.CategoryId == categoryId).ToList();
-        }
-        public ICollection<Photo> GetPhotosByUserId(int userId)
-        {
-            return _Context.Photos.Where(x => x.UserId == userId).ToList();
+            return await _Context.Photos.Where(x => x.CategoryId == categoryId).ToListAsync();
         }
 
-        public bool PhotoExists(int id)
+        public async Task<ICollection<Photo>> GetPhotosByUserIdAsync(int userId)
         {
-            return _Context.Photos.Any(x => x.Id == id);
+            return await _Context.Photos.Where(x => x.UserId == userId).ToListAsync();
         }
 
-        public bool RemovePhoto(Photo photo)
+        public async Task<bool> PhotoExistsAsync(int id)
+        {
+            return await _Context.Photos.AnyAsync(x => x.Id == id);
+        }
+
+        public async Task<bool> RemovePhotoAsync(Photo photo)
         {
             _Context.Remove(photo);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            int saved = _Context.SaveChanges();
+            int saved = await _Context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdatePhoto(Photo photo)
+        public async Task<bool> UpdatePhotoAsync(Photo photo)
         {
             _Context.Update(photo);
-            return Save();
+            return await SaveAsync();
         }
     }
 }

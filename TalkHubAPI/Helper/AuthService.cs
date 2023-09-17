@@ -79,9 +79,9 @@ namespace TalkHubAPI.Helper
         }
         public string GetUsernameFromJwtToken(string token)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
-            var jwtToken = tokenHandler.ReadJwtToken(token);
+            JwtSecurityToken jwtToken = tokenHandler.ReadJwtToken(token);
 
             string username = jwtToken.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value;
 
