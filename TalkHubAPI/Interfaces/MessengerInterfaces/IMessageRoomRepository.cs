@@ -5,15 +5,15 @@ namespace TalkHubAPI.Interfaces.MessengerInterfaces
 {
     public interface IMessageRoomRepository
     {
-        bool AddMessageRoom(MessageRoom room);
-        bool RemoveMessageRoom(MessageRoom room);
-        bool UpdateMessageRoom(MessageRoom room);
-        bool MessageRoomExists(int id);
-        bool Save();
-        MessageRoom GetMessageRoom(int id);
-        bool MessageRoomExists(string name);
-        MessageRoom GetMessageRoomByName(string name);
-        ICollection<MessageRoom> GetMessageRooms();
-        ICollection<MessageRoom> GetMessageRoomsForUser(int userId);
+        Task<bool> AddMessageRoomAsync(MessageRoom room);
+        Task<bool> RemoveMessageRoomAsync(MessageRoom room);
+        Task<bool> UpdateMessageRoomAsync(MessageRoom room);
+        Task<bool> MessageRoomExistsAsync(int id);
+        Task<bool> SaveAsync();
+        Task<MessageRoom> GetMessageRoomAsync(int id);
+        Task<bool> MessageRoomExistsAsync(string name);
+        Task<MessageRoom> GetMessageRoomByNameAsync(string name);
+        Task<List<MessageRoom>> GetMessageRoomsAsync();
+        Task<List<MessageRoom>> GetMessageRoomsForUserAsync(int userId);
     }
 }

@@ -4,14 +4,16 @@ namespace TalkHubAPI.Interfaces.MessengerInterfaces
 {
     public interface IUserMessageRoomRepository
     {
-        bool AddUserMessageRoom(UserMessageRoom userMessageRoom);
-        bool RemoveUserMessageRoom(UserMessageRoom userMessageRoom);
-        bool UpdateUserMessageRoom(UserMessageRoom userMessageRoom);
-        bool UserMessageRoomExists(int id);
-        bool Save();
-        UserMessageRoom GetUserMessageRoom(int id);
-        ICollection<UserMessageRoom> GetUserMessageRooms();
-        bool UserMessageRoomExistsForRoomAndUser(int roomId, int userId);
+        Task<bool> AddUserMessageRoomAsync(UserMessageRoom userMessageRoom);
+        Task<bool> RemoveUserMessageRoomAsync(UserMessageRoom userMessageRoom);
+        Task<bool> UpdateUserMessageRoomAsync(UserMessageRoom userMessageRoom);
+        Task<bool> UserMessageRoomExistsAsync(int id);
+        Task<bool> UserMessageRoomExistsForRoomAndUserAsync(int roomId, int userId);
+        Task<UserMessageRoom> GetUserMessageRoomAsync(int id);
+        Task<ICollection<UserMessageRoom>> GetUserMessageRoomsAsync();
+        Task<ICollection<UserMessageRoom>> GetUserMessageRoomsAsyncForRoom(int roomId);
+        Task<bool> RemoveUserMessageRoomForRoomId(int roomId);
+        Task<bool> SaveAsync();
 
     }
 }

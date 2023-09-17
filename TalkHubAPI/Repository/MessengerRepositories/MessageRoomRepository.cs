@@ -13,61 +13,61 @@ namespace TalkHubAPI.Repository.MessengerRepositories
         {
             _Context = context;
         }
-        public bool AddMessageRoom(MessageRoom room)
+        public async Task<bool> AddMessageRoomAsync(MessageRoom room)
         {
             _Context.Add(room);
-            return Save();
+            return await SaveAsync();
         }
 
-        public MessageRoom GetMessageRoom(int id)
+        public async Task<MessageRoom> GetMessageRoomAsync(int id)
         {
-            return _Context.MessageRooms.Find(id);
+            return await _Context.MessageRooms.FindAsync(id);
         }
 
-        public MessageRoom GetMessageRoomByName(string name)
+        public async Task<MessageRoom> GetMessageRoomByNameAsync(string name)
         {
-            return _Context.MessageRooms.FirstOrDefault(x => x.RoomName == name);
+            return await _Context.MessageRooms.FirstOrDefaultAsync(x => x.RoomName == name);
         }
 
-        public ICollection<MessageRoom> GetMessageRooms()
+        public async Task<List<MessageRoom>> GetMessageRoomsAsync()
         {
-            return _Context.MessageRooms.ToList();
+            return await _Context.MessageRooms.ToListAsync();
         }
 
-        public ICollection<MessageRoom> GetMessageRoomsForUser(int userId)
+        public async Task<List<MessageRoom>> GetMessageRoomsForUserAsync(int userId)
         {
-            return _Context.MessageRooms
+            return await _Context.MessageRooms
                 .Where(x => x.UserMessageRooms.Any(a => a.UserId == userId))
                 .Include(x => x.MessengerMessages)
-                .ToList();
+                .ToListAsync();
         }
 
-        public bool MessageRoomExists(int id)
+        public async Task<bool> MessageRoomExistsAsync(int id)
         {
-            return _Context.MessageRooms.Any(x => x.Id == id);
+            return await _Context.MessageRooms.AnyAsync(x => x.Id == id);
         }
 
-        public bool MessageRoomExists(string name)
+        public async Task<bool> MessageRoomExistsAsync(string name)
         {
-            return _Context.MessageRooms.Any(x => x.RoomName == name);
+            return await _Context.MessageRooms.AnyAsync(x => x.RoomName == name);
         }
 
-        public bool RemoveMessageRoom(MessageRoom room)
+        public async Task<bool> RemoveMessageRoomAsync(MessageRoom room)
         {
             _Context.Remove(room);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
-        {
-            int saved = _Context.SaveChanges();
-            return saved > 0 ? true : false;
-        }
-
-        public bool UpdateMessageRoom(MessageRoom room)
+        public async Task<bool> UpdateMessageRoomAsync(MessageRoom room)
         {
             _Context.Update(room);
-            return Save();
+            return await SaveAsync();
+        }
+
+        public async Task<bool> SaveAsync()
+        {
+            int saved = await _Context.SaveChangesAsync();
+            return saved > 0 ? true : false;
         }
     }
 }

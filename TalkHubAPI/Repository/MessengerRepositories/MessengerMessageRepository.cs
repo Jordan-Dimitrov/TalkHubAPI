@@ -1,4 +1,5 @@
-﻿using TalkHubAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.MessengerInterfaces;
 using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;
@@ -9,74 +10,78 @@ namespace TalkHubAPI.Repository.MessengerRepositories
     {
         private readonly TalkHubContext _Context;
         private readonly int _MessagesToRetrieve;
-
         public MessengerMessageRepository(TalkHubContext context)
         {
             _Context = context;
             _MessagesToRetrieve = 10;
         }
-        public bool AddMessengerMessage(MessengerMessage message)
+        public async Task<bool> AddMessengerMessageAsync(MessengerMessage message)
         {
             _Context.Add(message);
-            return Save();
+            return await SaveAsync();
         }
 
-        public MessengerMessage GetLastMessage()
+        public async Task<MessengerMessage> GetMessengerMessageAsync(int id)
         {
-            return _Context.MessengerMessages.OrderBy(x => x.Id).FirstOrDefault();
+            return await _Context.MessengerMessages.FindAsync(id);
         }
 
-        public ICollection<MessengerMessage> GetLastTenMessengerMessagesFromLastMessageId(int messageId, int roomId)
+        public async Task<ICollection<MessengerMessage>> GetMessengerMessagesAsync()
         {
-            return _Context.MessengerMessages
-                .Where(x => x.RoomId == roomId && x.Id < messageId)
-                .OrderByDescending(x => x.Id)
-                .Take(_MessagesToRetrieve)
+            return await _Context.MessengerMessages.ToListAsync();
+        }
+
+        public async Task<ICollection<MessengerMessage>> GetLastTenMessengerMessagesFromLastMessageIdAsync(int messageId, int roomId)
+        {
+            return await _Context.MessengerMessages
+                .Where(x => x.Id > messageId && x.RoomId == roomId)
                 .OrderBy(x => x.Id)
-                .ToList();
+                .Take(_MessagesToRetrieve)
+                .ToListAsync();
         }
 
-        public MessengerMessage GetMessengerMessage(int id)
+        public async Task<ICollection<MessengerMessage>> GetMessengerMessagesByRoomIdAsync(int roomId)
         {
-            return _Context.MessengerMessages.Find(id);
+            return await _Context.MessengerMessages
+                .Where(x => x.RoomId == roomId)
+                .ToListAsync();
         }
 
-        public ICollection<MessengerMessage> GetMessengerMessages()
+        public async Task<ICollection<MessengerMessage>> GetMessengerMessagesByUserIdAsync(int userId)
         {
-            return _Context.MessengerMessages.ToList();
+            return await _Context.MessengerMessages
+                .Where(x => x.UserId == userId)
+                .ToListAsync();
         }
 
-        public ICollection<MessengerMessage> GetMessengerMessagesByRoomId(int roomId)
-        {
-            return _Context.MessengerMessages.Where(x => x.RoomId == roomId).ToList();
-        }
-
-        public ICollection<MessengerMessage> GetMessengerMessagesByUserId(int userId)
-        {
-            return _Context.MessengerMessages.Where(x => x.UserId == userId).ToList();
-        }
-
-        public bool MessengerMessageExists(int id)
-        {
-            return _Context.MessengerMessages.Any(x => x.Id == id);
-        }
-
-        public bool RemoveMessengerMessage(MessengerMessage message)
+        public async Task<bool> RemoveMessengerMessageAsync(MessengerMessage message)
         {
             _Context.Remove(message);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
-        {
-            int saved = _Context.SaveChanges();
-            return saved > 0 ? true : false;
-        }
-
-        public bool UpdateMessengerMessage(MessengerMessage message)
+        public async Task<bool> UpdateMessengerMessageAsync(MessengerMessage message)
         {
             _Context.Update(message);
-            return Save();
+            return await SaveAsync();
+        }
+
+        public async Task<bool> MessengerMessageExistsAsync(int id)
+        {
+            return await _Context.MessengerMessages.AnyAsync(x => x.Id == id);
+        }
+
+        public async Task<MessengerMessage> GetLastMessageAsync()
+        {
+            return await _Context.MessengerMessages
+                .OrderByDescending(x => x.Id)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> SaveAsync()
+        {
+            int saved = await _Context.SaveChangesAsync();
+            return saved > 0 ? true : false;
         }
     }
 }

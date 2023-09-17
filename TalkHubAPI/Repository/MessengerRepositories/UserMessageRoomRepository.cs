@@ -1,4 +1,5 @@
-﻿using TalkHubAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.MessengerInterfaces;
 using TalkHubAPI.Models.MessengerModels;
 
@@ -12,48 +13,60 @@ namespace TalkHubAPI.Repository.MessengerRepositories
         {
             _Context = context;
         }
-        public bool AddUserMessageRoom(UserMessageRoom userMessageRoom)
+
+        public async Task<bool> AddUserMessageRoomAsync(UserMessageRoom userMessageRoom)
         {
             _Context.Add(userMessageRoom);
-            return Save();
+            return await SaveAsync();
         }
 
-        public UserMessageRoom GetUserMessageRoom(int id)
+        public async Task<UserMessageRoom> GetUserMessageRoomAsync(int id)
         {
-            return _Context.UserMessageRooms.Find(id);
+            return await _Context.UserMessageRooms.FindAsync(id);
         }
 
-        public ICollection<UserMessageRoom> GetUserMessageRooms()
+        public async Task<ICollection<UserMessageRoom>> GetUserMessageRoomsAsync()
         {
-            return _Context.UserMessageRooms.ToList();
+            return await _Context.UserMessageRooms.ToListAsync();
         }
 
-        public bool RemoveUserMessageRoom(UserMessageRoom userMessageRoom)
+        public async Task<bool> RemoveUserMessageRoomAsync(UserMessageRoom userMessageRoom)
         {
             _Context.Remove(userMessageRoom);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> UpdateUserMessageRoomAsync(UserMessageRoom userMessageRoom)
         {
-            int saved = _Context.SaveChanges();
+            _Context.Update(userMessageRoom);
+            return await SaveAsync();
+        }
+
+        public async Task<bool> UserMessageRoomExistsAsync(int id)
+        {
+            return await _Context.UserMessageRooms.AnyAsync(x => x.Id == id);
+        }
+
+        public async Task<bool> UserMessageRoomExistsForRoomAndUserAsync(int roomId, int userId)
+        {
+            return await _Context.UserMessageRooms.AnyAsync(x => x.RoomId == roomId && x.UserId == userId);
+        }
+
+        public async Task<bool> SaveAsync()
+        {
+            int saved = await _Context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateUserMessageRoom(UserMessageRoom userMessageRoom)
+        public async Task<ICollection<UserMessageRoom>> GetUserMessageRoomsAsyncForRoom(int roomId)
         {
-            _Context.Update(userMessageRoom);
-            return Save();
+            return await _Context.UserMessageRooms.Where(x => x.RoomId == roomId).ToListAsync();
         }
 
-        public bool UserMessageRoomExists(int id)
+        public async Task<bool> RemoveUserMessageRoomForRoomId(int roomId)
         {
-            return _Context.UserMessageRooms.Any(x => x.Id == id);
-        }
-
-        public bool UserMessageRoomExistsForRoomAndUser(int roomId, int userId)
-        {
-            return _Context.UserMessageRooms.Any(x => x.RoomId == roomId && x.UserId == userId);
+            _Context.RemoveRange(await GetUserMessageRoomsAsyncForRoom(roomId));
+            return await SaveAsync();
         }
     }
 }

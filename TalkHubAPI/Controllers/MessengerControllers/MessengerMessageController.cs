@@ -43,11 +43,11 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             _UserRepository = userRepository;
         }
 
-        [HttpGet("{roomId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("messages/{roomId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<MessengerMessageDto>))]
-        public IActionResult GetMessagesFromRoom(int roomId)
+        public async Task<IActionResult> GetMessagesFromRoom(int roomId)
         {
-            if (!_MessageRoomRepository.MessageRoomExists(roomId))
+            if (!await _MessageRoomRepository.MessageRoomExistsAsync(roomId))
             {
                 return NotFound();
             }
@@ -66,15 +66,16 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             }
 
             User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
-            MessageRoom room = _Mapper.Map<MessageRoom>(_MessageRoomRepository.GetMessageRoom(roomId));
+            MessageRoom room = _Mapper.Map<MessageRoom>(await _MessageRoomRepository.GetMessageRoomAsync(roomId));
 
-            if (!_UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUser(room.Id, user.Id))
+            if (!await _UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id))
             {
                 ModelState.AddModelError("", "User has not joined this room");
                 return StatusCode(422, ModelState);
             }
 
-            ICollection<MessengerMessageDto> messages = _Mapper.Map<List<MessengerMessageDto>>(_MessengerMessageRepository.GetMessengerMessagesByRoomId(roomId));
+            ICollection<MessengerMessageDto> messages = _Mapper.Map<List<MessengerMessageDto>>(await _MessengerMessageRepository
+                .GetMessengerMessagesByRoomIdAsync(roomId));
 
             if (!ModelState.IsValid)
             {
@@ -84,12 +85,12 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             return Ok(messages);
         }
 
-        [HttpGet("{messageId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("lastTenMessagesById/{messageId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(MessageRoomDto))]
         [ProducesResponseType(400)]
-        public IActionResult GetLastTenMessengerMessages([FromQuery] int roomId, int messageId)
+        public async Task<IActionResult> GetLastTenMessengerMessages([FromQuery] int roomId, int messageId)
         {
-            if (!_MessageRoomRepository.MessageRoomExists(roomId))
+            if (!await _MessageRoomRepository.MessageRoomExistsAsync(roomId))
             {
                 return NotFound();
             }
@@ -108,21 +109,21 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             }
 
             User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
-            MessageRoom room = _Mapper.Map<MessageRoom>(_MessageRoomRepository.GetMessageRoom(roomId));
+            MessageRoom room = _Mapper.Map<MessageRoom>(await _MessageRoomRepository.GetMessageRoomAsync(roomId));
 
-            if (!_UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUser(room.Id, user.Id))
+            if (!await _UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id))
             {
                 ModelState.AddModelError("", "User has not joined this room");
                 return StatusCode(422, ModelState);
             }
 
-            if (!_MessageRoomRepository.MessageRoomExists(roomId))
+            if (!await _MessageRoomRepository.MessageRoomExistsAsync(roomId))
             {
                 return NotFound();
             }
 
-            ICollection<MessengerMessageDto> messages = _Mapper.Map<List<MessengerMessageDto>>(_MessengerMessageRepository
-                .GetLastTenMessengerMessagesFromLastMessageId(messageId, roomId));
+            ICollection<MessengerMessageDto> messages = _Mapper.Map<List<MessengerMessageDto>>(await _MessengerMessageRepository
+                .GetLastTenMessengerMessagesFromLastMessageIdAsync(messageId, roomId));
 
             if (!ModelState.IsValid)
             {
@@ -136,14 +137,14 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult HideMessage(int messageId)
+        public async Task<IActionResult> HideMessage(int messageId)
         {
-            if (!_MessengerMessageRepository.MessengerMessageExists(messageId))
+            if (!await _MessengerMessageRepository.MessengerMessageExistsAsync(messageId))
             {
                 return NotFound();
             }
 
-            MessengerMessage messageToHide = _MessengerMessageRepository.GetMessengerMessage(messageId);
+            MessengerMessage messageToHide = await _MessengerMessageRepository.GetMessengerMessageAsync(messageId);
 
             if (!ModelState.IsValid)
             {
@@ -161,7 +162,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
 
             messageToHide.MessageContent = "Message was hidden";
 
-            if (!_MessengerMessageRepository.UpdateMessengerMessage(messageToHide))
+            if (!await _MessengerMessageRepository.UpdateMessengerMessageAsync(messageToHide))
             {
                 ModelState.AddModelError("", "Something went wrong updating message");
                 return StatusCode(500, ModelState);

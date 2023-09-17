@@ -49,25 +49,26 @@ namespace TalkHubAPI.Hubs
 
             if (username == null ||
                 !_UserRepository.UsernameExists(username) ||
-                !_MessageRoomRepository.MessageRoomExists(request.RoomName))
+                !await _MessageRoomRepository.MessageRoomExistsAsync(request.RoomName))
             {
                 Context.Abort();
             }
 
             User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
-            MessageRoom room = _Mapper.Map<MessageRoom>(_MessageRoomRepository.GetMessageRoomByName(request.RoomName));
+            MessageRoom room = _Mapper.Map<MessageRoom>(await _MessageRoomRepository
+                .GetMessageRoomByNameAsync(request.RoomName));
 
-            if (!_UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUser(room.Id, user.Id))
+            if (!await _UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id))
             {
                 Context.Abort();
             }
 
             await Groups.AddToGroupAsync(Context.ConnectionId, request.RoomName);
 
-            MessengerMessage lastMessage = _MessengerMessageRepository.GetLastMessage();
+            MessengerMessage lastMessage = await _MessengerMessageRepository.GetLastMessageAsync();
 
-            return _Mapper.Map<List<MessengerMessageDto>>(_MessengerMessageRepository.
-                GetLastTenMessengerMessagesFromLastMessageId(lastMessage.Id, request.Id));
+            return _Mapper.Map<List<MessengerMessageDto>>(await _MessengerMessageRepository.
+                GetLastTenMessengerMessagesFromLastMessageIdAsync(lastMessage.Id, request.Id));
         }
         [Authorize(Roles = "User,Admin")]
 
@@ -88,14 +89,15 @@ namespace TalkHubAPI.Hubs
             }
 
             User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
-            MessageRoom room = _Mapper.Map<MessageRoom>(_MessageRoomRepository.GetMessageRoomByName(request2.RoomName));
+            MessageRoom room = _Mapper.Map<MessageRoom>(_MessageRoomRepository
+                .GetMessageRoomByNameAsync(request2.RoomName));
 
             MessengerMessage message = _Mapper.Map<MessengerMessage>(request);
             message.User = user;
             message.Room = room;
             message.DateCreated = DateTime.Now;
 
-            _MessengerMessageRepository.AddMessengerMessage(message);
+            _MessengerMessageRepository.AddMessengerMessageAsync(message);
 
             return Clients.GroupExcept(message.Room.RoomName, new[] { Context.ConnectionId })
                 .SendAsync("send_message", message.MessageContent);

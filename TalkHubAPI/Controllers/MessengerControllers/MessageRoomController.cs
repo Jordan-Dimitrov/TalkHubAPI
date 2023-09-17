@@ -38,9 +38,9 @@ namespace TalkHubAPI.Controllers.MessengerControllers
 
         [HttpGet, Authorize(Roles = "Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<MessageRoomDto>))]
-        public IActionResult GetRooms()
+        public async Task<IActionResult> GetRooms()
         {
-            ICollection<MessageRoomDto> rooms = _Mapper.Map<List<MessageRoomDto>>(_MessageRoomRepository.GetMessageRooms());
+            ICollection<MessageRoomDto> rooms = _Mapper.Map<List<MessageRoomDto>>(await _MessageRoomRepository.GetMessageRoomsAsync());
 
             if (!ModelState.IsValid)
             {
@@ -52,7 +52,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
 
         [HttpGet("userRooms"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<MessageRoomDto>))]
-        public IActionResult GetUserRooms()
+        public async Task<IActionResult> GetUserRooms()
         {
 
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
@@ -70,8 +70,8 @@ namespace TalkHubAPI.Controllers.MessengerControllers
 
             User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
 
-            ICollection<MessageRoomDto> rooms = _Mapper.Map<List<MessageRoomDto>>(_MessageRoomRepository
-                .GetMessageRoomsForUser(user.Id));
+            ICollection<MessageRoomDto> rooms = _Mapper.Map<List<MessageRoomDto>>(await _MessageRoomRepository
+                .GetMessageRoomsForUserAsync(user.Id));
 
             if (!ModelState.IsValid)
             {
@@ -84,14 +84,14 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [HttpGet("{roomId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(MessageRoomDto))]
         [ProducesResponseType(400)]
-        public IActionResult GetRoom(int roomId)
+        public async Task<IActionResult> GetRoom(int roomId)
         {
-            if (!_MessageRoomRepository.MessageRoomExists(roomId))
+            if (!await _MessageRoomRepository.MessageRoomExistsAsync(roomId))
             {
                 return NotFound();
             }
 
-            MessageRoomDto room = _Mapper.Map<MessageRoomDto>(_MessageRoomRepository.GetMessageRoom(roomId));
+            MessageRoomDto room = _Mapper.Map<MessageRoomDto>(await _MessageRoomRepository.GetMessageRoomAsync(roomId));
 
             if (!ModelState.IsValid)
             {
@@ -104,14 +104,14 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateRoom([FromBody] MessageRoomDto roomCreate)
+        public async Task<IActionResult> CreateRoom([FromBody] MessageRoomDto roomCreate)
         {
             if (roomCreate == null)
             {
                 return BadRequest(ModelState);
             }
 
-            if (_MessageRoomRepository.MessageRoomExists(roomCreate.RoomName))
+            if (await _MessageRoomRepository.MessageRoomExistsAsync(roomCreate.RoomName))
             {
                 ModelState.AddModelError("", "Room with such name already exists");
                 return StatusCode(422, ModelState);
@@ -124,7 +124,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
 
             MessageRoom room = _Mapper.Map<MessageRoom>(roomCreate);
 
-            if (!_MessageRoomRepository.AddMessageRoom(room))
+            if (!await _MessageRoomRepository.AddMessageRoomAsync(room))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -136,9 +136,9 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [HttpPost("joinRoom/{roomId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult JoinRoom(int roomId)
+        public async Task<IActionResult> JoinRoom(int roomId)
         {
-            if (!_MessageRoomRepository.MessageRoomExists(roomId))
+            if (!await _MessageRoomRepository.MessageRoomExistsAsync(roomId))
             {
                 return NotFound();
             }
@@ -157,9 +157,9 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             }
 
             User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
-            MessageRoom room = _Mapper.Map<MessageRoom>(_MessageRoomRepository.GetMessageRoom(roomId));
+            MessageRoom room = _Mapper.Map<MessageRoom>(await _MessageRoomRepository.GetMessageRoomAsync(roomId));
 
-            if (_UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUser(room.Id, user.Id))
+            if (await _UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id))
             {
                 ModelState.AddModelError("", "User has already joined this room");
                 return StatusCode(422, ModelState);
@@ -176,7 +176,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 Room = room
             };
 
-            if (!_UserMessageRoomRepository.AddUserMessageRoom(userMessageRoom))
+            if (!await _UserMessageRoomRepository.AddUserMessageRoomAsync(userMessageRoom))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -189,14 +189,14 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateRoom(int roomId, [FromBody] MessageRoomDto updateRoom)
+        public async Task<IActionResult> UpdateRoom(int roomId, [FromBody] MessageRoomDto updateRoom)
         {
             if (updateRoom == null || roomId != updateRoom.Id)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!_MessageRoomRepository.MessageRoomExists(roomId))
+            if (!await _MessageRoomRepository.MessageRoomExistsAsync(roomId))
             {
                 return NotFound();
             }
@@ -208,7 +208,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
 
             MessageRoom roomToUpdate = _Mapper.Map<MessageRoom>(updateRoom);
 
-            if (!_MessageRoomRepository.UpdateMessageRoom(roomToUpdate))
+            if (!await _MessageRoomRepository.UpdateMessageRoomAsync(roomToUpdate))
             {
                 ModelState.AddModelError("", "Something went wrong updating the room");
                 return StatusCode(500, ModelState);
@@ -221,21 +221,22 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteRoom(int roomId)
+        public async Task<IActionResult> DeleteRoom(int roomId)
         {
-            if (!_MessageRoomRepository.MessageRoomExists(roomId))
+            if (!await _MessageRoomRepository.MessageRoomExistsAsync(roomId))
             {
                 return NotFound();
             }
 
-            MessageRoom roomToDelete = _MessageRoomRepository.GetMessageRoom(roomId);
+            MessageRoom roomToDelete = await _MessageRoomRepository.GetMessageRoomAsync(roomId);
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!_MessageRoomRepository.RemoveMessageRoom(roomToDelete))
+            if (!await _UserMessageRoomRepository.RemoveUserMessageRoomForRoomId(roomId) 
+                || !await _MessageRoomRepository.RemoveMessageRoomAsync(roomToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong deleting the room");
             }
