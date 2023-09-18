@@ -1,4 +1,5 @@
-﻿using TalkHubAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models.VideoPlayerModels;
 
@@ -7,59 +8,61 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
     public class VideoCommentsLikeRepository : IVideoCommentsLikeRepository
     {
         private readonly TalkHubContext _Context;
+
         public VideoCommentsLikeRepository(TalkHubContext context)
         {
             _Context = context;
         }
-        public bool AddVideoCommentsLike(VideoCommentsLike videoCommentsLike)
+
+        public async Task<bool> AddVideoCommentsLikeAsync(VideoCommentsLike videoCommentsLike)
         {
             _Context.Add(videoCommentsLike);
-            return Save();
+            return await SaveAsync();
         }
 
-        public VideoCommentsLike GetVideoCommentsLike(int id)
+        public async Task<VideoCommentsLike> GetVideoCommentsLikeAsync(int id)
         {
-            return _Context.VideoCommentsLikes.Find(id);
+            return await _Context.VideoCommentsLikes.FindAsync(id);
         }
 
-        public VideoCommentsLike GetVideoCommentsLikeByCommentAndUser(int commenteId, int userId)
+        public async Task<VideoCommentsLike> GetVideoCommentsLikeByCommentAndUserAsync(int commentId, int userId)
         {
-            return _Context.VideoCommentsLikes
-                .Where(x => x.VideoCommentId == commenteId && x.UserId == userId)
-                .FirstOrDefault();
+            return await _Context.VideoCommentsLikes
+                .Where(x => x.VideoCommentId == commentId && x.UserId == userId)
+                .FirstOrDefaultAsync();
         }
 
-        public ICollection<VideoCommentsLike> GetVideoCommentsLikes()
+        public async Task<ICollection<VideoCommentsLike>> GetVideoCommentsLikesAsync()
         {
-            return _Context.VideoCommentsLikes.ToList();
+            return await _Context.VideoCommentsLikes.ToListAsync();
         }
 
-        public bool RemoveVideoCommentsLike(VideoCommentsLike videoCommentsLike)
+        public async Task<bool> RemoveVideoCommentsLikeAsync(VideoCommentsLike videoCommentsLike)
         {
             _Context.Remove(videoCommentsLike);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            int saved = _Context.SaveChanges();
+            int saved = await _Context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateVideoCommentsLike(VideoCommentsLike videoCommentsLike)
+        public async Task<bool> UpdateVideoCommentsLikeAsync(VideoCommentsLike videoCommentsLike)
         {
             _Context.Update(videoCommentsLike);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool VideoCommentsLikeExists(int id)
+        public async Task<bool> VideoCommentsLikeExistsAsync(int id)
         {
-            return _Context.VideoCommentsLikes.Any(x => x.Id == id);
+            return await _Context.VideoCommentsLikes.AnyAsync(x => x.Id == id);
         }
 
-        public bool VideoCommentsLikeExistsForCommentAndUser(int commentId, int userId)
+        public async Task<bool> VideoCommentsLikeExistsForCommentAndUserAsync(int commentId, int userId)
         {
-            return _Context.VideoCommentsLikes.Any(x => x.VideoCommentId == commentId && x.UserId == userId);
+            return await _Context.VideoCommentsLikes.AnyAsync(x => x.VideoCommentId == commentId && x.UserId == userId);
         }
     }
 }

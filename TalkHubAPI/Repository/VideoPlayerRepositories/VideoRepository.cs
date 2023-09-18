@@ -13,72 +13,73 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
         {
             _Context = context;
         }
-        public bool AddVideo(Video video)
+
+        public async Task<bool> AddVideoAsync(Video video)
         {
-            _Context.Add(video);
-            return Save();
+            await _Context.AddAsync(video);
+            return await SaveAsync();
         }
 
-        public Video GetVideo(int id)
+        public async Task<Video> GetVideoAsync(int id)
         {
-            return _Context.Videos.Find(id);
+            return await _Context.Videos.FindAsync(id);
         }
 
-        public Video GetVideoByName(string name)
+        public async Task<Video> GetVideoByNameAsync(string name)
         {
-            return _Context.Videos.FirstOrDefault(x => x.VideoName == name);
+            return await _Context.Videos.FirstOrDefaultAsync(x => x.VideoName == name);
         }
 
-        public ICollection<Video> GetVideos()
+        public async Task<ICollection<Video>> GetVideosAsync()
         {
-            return _Context.Videos.ToList();
+            return await _Context.Videos.ToListAsync();
         }
 
-        public ICollection<Video> GetVideosByPlaylistId(int playlistId)
+        public async Task<ICollection<Video>> GetVideosByPlaylistIdAsync(int playlistId)
         {
-            return _Context.Videos
+            return await _Context.Videos
                 .Where(x => x.VideoPlaylists.Any(a => a.PlaylistId == playlistId))
                 .Include(x => x.User)
                 .Include(x => x.Tag)
-                .ToList();
+                .ToListAsync();
         }
 
-        public ICollection<Video> GetVideosByTagId(int tagId)
+        public async Task<ICollection<Video>> GetVideosByTagIdAsync(int tagId)
         {
-            return _Context.Videos.Where(x => x.TagId == tagId).ToList();
+            return await _Context.Videos.Where(x => x.TagId == tagId).ToListAsync();
         }
 
-        public ICollection<Video> GetVideosByUserId(int userId)
+        public async Task<ICollection<Video>> GetVideosByUserIdAsync(int userId)
         {
-            return _Context.Videos.Where(x => x.UserId == userId).ToList();
+            return await _Context.Videos.Where(x => x.UserId == userId).ToListAsync();
         }
 
-        public bool RemoveVideo(Video video)
+        public async Task<bool> RemoveVideoAsync(Video video)
         {
             _Context.Remove(video);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            int saved = _Context.SaveChanges();
+            int saved = await _Context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateVideo(Video video)
+        public async Task<bool> UpdateVideoAsync(Video video)
         {
             _Context.Update(video);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool VideoExists(int id)
+        public async Task<bool> VideoExistsAsync(int id)
         {
-            return _Context.Videos.Any(x => x.Id == id);
+            return await _Context.Videos.AnyAsync(x => x.Id == id);
         }
 
-        public bool VideoExists(string name)
+        public async Task<bool> VideoExistsAsync(string name)
         {
-            return _Context.Videos.Any(x => x.VideoName == name);
+            return await _Context.Videos.AnyAsync(x => x.VideoName == name);
         }
     }
 }

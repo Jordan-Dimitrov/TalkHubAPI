@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.Design;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.Design;
 using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models;
@@ -9,59 +10,61 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
     public class VideoPlaylistRepository : IVideoPlaylistRepository
     {
         private readonly TalkHubContext _Context;
+
         public VideoPlaylistRepository(TalkHubContext context)
         {
             _Context = context;
         }
-        public bool AddVideoPlaylist(VideoPlaylist videoPlaylist)
+
+        public async Task<bool> AddVideoPlaylistAsync(VideoPlaylist videoPlaylist)
         {
             _Context.Add(videoPlaylist);
-            return Save();
+            return await SaveAsync();
         }
 
-        public VideoPlaylist GetVideoPlaylist(int id)
+        public async Task<VideoPlaylist> GetVideoPlaylistAsync(int id)
         {
-            return _Context.VideoPlaylists.Find(id);
+            return await _Context.VideoPlaylists.FindAsync(id);
         }
 
-        public VideoPlaylist GetVideoPlaylistByVideoIdAndPlaylistId(int videoId, int playlistId)
+        public async Task<VideoPlaylist> GetVideoPlaylistByVideoIdAndPlaylistIdAsync(int videoId, int playlistId)
         {
-            return _Context.VideoPlaylists
-                            .Where(x => x.PlaylistId == playlistId && x.VideoId == videoId)
-                            .FirstOrDefault();
+            return await _Context.VideoPlaylists
+                .Where(x => x.PlaylistId == playlistId && x.VideoId == videoId)
+                .FirstOrDefaultAsync();
         }
 
-        public ICollection<VideoPlaylist> GetVideoPlaylists()
+        public async Task<ICollection<VideoPlaylist>> GetVideoPlaylistsAsync()
         {
-            return _Context.VideoPlaylists.ToList();
+            return await _Context.VideoPlaylists.ToListAsync();
         }
 
-        public bool RemoveVideoPlaylist(VideoPlaylist videoPlaylist)
+        public async Task<bool> RemoveVideoPlaylistAsync(VideoPlaylist videoPlaylist)
         {
             _Context.Remove(videoPlaylist);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            int saved = _Context.SaveChanges();
+            int saved = await _Context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateVideoPlaylist(VideoPlaylist videoPlaylist)
+        public async Task<bool> UpdateVideoPlaylistAsync(VideoPlaylist videoPlaylist)
         {
             _Context.Update(videoPlaylist);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool VideoPlaylistExists(int id)
+        public async Task<bool> VideoPlaylistExistsAsync(int id)
         {
-            return _Context.VideoPlaylists.Any(x => x.Id == id);
+            return await _Context.VideoPlaylists.AnyAsync(x => x.Id == id);
         }
 
-        public bool VideoPlaylistExistsForVideoAndPlaylist(int videoId, int playlistId)
+        public async Task<bool> VideoPlaylistExistsForVideoAndPlaylistAsync(int videoId, int playlistId)
         {
-            return _Context.VideoPlaylists.Any(x => x.VideoId == videoId && x.PlaylistId == playlistId);
+            return await _Context.VideoPlaylists.AnyAsync(x => x.VideoId == videoId && x.PlaylistId == playlistId);
         }
     }
 }

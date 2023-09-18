@@ -12,6 +12,6 @@ namespace TalkHubAPI.Interfaces.ForumInterfaces
         Task<bool> UserUpvoteExistsForMessageAndUserAsync(int messageId, int userId);
         Task<UserUpvote> GetUserUpvoteByMessageAndUserAsync(int messageId, int userId);
         Task<UserUpvote> GetUserUpvoteAsync(int id);
-        Task<IList<UserUpvote>> GetUserUpvotesAsync();
+        Task<ICollection<UserUpvote>> GetUserUpvotesAsync();
     }
 }

@@ -3,16 +3,16 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
 {
     public interface IVideoCommentRepository
     {
-        bool AddVideoComment(VideoComment message);
-        bool RemoveVideoComment(VideoComment message);
-        bool UpdateVideoComment(VideoComment message);
-        bool VideoCommentExists(int id);
-        bool Save();
-        VideoComment GetVideoComment(int id);
-        bool VideoCommentExists(string name);
-        VideoComment GetVideoCommentByName(string name);
-        ICollection<VideoComment> GetVideoComments();
-        ICollection<VideoComment> GetVideoCommentsByVideoId(int videoId);
-        ICollection<VideoComment> GetVideoCommentsByUserId(int userId);
+        Task<bool> AddVideoCommentAsync(VideoComment comment);
+        Task<bool> RemoveVideoCommentAsync(VideoComment comment);
+        Task<bool> UpdateVideoCommentAsync(VideoComment comment);
+        Task<bool> VideoCommentExistsAsync(int id);
+        Task<bool> VideoCommentExistsAsync(string name);
+        Task<bool> SaveAsync();
+        Task<VideoComment> GetVideoCommentAsync(int id);
+        Task<VideoComment> GetVideoCommentByNameAsync(string name);
+        Task<ICollection<VideoComment>> GetVideoCommentsAsync();
+        Task<ICollection<VideoComment>> GetVideoCommentsByVideoIdAsync(int videoId);
+        Task<ICollection<VideoComment>> GetVideoCommentsByUserIdAsync(int userId);
     }
 }

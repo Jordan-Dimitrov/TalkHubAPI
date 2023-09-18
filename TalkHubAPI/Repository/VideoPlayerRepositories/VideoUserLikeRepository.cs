@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.Design;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.Design;
 using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models.VideoPlayerModels;
@@ -8,59 +9,61 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
     public class VideoUserLikeRepository : IVideoUserLikeRepository
     {
         private readonly TalkHubContext _Context;
+
         public VideoUserLikeRepository(TalkHubContext context)
         {
             _Context = context;
         }
-        public bool AddVideoUserLike(VideoUserLike videoUserLike)
+
+        public async Task<bool> AddVideoUserLikeAsync(VideoUserLike videoUserLike)
         {
             _Context.Add(videoUserLike);
-            return Save();
+            return await SaveAsync();
         }
 
-        public VideoUserLike GetVideoUserLike(int id)
+        public async Task<VideoUserLike> GetVideoUserLikeAsync(int id)
         {
-            return _Context.VideoUserLikes.Find(id);
+            return await _Context.VideoUserLikes.FindAsync(id);
         }
 
-        public VideoUserLike GetVideoUserLikeByVideoAndUser(int videoId, int userId)
+        public async Task<VideoUserLike> GetVideoUserLikeByVideoAndUserAsync(int videoId, int userId)
         {
-            return _Context.VideoUserLikes
+            return await _Context.VideoUserLikes
                 .Where(x => x.VideoId == videoId && x.UserId == userId)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
 
-        public ICollection<VideoUserLike> GetVideUserLikes()
+        public async Task<ICollection<VideoUserLike>> GetVideoUserLikesAsync()
         {
-            return _Context.VideoUserLikes.ToList();
+            return await _Context.VideoUserLikes.ToListAsync();
         }
 
-        public bool RemoveVideoUserLike(VideoUserLike videoUserLike)
+        public async Task<bool> RemoveVideoUserLikeAsync(VideoUserLike videoUserLike)
         {
             _Context.Remove(videoUserLike);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            int saved = _Context.SaveChanges();
+            int saved = await _Context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateVideoUserLike(VideoUserLike videoUserLike)
+        public async Task<bool> UpdateVideoUserLikeAsync(VideoUserLike videoUserLike)
         {
             _Context.Update(videoUserLike);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool VideoUserLikeExists(int id)
+        public async Task<bool> VideoUserLikeExistsAsync(int id)
         {
-            return _Context.VideoUserLikes.Any(x => x.Id == id);
+            return await _Context.VideoUserLikes.AnyAsync(x => x.Id == id);
         }
 
-        public bool VideoUserLikeExistsForVideoAndUser(int videoId, int userId)
+        public async Task<bool> VideoUserLikeExistsForVideoAndUserAsync(int videoId, int userId)
         {
-            return _Context.VideoUserLikes.Any(x => x.VideoId == videoId && x.UserId == userId);
+            return await _Context.VideoUserLikes.AnyAsync(x => x.VideoId == videoId && x.UserId == userId);
         }
     }
 }

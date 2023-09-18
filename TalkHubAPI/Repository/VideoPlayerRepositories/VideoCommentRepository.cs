@@ -9,67 +9,69 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
     public class VideoCommentRepository : IVideoCommentRepository
     {
         private readonly TalkHubContext _Context;
+
         public VideoCommentRepository(TalkHubContext context)
         {
             _Context = context;
         }
-        public bool AddVideoComment(VideoComment message)
+
+        public async Task<bool> AddVideoCommentAsync(VideoComment comment)
         {
-            _Context.Add(message);
-            return Save();
+            _Context.Add(comment);
+            return await SaveAsync();
         }
 
-        public VideoComment GetVideoComment(int id)
+        public async Task<VideoComment> GetVideoCommentAsync(int id)
         {
-            return _Context.VideoComments.Find(id);
+            return await _Context.VideoComments.FindAsync(id);
         }
 
-        public VideoComment GetVideoCommentByName(string name)
+        public async Task<VideoComment> GetVideoCommentByNameAsync(string name)
         {
-            return _Context.VideoComments.FirstOrDefault(x => x.MessageContent == name);
+            return await _Context.VideoComments.FirstOrDefaultAsync(x => x.MessageContent == name);
         }
 
-        public ICollection<VideoComment> GetVideoComments()
+        public async Task<ICollection<VideoComment>> GetVideoCommentsAsync()
         {
-            return _Context.VideoComments.ToList();
+            return await _Context.VideoComments.ToListAsync();
         }
 
-        public ICollection<VideoComment> GetVideoCommentsByUserId(int userId)
+        public async Task<ICollection<VideoComment>> GetVideoCommentsByUserIdAsync(int userId)
         {
-            return _Context.VideoComments.Where(x => x.UserId == userId).ToList();
+            return await _Context.VideoComments.Where(x => x.UserId == userId).ToListAsync();
         }
 
-        public ICollection<VideoComment> GetVideoCommentsByVideoId(int videoId)
+        public async Task<ICollection<VideoComment>> GetVideoCommentsByVideoIdAsync(int videoId)
         {
-            return _Context.VideoComments.Where(x => x.VideoId == videoId).ToList();
+            return await _Context.VideoComments.Where(x => x.VideoId == videoId).ToListAsync();
         }
 
-        public bool RemoveVideoComment(VideoComment message)
+        public async Task<bool> RemoveVideoCommentAsync(VideoComment comment)
         {
-            _Context.Remove(message);
-            return Save();
+            _Context.Remove(comment);
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            int saved = _Context.SaveChanges();
+            int saved = await _Context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateVideoComment(VideoComment message)
+        public async Task<bool> UpdateVideoCommentAsync(VideoComment comment)
         {
-            _Context.Update(message);
-            return Save();
+            _Context.Update(comment);
+            return await SaveAsync();
         }
 
-        public bool VideoCommentExists(int id)
+        public async Task<bool> VideoCommentExistsAsync(int id)
         {
-            return _Context.VideoComments.Any(x => x.Id == id);
+            return await _Context.VideoComments.AnyAsync(x => x.Id == id);
         }
 
-        public bool VideoCommentExists(string name)
+        public async Task<bool> VideoCommentExistsAsync(string name)
         {
-            return _Context.VideoComments.Any(x => x.MessageContent == name);
+            return await _Context.VideoComments.AnyAsync(x => x.MessageContent == name);
         }
     }
 }

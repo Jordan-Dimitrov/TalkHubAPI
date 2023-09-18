@@ -3,14 +3,14 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
 {
     public interface IVideoCommentsLikeRepository
     {
-        bool AddVideoCommentsLike(VideoCommentsLike videoCommentsLike);
-        bool RemoveVideoCommentsLike(VideoCommentsLike videoCommentsLike);
-        bool UpdateVideoCommentsLike(VideoCommentsLike videoCommentsLike);
-        bool VideoCommentsLikeExists(int id);
-        bool Save();
-        bool VideoCommentsLikeExistsForCommentAndUser(int commentId, int userId);
-        VideoCommentsLike GetVideoCommentsLikeByCommentAndUser(int commenteId, int userId);
-        VideoCommentsLike GetVideoCommentsLike(int id);
-        ICollection<VideoCommentsLike> GetVideoCommentsLikes();
+        Task<bool> AddVideoCommentsLikeAsync(VideoCommentsLike videoCommentsLike);
+        Task<bool> RemoveVideoCommentsLikeAsync(VideoCommentsLike videoCommentsLike);
+        Task<bool> UpdateVideoCommentsLikeAsync(VideoCommentsLike videoCommentsLike);
+        Task<bool> VideoCommentsLikeExistsAsync(int id);
+        Task<bool> SaveAsync();
+        Task<bool> VideoCommentsLikeExistsForCommentAndUserAsync(int commentId, int userId);
+        Task<VideoCommentsLike> GetVideoCommentsLikeByCommentAndUserAsync(int commentId, int userId);
+        Task<VideoCommentsLike> GetVideoCommentsLikeAsync(int id);
+        Task<ICollection<VideoCommentsLike>> GetVideoCommentsLikesAsync();
     }
 }

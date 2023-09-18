@@ -3,14 +3,14 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
 {
     public interface IVideoPlaylistRepository
     {
-        bool AddVideoPlaylist(VideoPlaylist videoPlaylist);
-        bool RemoveVideoPlaylist(VideoPlaylist videoPlaylist);
-        bool UpdateVideoPlaylist(VideoPlaylist videoPlaylist);
-        bool VideoPlaylistExists(int id);
-        bool Save();
-        VideoPlaylist GetVideoPlaylist(int id);
-        VideoPlaylist GetVideoPlaylistByVideoIdAndPlaylistId(int videoId, int playlistId);
-        bool VideoPlaylistExistsForVideoAndPlaylist(int videoId, int playlistId);
-        ICollection<VideoPlaylist> GetVideoPlaylists();
+        Task<bool> AddVideoPlaylistAsync(VideoPlaylist videoPlaylist);
+        Task<bool> RemoveVideoPlaylistAsync(VideoPlaylist videoPlaylist);
+        Task<bool> UpdateVideoPlaylistAsync(VideoPlaylist videoPlaylist);
+        Task<bool> VideoPlaylistExistsAsync(int id);
+        Task<bool> SaveAsync();
+        Task<VideoPlaylist> GetVideoPlaylistAsync(int id);
+        Task<VideoPlaylist> GetVideoPlaylistByVideoIdAndPlaylistIdAsync(int videoId, int playlistId);
+        Task<bool> VideoPlaylistExistsForVideoAndPlaylistAsync(int videoId, int playlistId);
+        Task<ICollection<VideoPlaylist>> GetVideoPlaylistsAsync();
     }
 }

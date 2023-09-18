@@ -23,9 +23,9 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
         [HttpGet, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<VideoTagDto>))]
-        public IActionResult GetTags()
+        public async Task<IActionResult> GetTags()
         {
-            ICollection<VideoTagDto> tags = _Mapper.Map<List<VideoTagDto>>(_VideoTagRepository.GetVideoTags());
+            ICollection<VideoTagDto> tags = _Mapper.Map<List<VideoTagDto>>(await _VideoTagRepository.GetVideoTagsAsync());
 
             if (!ModelState.IsValid)
             {
@@ -38,14 +38,14 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [HttpGet("{tagId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(VideoTagDto))]
         [ProducesResponseType(400)]
-        public IActionResult GetTag(int tagId)
+        public async Task<IActionResult> GetTag(int tagId)
         {
-            if (!_VideoTagRepository.VideoTagExists(tagId))
+            if (!await _VideoTagRepository.VideoTagExistsAsync(tagId))
             {
                 return NotFound();
             }
 
-            VideoTagDto tag = _Mapper.Map<VideoTagDto>(_VideoTagRepository.GetVideoTag(tagId));
+            VideoTagDto tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository.GetVideoTagAsync(tagId));
 
             if (!ModelState.IsValid)
             {
@@ -58,14 +58,14 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateTag([FromBody] VideoTagDto tagCreate)
+        public async Task<IActionResult> CreateTag([FromBody] VideoTagDto tagCreate)
         {
             if (tagCreate == null)
             {
                 return BadRequest(ModelState);
             }
 
-            if (_VideoTagRepository.VideoTagExists(tagCreate.TagName))
+            if (await _VideoTagRepository.VideoTagExistsAsync(tagCreate.TagName))
             {
                 ModelState.AddModelError("", "Tag already exists");
                 return StatusCode(422, ModelState);
@@ -78,7 +78,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             VideoTag tag = _Mapper.Map<VideoTag>(tagCreate);
 
-            if (!_VideoTagRepository.AddVideoTag(tag))
+            if (!await _VideoTagRepository.AddVideoTagAsync(tag))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -91,14 +91,14 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateTag(int tagId, [FromBody] VideoTagDto updatedTag)
+        public async Task<IActionResult> UpdateTag(int tagId, [FromBody] VideoTagDto updatedTag)
         {
             if (updatedTag == null || tagId != updatedTag.Id)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!_VideoTagRepository.VideoTagExists(tagId))
+            if (!await _VideoTagRepository.VideoTagExistsAsync(tagId))
             {
                 return NotFound();
             }
@@ -110,7 +110,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             VideoTag tagToUpdate = _Mapper.Map<VideoTag>(updatedTag);
 
-            if (!_VideoTagRepository.UpdateVideoTag(tagToUpdate))
+            if (!await _VideoTagRepository.UpdateVideoTagAsync(tagToUpdate))
             {
                 ModelState.AddModelError("", "Something went wrong updating the tag");
                 return StatusCode(500, ModelState);
@@ -123,21 +123,21 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult DeleteTag(int tagId)
+        public async Task<IActionResult> DeleteTag(int tagId)
         {
-            if (!_VideoTagRepository.VideoTagExists(tagId))
+            if (!await _VideoTagRepository.VideoTagExistsAsync(tagId))
             {
                 return NotFound();
             }
 
-            VideoTag tagToDelete = _VideoTagRepository.GetVideoTag(tagId);
+            VideoTag tagToDelete = await _VideoTagRepository.GetVideoTagAsync(tagId);
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!_VideoTagRepository.RemoveVideoTag(tagToDelete))
+            if (!await _VideoTagRepository.RemoveVideoTagAsync(tagToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong deleting the tag");
             }

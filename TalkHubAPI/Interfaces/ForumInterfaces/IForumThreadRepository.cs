@@ -10,7 +10,7 @@ namespace TalkHubAPI.Interfaces.ForumInterfaces
         Task<bool> ForumThreadExistsAsync(int id);
         Task<bool> SaveAsync();
         Task<ForumThread> GetForumThreadAsync(int id);
-        Task<IList<ForumThread>> GetForumThreadsAsync();
+        Task<ICollection<ForumThread>> GetForumThreadsAsync();
         Task<bool> ForumThreadExistsAsync(string name);
         Task<ForumThread> GetForumThreadByNameAsync(string name);
     }

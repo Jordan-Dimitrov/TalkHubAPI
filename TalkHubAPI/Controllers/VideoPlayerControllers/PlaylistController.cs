@@ -37,9 +37,10 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
         [HttpGet, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PlaylistDto>))]
-        public IActionResult GetPlaylists()
+        public async Task<IActionResult> GetPlaylists()
         {
-            ICollection<PlaylistDto> playlists = _Mapper.Map<List<PlaylistDto>>(_PlaylistRepository.GetPlaylists());
+            ICollection<PlaylistDto> playlists = _Mapper.Map<List<PlaylistDto>>(await _PlaylistRepository
+                .GetPlaylistsAsync());
 
             if (!ModelState.IsValid)
             {
@@ -50,9 +51,10 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         }
         [HttpGet("playlistsByUser/{userId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PlaylistDto>))]
-        public IActionResult GetPlaylistsByUser(int userId)
+        public async Task<IActionResult> GetPlaylistsByUser(int userId)
         {
-            ICollection<PlaylistDto> playlists = _Mapper.Map<List<PlaylistDto>>(_PlaylistRepository.GetPlaylistsByUserId(userId));
+            ICollection<PlaylistDto> playlists = _Mapper.Map<List<PlaylistDto>>(await _PlaylistRepository
+                .GetPlaylistsByUserIdAsync(userId));
 
             if (!ModelState.IsValid)
             {
@@ -64,14 +66,15 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [HttpGet("{playlistId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(PlaylistDto))]
         [ProducesResponseType(400)]
-        public IActionResult GetPlaylist(int playlistId)
+        public async Task<IActionResult> GetPlaylist(int playlistId)
         {
-            if (!_PlaylistRepository.PlaylistExists(playlistId))
+            if (!await _PlaylistRepository.PlaylistExistsAsync(playlistId))
             {
                 return NotFound();
             }
 
-            PlaylistDto playlist = _Mapper.Map<PlaylistDto>(_PlaylistRepository.GetPlaylist(playlistId));
+            PlaylistDto playlist = _Mapper.Map<PlaylistDto>(await _PlaylistRepository
+                .GetPlaylistAsync(playlistId));
 
             if (!ModelState.IsValid)
             {
@@ -84,14 +87,14 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreatePlaylist([FromBody] PlaylistDto playlistCreate)
+        public async Task<IActionResult> CreatePlaylist([FromBody] PlaylistDto playlistCreate)
         {
             if (playlistCreate == null)
             {
                 return BadRequest(ModelState);
             }
 
-            if (_PlaylistRepository.PlaylistExists(playlistCreate.PlaylistName))
+            if (await _PlaylistRepository.PlaylistExistsAsync(playlistCreate.PlaylistName))
             {
                 ModelState.AddModelError("", "Playlist already exists");
                 return StatusCode(422, ModelState);
@@ -119,7 +122,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!_PlaylistRepository.AddPlaylist(playlist))
+            if (!await _PlaylistRepository.AddPlaylistAsync(playlist))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -132,14 +135,14 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult UpdatePlaylist(int playlistId, [FromBody] PlaylistDto updatedPlaylist)
+        public async Task<IActionResult> UpdatePlaylist(int playlistId, [FromBody] PlaylistDto updatedPlaylist)
         {
             if (updatedPlaylist == null || playlistId != updatedPlaylist.Id)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!_PlaylistRepository.PlaylistExists(playlistId))
+            if (!await _PlaylistRepository.PlaylistExistsAsync(playlistId))
             {
                 return NotFound();
             }
@@ -166,7 +169,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             Playlist playlistToUpdate = _Mapper.Map<Playlist>(updatedPlaylist);
             playlistToUpdate.User = user;
 
-            if (!_PlaylistRepository.UpdatePlaylist(playlistToUpdate))
+            if (!await _PlaylistRepository.UpdatePlaylistAsync(playlistToUpdate))
             {
                 ModelState.AddModelError("", "Something went wrong updating the playlist");
                 return StatusCode(500, ModelState);
@@ -178,14 +181,14 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [HttpPost("addToPlaylist"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult AddVideoToPlaylist([FromQuery] int videoId, [FromBody] PlaylistDto playlistCreate)
+        public async Task<IActionResult> AddVideoToPlaylist([FromQuery] int videoId, [FromBody] PlaylistDto playlistCreate)
         {
             if (playlistCreate == null)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!_PlaylistRepository.PlaylistExists(playlistCreate.Id))
+            if (!await _PlaylistRepository.PlaylistExistsAsync(playlistCreate.Id))
             {
                 return BadRequest("This playlist does not exist");
             }
@@ -204,17 +207,17 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             }
 
             User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
-            Playlist playlist = _Mapper.Map<Playlist>(_PlaylistRepository.GetPlaylist(playlistCreate.Id));
+            Playlist playlist = _Mapper.Map<Playlist>(await _PlaylistRepository.GetPlaylistAsync(playlistCreate.Id));
             VideoPlaylist videoPlaylist = new VideoPlaylist();
             videoPlaylist.Playlist = playlist;
-            videoPlaylist.Video = _Mapper.Map<Video>(_VideoRepository.GetVideo(videoId));
+            videoPlaylist.Video = _Mapper.Map<Video>(await _VideoRepository.GetVideoAsync(videoId));
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!_VideoPlaylistRepository.AddVideoPlaylist(videoPlaylist))
+            if (!await _VideoPlaylistRepository.AddVideoPlaylistAsync(videoPlaylist))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -226,14 +229,14 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [HttpDelete("deleteFromPlaylist"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult DeleteVideoFromPlaylist([FromQuery] int videoId, [FromBody] PlaylistDto playlistCreate)
+        public async Task<IActionResult> DeleteVideoFromPlaylist([FromQuery] int videoId, [FromBody] PlaylistDto playlistCreate)
         {
             if (playlistCreate == null)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!_PlaylistRepository.PlaylistExists(playlistCreate.Id))
+            if (!await _PlaylistRepository.PlaylistExistsAsync(playlistCreate.Id))
             {
                 return BadRequest("This playlist does not exist");
             }
@@ -251,23 +254,24 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (_VideoPlaylistRepository.VideoPlaylistExistsForVideoAndPlaylist(videoId, playlistCreate.Id))
+            if (!await _VideoPlaylistRepository.VideoPlaylistExistsForVideoAndPlaylistAsync(videoId, playlistCreate.Id))
             {
                 return BadRequest("Video in this playlist does not exist!");
             }
 
             User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
-            Playlist playlist = _Mapper.Map<Playlist>(_PlaylistRepository.GetPlaylist(playlistCreate.Id));
+            Playlist playlist = _Mapper.Map<Playlist>(await _PlaylistRepository.GetPlaylistAsync(playlistCreate.Id));
+
             VideoPlaylist videoPlaylist = _Mapper
-                .Map<VideoPlaylist>(_VideoPlaylistRepository
-                .GetVideoPlaylistByVideoIdAndPlaylistId(videoId, playlist.Id));
+                .Map<VideoPlaylist>(await _VideoPlaylistRepository
+                .GetVideoPlaylistByVideoIdAndPlaylistIdAsync(videoId, playlist.Id));
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!_VideoPlaylistRepository.RemoveVideoPlaylist(videoPlaylist))
+            if (!await _VideoPlaylistRepository.RemoveVideoPlaylistAsync(videoPlaylist))
             {
                 ModelState.AddModelError("", "Something went wrong deleting the playlist");
                 return StatusCode(500, ModelState);
@@ -280,21 +284,21 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult DeletePlaylist(int playlistId)
+        public async Task<IActionResult> DeletePlaylist(int playlistId)
         {
-            if (!_PlaylistRepository.PlaylistExists(playlistId))
+            if (!await _PlaylistRepository.PlaylistExistsAsync(playlistId))
             {
                 return NotFound();
             }
 
-            Playlist playlistToDelete = _PlaylistRepository.GetPlaylist(playlistId);
+            Playlist playlistToDelete = await _PlaylistRepository.GetPlaylistAsync(playlistId);
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!_PlaylistRepository.RemovePlaylist(playlistToDelete))
+            if (!await _PlaylistRepository.RemovePlaylistAsync(playlistToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong deleting the playlist");
             }

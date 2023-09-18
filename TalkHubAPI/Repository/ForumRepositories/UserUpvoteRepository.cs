@@ -31,7 +31,7 @@ namespace TalkHubAPI.Repository.ForumRepositories
             return await _Context.UserUpvotes.FirstOrDefaultAsync(x => x.MessageId == messageId && x.UserId == userId);
         }
 
-        public async Task<IList<UserUpvote>> GetUserUpvotesAsync()
+        public async Task<ICollection<UserUpvote>> GetUserUpvotesAsync()
         {
             return await _Context.UserUpvotes.ToListAsync();
         }

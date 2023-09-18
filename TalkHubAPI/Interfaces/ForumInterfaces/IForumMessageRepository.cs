@@ -12,8 +12,8 @@ namespace TalkHubAPI.Interfaces.ForumInterfaces
         Task<ForumMessage> GetForumMessageAsync(int id);
         Task<bool> ForumMessageExistsAsync(string name);
         Task<ForumMessage> GetForumMessageByNameAsync(string name);
-        Task<IList<ForumMessage>> GetForumMessagesAsync();
-        Task<IList<ForumMessage>> GetForumMessagesByForumThreadIdAsync(int forumThreadId);
-        Task<IList<ForumMessage>> GetForumMessagesByUserIdAsync(int userId);
+        Task<ICollection<ForumMessage>> GetForumMessagesAsync();
+        Task<ICollection<ForumMessage>> GetForumMessagesByForumThreadIdAsync(int forumThreadId);
+        Task<ICollection<ForumMessage>> GetForumMessagesByUserIdAsync(int userId);
     }
 }

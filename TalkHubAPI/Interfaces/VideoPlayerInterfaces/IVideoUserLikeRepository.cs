@@ -4,14 +4,14 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
 {
     public interface IVideoUserLikeRepository
     {
-        bool AddVideoUserLike(VideoUserLike videoUserLike);
-        bool RemoveVideoUserLike(VideoUserLike videoUserLike);
-        bool UpdateVideoUserLike(VideoUserLike videoUserLike);
-        bool VideoUserLikeExists(int id);
-        bool Save();
-        bool VideoUserLikeExistsForVideoAndUser(int videoId, int userId);
-        VideoUserLike GetVideoUserLikeByVideoAndUser(int videoId, int userId);
-        VideoUserLike GetVideoUserLike(int id);
-        ICollection<VideoUserLike> GetVideUserLikes();
+        Task<bool> AddVideoUserLikeAsync(VideoUserLike videoUserLike);
+        Task<bool> RemoveVideoUserLikeAsync(VideoUserLike videoUserLike);
+        Task<bool> UpdateVideoUserLikeAsync(VideoUserLike videoUserLike);
+        Task<bool> VideoUserLikeExistsAsync(int id);
+        Task<bool> SaveAsync();
+        Task<bool> VideoUserLikeExistsForVideoAndUserAsync(int videoId, int userId);
+        Task<VideoUserLike> GetVideoUserLikeByVideoAndUserAsync(int videoId, int userId);
+        Task<VideoUserLike> GetVideoUserLikeAsync(int id);
+        Task<ICollection<VideoUserLike>> GetVideoUserLikesAsync();
     }
 }

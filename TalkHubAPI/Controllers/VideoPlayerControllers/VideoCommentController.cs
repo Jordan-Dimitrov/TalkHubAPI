@@ -45,7 +45,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [Authorize]
-        public IActionResult CreateVideoComment(CreateVideoCommentDto commentDto)
+        public async Task<IActionResult> CreateVideoComment(CreateVideoCommentDto commentDto)
         {
             if (commentDto == null)
             {
@@ -65,7 +65,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (!_VideoRepository.VideoExists(commentDto.VideoId))
+            if (!await _VideoRepository.VideoExistsAsync(commentDto.VideoId))
             {
                 return BadRequest("This video does not exist");
             }
@@ -76,12 +76,12 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             }
 
             VideoComment comment = _Mapper.Map<VideoComment>(commentDto);
-            comment.Video = _Mapper.Map<Video>(_VideoRepository.GetVideo(commentDto.VideoId));
+            comment.Video = _Mapper.Map<Video>(await _VideoRepository.GetVideoAsync(commentDto.VideoId));
             comment.User = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
             comment.DateCreated = DateTime.Now;
             comment.LikeCount = 0;
 
-            if (!_VideoCommentRepository.AddVideoComment(comment))
+            if (!await _VideoCommentRepository.AddVideoCommentAsync(comment))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -93,20 +93,26 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [HttpGet("{videoCommentId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(VideoCommentDto))]
         [ProducesResponseType(400)]
-        public IActionResult GetVideoComment(int videoCommentId)
+        public async Task<IActionResult> GetVideoComment(int videoCommentId)
         {
-            if (!_VideoCommentRepository.VideoCommentExists(videoCommentId))
+            if (!await _VideoCommentRepository.VideoCommentExistsAsync(videoCommentId))
             {
                 return NotFound();
             }
 
-            VideoComment comment = _VideoCommentRepository.GetVideoComment(videoCommentId);
-            VideoCommentDto commentDto = _Mapper.Map<VideoCommentDto>(_VideoCommentRepository.GetVideoComment(videoCommentId));
-            Video video = _VideoRepository.GetVideo(comment.VideoId);
+            VideoComment comment = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
+
+            VideoCommentDto commentDto = _Mapper.Map<VideoCommentDto>(await _VideoCommentRepository
+                .GetVideoCommentAsync(videoCommentId));
+
+            Video video = await _VideoRepository.GetVideoAsync(comment.VideoId);
 
             commentDto.User = _Mapper.Map<UserDto>(_UserRepository.GetUser(comment.UserId));
-            commentDto.Video = _Mapper.Map<VideoDto>(_VideoRepository.GetVideo(comment.VideoId));
-            commentDto.Video.Tag = _Mapper.Map<VideoTagDto>(_VideoTagRepository.GetVideoTag(comment.Video.TagId));
+            commentDto.Video = _Mapper.Map<VideoDto>(await _VideoRepository.GetVideoAsync(comment.VideoId));
+
+            commentDto.Video.Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository
+                .GetVideoTagAsync(comment.Video.TagId));
+
             commentDto.Video.User = _Mapper.Map<UserDto>(_UserRepository.GetUser(video.UserId));
 
             if (!ModelState.IsValid)
@@ -120,16 +126,19 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [HttpGet("videoCommentsByVideoId/{videoId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<VideoCommentDto>))]
         [ProducesResponseType(typeof(void), 404)]
-        public IActionResult GetAllCommentsByVideo(int videoId)
+        public async Task<IActionResult> GetAllCommentsByVideo(int videoId)
         {
-            if (!_VideoRepository.VideoExists(videoId))
+            if (!await _VideoRepository.VideoExistsAsync(videoId))
             {
                 return BadRequest("This video does not exist");
             }
 
-            List<VideoComment> comments = _VideoCommentRepository.GetVideoCommentsByVideoId(videoId).ToList();
+            List<VideoComment> comments = (await _VideoCommentRepository
+                .GetVideoCommentsByVideoIdAsync(videoId)).ToList();
+
             List<VideoCommentDto> commentDtos = _Mapper
-                .Map<List<VideoCommentDto>>(_VideoCommentRepository.GetVideoCommentsByVideoId(videoId)).ToList();
+                .Map<List<VideoCommentDto>>(await _VideoCommentRepository
+                .GetVideoCommentsByVideoIdAsync(videoId)).ToList();
 
             if (!ModelState.IsValid)
             {
@@ -138,11 +147,14 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             for (int i = 0; i < comments.Count; i++)
             {
-                Video video = _VideoRepository.GetVideo(comments[i].VideoId);
+                Video video = await _VideoRepository.GetVideoAsync(comments[i].VideoId);
 
-                commentDtos[i].Video = _Mapper.Map<VideoDto>(_VideoRepository.GetVideo(comments[i].VideoId));
+                commentDtos[i].Video = _Mapper.Map<VideoDto>(await _VideoRepository.GetVideoAsync(comments[i].VideoId));
                 commentDtos[i].User = _Mapper.Map<UserDto>(_UserRepository.GetUser(comments[i].UserId));
-                commentDtos[i].Video.Tag = _Mapper.Map<VideoTagDto>(_VideoTagRepository.GetVideoTag(comments[i].Video.TagId));
+
+                commentDtos[i].Video.Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository
+                    .GetVideoTagAsync(comments[i].Video.TagId));
+
                 commentDtos[i].Video.User = _Mapper.Map<UserDto>(_UserRepository.GetUser(video.UserId));
             }
 
@@ -153,14 +165,14 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        public IActionResult HideMessage(int videoCommentId)
+        public async Task<IActionResult> HideMessage(int videoCommentId)
         {
-            if (!_VideoRepository.VideoExists(videoCommentId))
+            if (!await _VideoRepository.VideoExistsAsync(videoCommentId))
             {
                 return NotFound();
             }
 
-            VideoComment commentToHide = _VideoCommentRepository.GetVideoComment(videoCommentId);
+            VideoComment commentToHide = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
 
             if (!ModelState.IsValid)
             {
@@ -169,7 +181,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             commentToHide.MessageContent = "message was hidden";
 
-            if (!_VideoCommentRepository.UpdateVideoComment(commentToHide))
+            if (!await _VideoCommentRepository.UpdateVideoCommentAsync(commentToHide))
             {
                 ModelState.AddModelError("", "Something went wrong updating comment");
                 return StatusCode(500, ModelState);
@@ -182,7 +194,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [Authorize]
-        public IActionResult UpvoteVideoComment([FromQuery] int upvoteValue, int videoCommentId)
+        public async Task<IActionResult> UpvoteVideoComment([FromQuery] int upvoteValue, int videoCommentId)
         {
             if (upvoteValue != 1 && upvoteValue != -1)
             {
@@ -202,7 +214,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (!_VideoCommentRepository.VideoCommentExists(videoCommentId))
+            if (!await _VideoCommentRepository.VideoCommentExistsAsync(videoCommentId))
             {
                 return BadRequest("This video does not exist");
             }
@@ -212,10 +224,10 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            VideoComment comment = _VideoCommentRepository.GetVideoComment(videoCommentId);
+            VideoComment comment = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
             User user = _UserRepository.GetUserByName(username);
 
-            if (!_VideoCommentsLikeRepository.VideoCommentsLikeExistsForCommentAndUser(comment.Id,user.Id))
+            if (!await _VideoCommentsLikeRepository.VideoCommentsLikeExistsForCommentAndUserAsync(comment.Id,user.Id))
             {
                 VideoCommentsLike videoCommentsLikeToAdd = new VideoCommentsLike();
                 videoCommentsLikeToAdd.Rating = upvoteValue;
@@ -223,7 +235,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 videoCommentsLikeToAdd.User = user;
                 comment.LikeCount += upvoteValue;
 
-                if (!_VideoCommentsLikeRepository.AddVideoCommentsLike(videoCommentsLikeToAdd))
+                if (!await _VideoCommentsLikeRepository.AddVideoCommentsLikeAsync(videoCommentsLikeToAdd))
                 {
                     ModelState.AddModelError("", "Something went wrong while saving");
                     return StatusCode(500, ModelState);
@@ -232,8 +244,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return NoContent();
             }
 
-            VideoCommentsLike videoCommentsLike = _VideoCommentsLikeRepository
-                .GetVideoCommentsLikeByCommentAndUser(comment.Id, user.Id);
+            VideoCommentsLike videoCommentsLike = await _VideoCommentsLikeRepository
+                .GetVideoCommentsLikeByCommentAndUserAsync(comment.Id, user.Id);
 
             if (upvoteValue == videoCommentsLike.Rating)
             {
@@ -247,8 +259,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 comment.LikeCount += upvoteValue - temp;
             }
 
-            if (!_VideoCommentRepository.UpdateVideoComment(comment) ||
-                !_VideoCommentsLikeRepository.UpdateVideoCommentsLike(videoCommentsLike))
+            if (!await _VideoCommentRepository.UpdateVideoCommentAsync(comment) ||
+                !await _VideoCommentsLikeRepository.UpdateVideoCommentsLikeAsync(videoCommentsLike))
             {
                 ModelState.AddModelError("", "Something went wrong while updating");
                 return StatusCode(500, ModelState);

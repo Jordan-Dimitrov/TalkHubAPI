@@ -40,19 +40,19 @@ namespace TalkHubAPI.Repository.ForumRepositories
             return await _Context.ForumMessages.FirstOrDefaultAsync(x => x.MessageContent == name);
         }
 
-        public async Task<IList<ForumMessage>> GetForumMessagesAsync()
+        public async Task<ICollection<ForumMessage>> GetForumMessagesAsync()
         {
             return await _Context.ForumMessages.ToListAsync();
         }
 
-        public async Task<IList<ForumMessage>> GetForumMessagesByForumThreadIdAsync(int forumThreadId)
+        public async Task<ICollection<ForumMessage>> GetForumMessagesByForumThreadIdAsync(int forumThreadId)
         {
             return await _Context.ForumMessages
                 .Where(x => x.ForumThreadId == forumThreadId)
                 .ToListAsync();
         }
 
-        public async Task<IList<ForumMessage>> GetForumMessagesByUserIdAsync(int userId)
+        public async Task<ICollection<ForumMessage>> GetForumMessagesByUserIdAsync(int userId)
         {
             return await _Context.ForumMessages
                 .Where(x => x.UserId == userId)

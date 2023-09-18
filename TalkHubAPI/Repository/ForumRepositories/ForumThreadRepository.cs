@@ -40,7 +40,7 @@ namespace TalkHubAPI.Repository.ForumRepositories
             return await _Context.ForumThreads.FirstOrDefaultAsync(x => x.ThreadName == name);
         }
 
-        public async Task<IList<ForumThread>> GetForumThreadsAsync()
+        public async Task<ICollection<ForumThread>> GetForumThreadsAsync()
         {
             return await _Context.ForumThreads.ToListAsync();
         }

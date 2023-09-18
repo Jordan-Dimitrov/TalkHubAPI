@@ -1,4 +1,5 @@
-﻿using TalkHubAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models.VideoPlayerModels;
 
@@ -11,53 +12,54 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
         {
             _Context = context;
         }
-        public bool AddVideoTag(VideoTag tag)
+
+        public async Task<bool> AddVideoTagAsync(VideoTag tag)
         {
-            _Context.Add(tag);
-            return Save();
+            await _Context.AddAsync(tag);
+            return await SaveAsync();
         }
 
-        public VideoTag GetVideoTag(int id)
+        public async Task<VideoTag> GetVideoTagAsync(int id)
         {
-            return _Context.VideoTags.Find(id);
+            return await _Context.VideoTags.FindAsync(id);
         }
 
-        public VideoTag GetVideoTagByName(string name)
+        public async Task<VideoTag> GetVideoTagByNameAsync(string name)
         {
-            return _Context.VideoTags.FirstOrDefault(x => x.TagName == name);
+            return await _Context.VideoTags.FirstOrDefaultAsync(x => x.TagName == name);
         }
 
-        public ICollection<VideoTag> GetVideoTags()
+        public async Task<ICollection<VideoTag>> GetVideoTagsAsync()
         {
-            return _Context.VideoTags.ToList();
+            return await _Context.VideoTags.ToListAsync();
         }
 
-        public bool RemoveVideoTag(VideoTag tag)
+        public async Task<bool> RemoveVideoTagAsync(VideoTag tag)
         {
             _Context.Remove(tag);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            int saved = _Context.SaveChanges();
+            int saved = await _Context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateVideoTag(VideoTag tag)
+        public async Task<bool> UpdateVideoTagAsync(VideoTag tag)
         {
             _Context.Update(tag);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool VideoTagExists(int id)
+        public async Task<bool> VideoTagExistsAsync(int id)
         {
-            return _Context.VideoTags.Any(x => x.Id == id);
+            return await _Context.VideoTags.AnyAsync(x => x.Id == id);
         }
 
-        public bool VideoTagExists(string name)
+        public async Task<bool> VideoTagExistsAsync(string name)
         {
-            return _Context.VideoTags.Any(x => x.TagName == name);
+            return await _Context.VideoTags.AnyAsync(x => x.TagName == name);
         }
     }
 }

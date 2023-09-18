@@ -3,14 +3,14 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
 {
     public interface IVideoTagRepository
     {
-        bool AddVideoTag(VideoTag tag);
-        bool RemoveVideoTag(VideoTag tag);
-        bool UpdateVideoTag(VideoTag tag);
-        bool VideoTagExists(int id);
-        bool Save();
-        VideoTag GetVideoTag(int id);
-        ICollection<VideoTag> GetVideoTags();
-        bool VideoTagExists(string name);
-        VideoTag GetVideoTagByName(string name);
+        Task<bool> AddVideoTagAsync(VideoTag tag);
+        Task<bool> RemoveVideoTagAsync(VideoTag tag);
+        Task<bool> UpdateVideoTagAsync(VideoTag tag);
+        Task<bool> VideoTagExistsAsync(int id);
+        Task<bool> SaveAsync();
+        Task<VideoTag> GetVideoTagAsync(int id);
+        Task<ICollection<VideoTag>> GetVideoTagsAsync();
+        Task<bool> VideoTagExistsAsync(string name);
+        Task<VideoTag> GetVideoTagByNameAsync(string name);
     }
 }

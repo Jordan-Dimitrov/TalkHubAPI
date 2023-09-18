@@ -1,4 +1,5 @@
-﻿using TalkHubAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models.VideoPlayerModels;
 
@@ -12,58 +13,59 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
         {
             _Context = context;
         }
-        public bool AddPlaylist(Playlist playlist)
+
+        public async Task<bool> AddPlaylistAsync(Playlist playlist)
         {
-            _Context.Add(playlist);
-            return Save();
+            await _Context.AddAsync(playlist);
+            return await SaveAsync();
         }
 
-        public Playlist GetPlaylist(int id)
+        public async Task<Playlist> GetPlaylistAsync(int id)
         {
-            return _Context.Playlists.Find(id);
+            return await _Context.Playlists.FindAsync(id);
         }
 
-        public Playlist GetPlaylistByName(string name)
+        public async Task<Playlist> GetPlaylistByNameAsync(string name)
         {
-            return _Context.Playlists.FirstOrDefault(x => x.PlaylistName == name);
+            return await _Context.Playlists.FirstOrDefaultAsync(x => x.PlaylistName == name);
         }
 
-        public ICollection<Playlist> GetPlaylists()
+        public async Task<ICollection<Playlist>> GetPlaylistsAsync()
         {
-            return _Context.Playlists.ToList();
+            return await _Context.Playlists.ToListAsync();
         }
 
-        public ICollection<Playlist> GetPlaylistsByUserId(int userId)
+        public async Task<ICollection<Playlist>> GetPlaylistsByUserIdAsync(int userId)
         {
-            return _Context.Playlists.Where(x => x.UserId == userId).ToList();
+            return await _Context.Playlists.Where(x => x.UserId == userId).ToListAsync();
         }
 
-        public bool PlaylistExists(int id)
+        public async Task<bool> PlaylistExistsAsync(int id)
         {
-            return _Context.Playlists.Any(x => x.Id == id);
+            return await _Context.Playlists.AnyAsync(x => x.Id == id);
         }
 
-        public bool PlaylistExists(string name)
+        public async Task<bool> PlaylistExistsAsync(string name)
         {
-            return _Context.Playlists.Any(x => x.PlaylistName == name);
+            return await _Context.Playlists.AnyAsync(x => x.PlaylistName == name);
         }
 
-        public bool RemovePlaylist(Playlist playlist)
+        public async Task<bool> RemovePlaylistAsync(Playlist playlist)
         {
             _Context.Remove(playlist);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            int saved = _Context.SaveChanges();
+            int saved = await _Context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdatePlaylist(Playlist playlist)
+        public async Task<bool> UpdatePlaylistAsync(Playlist playlist)
         {
             _Context.Update(playlist);
-            return Save();
+            return await SaveAsync();
         }
     }
 }
