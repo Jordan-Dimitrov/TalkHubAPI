@@ -22,11 +22,12 @@
                 _Mapper = mapper;
                 _AuthService = authService;
             }
+
             [HttpGet, Authorize(Roles = "User,Admin")]
             [ProducesResponseType(200, Type = typeof(IEnumerable<UserDto>))]
-            public IActionResult GetUsers()
+            public async Task<IActionResult> GetUsers()
             {
-                ICollection<UserDto> users = _Mapper.Map<List<UserDto>>(_UserRepository.GetUsers());
+                ICollection<UserDto> users = _Mapper.Map<List<UserDto>>(await _UserRepository.GetUsersAsync());
 
                 if (!ModelState.IsValid)
                 {
@@ -39,14 +40,14 @@
             [HttpGet("{userId}"), Authorize(Roles = "User,Admin")]
             [ProducesResponseType(200, Type = typeof(UserDto))]
             [ProducesResponseType(400)]
-            public IActionResult GetUser(int userId)
+            public async Task<IActionResult> GetUser(int userId)
             {
-                if (!_UserRepository.UserExists(userId))
+                if (!await _UserRepository.UserExistsAsync(userId))
                 {
                     return NotFound();
                 }
 
-                UserDto user = _Mapper.Map<UserDto>(_UserRepository.GetUser(userId));
+                UserDto user = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(userId));
 
                 if (!ModelState.IsValid)
                 {
@@ -59,14 +60,14 @@
             [HttpPost("register")]
             [ProducesResponseType(201)]
             [ProducesResponseType(400)]
-            public IActionResult Register([FromBody]CreateUserDto request)
+            public async Task<IActionResult> Register([FromBody]CreateUserDto request)
             {
                 if (request==null)
                 {
                     return BadRequest(ModelState);
                 }
 
-                if (_UserRepository.UsernameExists(request.Username))
+                if (await _UserRepository.UsernameExistsAsync(request.Username))
                 {
                     return BadRequest("User already exists!");
                 }
@@ -83,7 +84,7 @@
                 user.PasswordSalt = passwordSalt;
                 user.PermissionType = 0;
 
-                if (!_UserRepository.CreateUser(user))
+                if (!await _UserRepository.CreateUserAsync(user))
                 {
                     ModelState.AddModelError("", "Something went wrong while saving");
                     return StatusCode(500, ModelState);
@@ -94,14 +95,14 @@
             [HttpPost("login")]
             [ProducesResponseType(200)]
             [ProducesResponseType(400)]
-            public IActionResult Login(CreateUserDto request)
+            public async Task<IActionResult> Login(CreateUserDto request)
             {
                 if (request == null)
                 {
                     return BadRequest(ModelState);
                 }
 
-                if (!_UserRepository.UsernameExists(request.Username))
+                if (!await _UserRepository.UsernameExistsAsync(request.Username))
                 {
                     return BadRequest("User with such name does not exist!");
                 }
@@ -111,7 +112,7 @@
                     return BadRequest(ModelState);
                 }
 
-                User user = _Mapper.Map<User>(_UserRepository.GetUserByName(request.Username));
+                User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(request.Username));
 
                 if (!_AuthService.VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
                 {
@@ -122,7 +123,7 @@
 
                 RefreshToken refreshToken = _AuthService.GenerateRefreshToken();
 
-                if (!_UserRepository.UpdateRefreshTokenToUser(user, refreshToken))
+                if (!await _UserRepository.UpdateRefreshTokenToUserAsync(user, refreshToken))
                 {
                     ModelState.AddModelError("", "Something went wrong while updating the refresh token");
                     return StatusCode(500, ModelState);
@@ -135,7 +136,7 @@
             [HttpPost("refresh-token"), Authorize(Roles = "User,Admin")]
             [ProducesResponseType(200)]
             [ProducesResponseType(400)]
-            public IActionResult GetRefreshToken()
+            public async Task<IActionResult> GetRefreshToken()
             {
                 string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
                 string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
@@ -145,7 +146,7 @@
                     return BadRequest(ModelState);
                 }
 
-                if (!_UserRepository.UsernameExists(username))
+                if (!await _UserRepository.UsernameExistsAsync(username))
                 {
                     return BadRequest("User with such name does not exist!");
                 }
@@ -157,7 +158,7 @@
                     return BadRequest(ModelState);
                 }
 
-                User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
+                User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
 
                 if (!user.RefreshToken.Token.Equals(refreshToken))
                 {
@@ -173,7 +174,7 @@
 
                 RefreshToken newRefreshToken = _AuthService.GenerateRefreshToken();
 
-                if (!_UserRepository.UpdateRefreshTokenToUser(user, newRefreshToken))
+                if (!await _UserRepository.UpdateRefreshTokenToUserAsync(user, newRefreshToken))
                 {
                     ModelState.AddModelError("", "Something went wrong while updating the refresh token");
                     return StatusCode(500, ModelState);

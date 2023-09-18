@@ -60,7 +60,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!_UserRepository.UsernameExists(username))
+            if (!await _UserRepository.UsernameExistsAsync(username))
             {
                 return BadRequest("User with such name does not exist!");
             }
@@ -77,7 +77,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             VideoComment comment = _Mapper.Map<VideoComment>(commentDto);
             comment.Video = _Mapper.Map<Video>(await _VideoRepository.GetVideoAsync(commentDto.VideoId));
-            comment.User = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
+            comment.User = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
             comment.DateCreated = DateTime.Now;
             comment.LikeCount = 0;
 
@@ -107,13 +107,13 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             Video video = await _VideoRepository.GetVideoAsync(comment.VideoId);
 
-            commentDto.User = _Mapper.Map<UserDto>(_UserRepository.GetUser(comment.UserId));
+            commentDto.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(comment.UserId));
             commentDto.Video = _Mapper.Map<VideoDto>(await _VideoRepository.GetVideoAsync(comment.VideoId));
 
             commentDto.Video.Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository
                 .GetVideoTagAsync(comment.Video.TagId));
 
-            commentDto.Video.User = _Mapper.Map<UserDto>(_UserRepository.GetUser(video.UserId));
+            commentDto.Video.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(video.UserId));
 
             if (!ModelState.IsValid)
             {
@@ -150,12 +150,12 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 Video video = await _VideoRepository.GetVideoAsync(comments[i].VideoId);
 
                 commentDtos[i].Video = _Mapper.Map<VideoDto>(await _VideoRepository.GetVideoAsync(comments[i].VideoId));
-                commentDtos[i].User = _Mapper.Map<UserDto>(_UserRepository.GetUser(comments[i].UserId));
+                commentDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(comments[i].UserId));
 
                 commentDtos[i].Video.Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository
                     .GetVideoTagAsync(comments[i].Video.TagId));
 
-                commentDtos[i].Video.User = _Mapper.Map<UserDto>(_UserRepository.GetUser(video.UserId));
+                commentDtos[i].Video.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(video.UserId));
             }
 
             return Ok(commentDtos);
@@ -209,7 +209,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!_UserRepository.UsernameExists(username))
+            if (!await _UserRepository.UsernameExistsAsync(username))
             {
                 return BadRequest("User with such name does not exist!");
             }
@@ -225,7 +225,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             }
 
             VideoComment comment = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
-            User user = _UserRepository.GetUserByName(username);
+            User user = await _UserRepository.GetUserByNameAsync(username);
 
             if (!await _VideoCommentsLikeRepository.VideoCommentsLikeExistsForCommentAndUserAsync(comment.Id,user.Id))
             {

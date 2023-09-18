@@ -63,12 +63,12 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!_UserRepository.UsernameExists(username))
+            if (!await _UserRepository.UsernameExistsAsync(username))
             {
                 return BadRequest("User with such name does not exist!");
             }
 
-            User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
+            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
 
             ICollection<MessageRoomDto> rooms = _Mapper.Map<List<MessageRoomDto>>(await _MessageRoomRepository
                 .GetMessageRoomsForUserAsync(user.Id));
@@ -151,12 +151,12 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!_UserRepository.UsernameExists(username))
+            if (!await _UserRepository.UsernameExistsAsync(username))
             {
                 return BadRequest("User with such name does not exist!");
             }
 
-            User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
+            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
             MessageRoom room = _Mapper.Map<MessageRoom>(await _MessageRoomRepository.GetMessageRoomAsync(roomId));
 
             if (await _UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id))

@@ -15,66 +15,64 @@ namespace TalkHubAPI.Repository
             _Context = context;
         }
 
-        public bool CreateUser(User user)
+        public async Task<bool> CreateUserAsync(User user)
         {
             _Context.Add(user);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool DeleteUser(User user)
+        public async Task<bool> DeleteUserAsync(User user)
         {
             _Context.Remove(user);
-            return Save();
+            return await SaveAsync();
         }
 
-        public User GetUser(int id)
+        public async Task<User> GetUserAsync(int id)
         {
-            return _Context.Users.Find(id);
+            return await _Context.Users.FindAsync(id);
         }
 
-        public ICollection<User> GetUsers()
+        public async Task<ICollection<User>> GetUsersAsync()
         {
-            return _Context.Users.ToList();
+            return await _Context.Users.ToListAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            int saved = _Context.SaveChanges();
+            int saved = await _Context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateUser(User user)
+        public async Task<bool> UpdateUserAsync(User user)
         {
             _Context.Update(user);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool UserExists(int id)
+        public async Task<bool> UserExistsAsync(int id)
         {
-            return _Context.Users.Any(x => x.Id == id);
+            return await _Context.Users.AnyAsync(x => x.Id == id);
         }
-        public bool UsernameExists(string name)
+
+        public async Task<bool> UsernameExistsAsync(string name)
         {
-            var users = _Context.Users;
-            foreach (var user in users)
+            return await _Context.Users.AnyAsync(x => x.Username == name);
+        }
+
+        public async Task<User> GetUserByNameAsync(string username)
+        {
+            var user = await _Context.Users.Where(x => x.Username == username).FirstOrDefaultAsync();
+            if (user != null)
             {
-                if (name==user.Username)
-                {
-                    return true;
-                }
+                await _Context.Entry(user).Reference(u => u.RefreshToken).LoadAsync();
             }
-            return false;
-        }
-        public User GetUserByName(string username)
-        {
-            var user = _Context.Users.Where(x => x.Username == username).FirstOrDefault();
-            _Context.Entry(user).Reference(u => u.RefreshToken).Load();
             return user;
         }
-        public bool UpdateRefreshTokenToUser(User user, RefreshToken newRefreshToken)
+
+        public async Task<bool> UpdateRefreshTokenToUserAsync(User user, RefreshToken newRefreshToken)
         {
             user.RefreshToken = newRefreshToken;
-            return UpdateUser(user);
+            return await UpdateUserAsync(user);
         }
     }
 }

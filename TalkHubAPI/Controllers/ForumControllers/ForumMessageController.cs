@@ -59,7 +59,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest(ModelState);
             }
 
-            if (!_UserRepository.UsernameExists(username))
+            if (!await _UserRepository.UsernameExistsAsync(username))
             {
                 return BadRequest("User with such name does not exist!");
             }
@@ -77,7 +77,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             ForumMessage message = _Mapper.Map<ForumMessage>(messageDto);
             message.ForumThread = _Mapper.Map<ForumThread>(await _ForumThreadRepository.GetForumThreadAsync(message.ForumThreadId));
 
-            User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
+            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
             message.DateCreated = DateTime.Now;
             message.User = user;
             message.UpvoteCount = 0;
@@ -115,7 +115,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest(ModelState);
             }
 
-            if (!_UserRepository.UsernameExists(username))
+            if (!await _UserRepository.UsernameExistsAsync(username))
             {
                 return BadRequest("User with such name does not exist!");
             }
@@ -140,7 +140,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             ForumMessage message = _Mapper.Map<ForumMessage>(messageDto);
             message.ForumThread = _Mapper.Map<ForumThread>(await _ForumThreadRepository.GetForumThreadAsync(message.ForumThreadId));
 
-            User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
+            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
             message.FileName = file.FileName;
             message.DateCreated = DateTime.Now;
             message.User = user;
@@ -176,7 +176,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             for (int i = 0; i < messages.Count; i++)
             {
                 messageDto[i].ForumThread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository.GetForumThreadAsync(messages[i].ForumThreadId));
-                messageDto[i].User = _Mapper.Map<UserDto>(_UserRepository.GetUser(messages[i].UserId));
+                messageDto[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(messages[i].UserId));
             }
 
             return Ok(messageDto);
@@ -214,7 +214,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
 
             ForumMessage message = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
             ForumMessageDto messageDto = _Mapper.Map<ForumMessageDto>(await _ForumMessageRepository.GetForumMessageAsync(forumMessageId));
-            messageDto.User = _Mapper.Map<UserDto>(_UserRepository.GetUser(message.UserId));
+            messageDto.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(message.UserId));
             messageDto.ForumThread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository.GetForumThreadAsync(message.ForumThreadId));
 
             if (!ModelState.IsValid)
@@ -282,7 +282,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest(ModelState);
             }
 
-            if (!_UserRepository.UsernameExists(username))
+            if (!await _UserRepository.UsernameExistsAsync(username))
             {
                 return BadRequest("User with such name does not exist!");
             }
@@ -298,7 +298,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             }
 
             ForumMessage message = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
-            User user = _UserRepository.GetUserByName(username);
+            User user = await _UserRepository.GetUserByNameAsync(username);
 
             if (!await _UserUpvoteRepository.UserUpvoteExistsForMessageAndUserAsync(message.Id, user.Id))
             {

@@ -19,6 +19,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             _PhotoCategoryRepository = photoCategoryRepository;
             _Mapper = mapper;
         }
+
         [HttpGet, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoCategoryDto>))]
         public async Task<IActionResult> GetCategories()

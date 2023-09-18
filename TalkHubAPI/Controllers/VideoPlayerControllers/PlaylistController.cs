@@ -108,12 +108,12 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!_UserRepository.UsernameExists(username))
+            if (!await _UserRepository.UsernameExistsAsync(username))
             {
                 return BadRequest("User with such name does not exist!");
             }
 
-            User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
+            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
             Playlist playlist = _Mapper.Map<Playlist>(playlistCreate);
             playlist.User = user;
 
@@ -155,7 +155,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!_UserRepository.UsernameExists(username))
+            if (!await _UserRepository.UsernameExistsAsync(username))
             {
                 return BadRequest("User with such name does not exist!");
             }
@@ -165,7 +165,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest();
             }
 
-            User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
+            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
             Playlist playlistToUpdate = _Mapper.Map<Playlist>(updatedPlaylist);
             playlistToUpdate.User = user;
 
@@ -201,12 +201,12 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!_UserRepository.UsernameExists(username))
+            if (!await _UserRepository.UsernameExistsAsync(username))
             {
                 return BadRequest("User with such name does not exist!");
             }
 
-            User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
+            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
             Playlist playlist = _Mapper.Map<Playlist>(await _PlaylistRepository.GetPlaylistAsync(playlistCreate.Id));
             VideoPlaylist videoPlaylist = new VideoPlaylist();
             videoPlaylist.Playlist = playlist;
@@ -249,7 +249,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!_UserRepository.UsernameExists(username))
+            if (!await _UserRepository.UsernameExistsAsync(username))
             {
                 return BadRequest("User with such name does not exist!");
             }
@@ -259,7 +259,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("Video in this playlist does not exist!");
             }
 
-            User user = _Mapper.Map<User>(_UserRepository.GetUserByName(username));
+            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
             Playlist playlist = _Mapper.Map<Playlist>(await _PlaylistRepository.GetPlaylistAsync(playlistCreate.Id));
 
             VideoPlaylist videoPlaylist = _Mapper
