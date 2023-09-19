@@ -67,6 +67,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         }
 
         [HttpPost, Authorize(Roles = "User,Admin")]
+        [RequestSizeLimit(100_000_000)]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [Authorize]
@@ -112,18 +113,18 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            string response1 = await _FileProcessingService.UploadVideoAsync(video);
-
-            if (response1 == "Empty" || response1 == "Invalid file format" || response1 == "File already exists")
-            {
-                return BadRequest(response1);
-            }
-
             string response2 = await _FileProcessingService.UploadImageAsync(thumbnail);
 
             if (response2 == "Empty" || response2 == "Invalid file format" || response2 == "File already exists")
             {
                 return BadRequest(response2);
+            }
+
+            string response1 = await _FileProcessingService.UploadVideoAsync(video);
+
+            if (response1 == "Empty" || response1 == "Invalid file format" || response1 == "File already exists")
+            {
+                return BadRequest(response1);
             }
 
             if (!ModelState.IsValid)
@@ -240,12 +241,12 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetVideo(string fileName)
         {
-            if (_FileProcessingService.GetContentType(fileName) != "video/webm")
+            if (_FileProcessingService.GetContentType(fileName) != "video/mp4")
             {
                 return BadRequest(ModelState);
             }
 
-            FileStreamResult file = _FileProcessingService.GetVideos(fileName);
+            FileStreamResult file = _FileProcessingService.GetVideo(fileName);
 
             if (file == null)
             {
@@ -260,7 +261,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetThumbnail(string fileName)
         {
-            if (_FileProcessingService.GetContentType(fileName) == "video/mp4")
+            if (_FileProcessingService.GetContentType(fileName) != "image/webp")
             {
                 return BadRequest(ModelState);
             }

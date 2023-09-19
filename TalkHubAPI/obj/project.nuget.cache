@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "FzOR4R5tIabqeDnAIRmT0lJz9lBK/beabBQFX6TrsbT0MQx/0OZuP1uklUMxhK82Kh/9tA4GlI4/GucAPgRMRA==",
+  "dgSpecHash": "7Z5z5y7jHOGZqyJ1dksmFFiII3Yn/8KTcUhH4lEfGGZStMkDTptKozKiPaxrjmBvxXXd8UyK+rTWdYLI533SWw==",
   "success": true,
   "projectFilePath": "C:\\Users\\PC\\Desktop\\Projects\\TalkHubAPI\\TalkHubAPI\\TalkHubAPI.csproj",
   "expectedPackageFiles": [
@@ -11,7 +11,6 @@
     "C:\\Users\\PC\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\PC\\.nuget\\packages\\imageprocessor\\2.9.1\\imageprocessor.2.9.1.nupkg.sha512",
     "C:\\Users\\PC\\.nuget\\packages\\imageprocessor.plugins.webp\\1.3.0\\imageprocessor.plugins.webp.1.3.0.nupkg.sha512",
-    "C:\\Users\\PC\\.nuget\\packages\\mediatoolkit\\1.1.0.1\\mediatoolkit.1.1.0.1.nupkg.sha512",
     "C:\\Users\\PC\\.nuget\\packages\\microsoft.aspnetcore.authentication.abstractions\\2.2.0\\microsoft.aspnetcore.authentication.abstractions.2.2.0.nupkg.sha512",
     "C:\\Users\\PC\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\6.0.20\\microsoft.aspnetcore.authentication.jwtbearer.6.0.20.nupkg.sha512",
     "C:\\Users\\PC\\.nuget\\packages\\microsoft.aspnetcore.authorization\\2.2.0\\microsoft.aspnetcore.authorization.2.2.0.nupkg.sha512",
@@ -195,16 +194,6 @@
       "warningLevel": 1,
       "message": "Package 'ImageProcessor.Plugins.WebP 1.3.0' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net6.0'. This package may not be fully compatible with your project.",
       "libraryId": "ImageProcessor.Plugins.WebP",
-      "targetGraphs": [
-        "net6.0"
-      ]
-    },
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Package 'MediaToolkit 1.1.0.1' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net6.0'. This package may not be fully compatible with your project.",
-      "libraryId": "MediaToolkit",
       "targetGraphs": [
         "net6.0"
       ]

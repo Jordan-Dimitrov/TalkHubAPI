@@ -130,7 +130,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetMedia(string fileName)
         {
-            if (_FileProcessingService.GetContentType(fileName) == "video/mp4")
+            if (_FileProcessingService.GetContentType(fileName) != "image/webp")
             {
                 return BadRequest(ModelState);
             }

@@ -102,7 +102,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest(ModelState);
             }
 
-            if (_FileProcessingService.GetContentType(file.FileName) == "video/mp4")
+            if (_FileProcessingService.GetContentType(file.FileName) != "image/webp")
             {
                 return BadRequest(ModelState);
             }

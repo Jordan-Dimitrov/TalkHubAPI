@@ -185,6 +185,5 @@ C:\Users\PC\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\Newtonsoft.J
 C:\Users\PC\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\System.Net.WebSockets.WebSocketProtocol.dll
 C:\Users\PC\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\ImageProcessor.dll
 C:\Users\PC\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\ImageProcessor.Plugins.WebP.dll
-C:\Users\PC\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\MediaToolkit.dll
 C:\Users\PC\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
 C:\Users\PC\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll

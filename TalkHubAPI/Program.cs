@@ -19,6 +19,8 @@ using TalkHubAPI.Repository.MessengerRepositories;
 using TalkHubAPI.Repository.PhotosManagerRepositories;
 using TalkHubAPI.Repository.VideoPlayerRepositories;
 using TalkHubAPI.Hubs;
+using Microsoft.AspNetCore.Http.Features;
+
 namespace TalkHubAPI
 {
     public class Program

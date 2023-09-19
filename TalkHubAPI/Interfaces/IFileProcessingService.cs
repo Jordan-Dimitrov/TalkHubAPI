@@ -8,7 +8,7 @@ namespace TalkHubAPI.Interfaces
         Task<string> UploadImageAsync(IFormFile file);
         Task<string> UploadVideoAsync(IFormFile file);
         Task<FileContentResult> GetImageAsync(string fileName);
-        FileStreamResult GetVideos(string fileName);
+        FileStreamResult GetVideo(string fileName);
         string GetContentType(string fileName);
         Task<bool> RemoveMediaAsync(string fileName);
     }

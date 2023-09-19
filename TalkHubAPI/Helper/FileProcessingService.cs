@@ -2,9 +2,6 @@
 using ImageProcessor;
 using Microsoft.AspNetCore.Mvc;
 using TalkHubAPI.Interfaces;
-using MediaToolkit;
-using MediaToolkit.Model;
-using MediaToolkit.Options;
 
 namespace TalkHubAPI.Helper
 {
@@ -47,10 +44,6 @@ namespace TalkHubAPI.Helper
             else if (fileName.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase))
             {
                 return "video/mp4";
-            }
-            else if (fileName.EndsWith(".webm", StringComparison.OrdinalIgnoreCase))
-            {
-                return "video/webm";
             }
             else
             {
@@ -143,22 +136,10 @@ namespace TalkHubAPI.Helper
                 await file.CopyToAsync(stream);
             }
 
-            MediaFile inputFile = new MediaFile { Filename = filePath };
-            string webMFileName = Path.GetFileNameWithoutExtension(file.FileName) + ".webm";
-            string webMFilePath = Path.Combine(_UploadsDirectory, webMFileName);
-            MediaFile outputFile = new MediaFile { Filename = webMFilePath };
-
-            using (Engine engine = new Engine())
-            {
-                engine.Convert(inputFile, outputFile);
-            }
-
-            File.Delete(filePath);
-
-            return webMFileName;
+            return fileName;
         }
 
-        public FileStreamResult GetVideos(string fileName)
+        public FileStreamResult GetVideo(string fileName)
         {
             string filePath = Path.Combine(_UploadsDirectory, fileName);
 

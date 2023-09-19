@@ -11,7 +11,6 @@
           "AutoMapper.Extensions.Microsoft.DependencyInjection": "12.0.1",
           "ImageProcessor": "2.9.1",
           "ImageProcessor.Plugins.WebP": "1.3.0",
-          "MediaToolkit": "1.1.0.1",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "6.0.20",
           "Microsoft.AspNetCore.SignalR": "1.1.0",
           "Microsoft.EntityFrameworkCore.SqlServer": "7.0.9",
@@ -109,14 +108,6 @@
           "lib/net452/ImageProcessor.Plugins.WebP.dll": {
             "assemblyVersion": "1.3.0.152",
             "fileVersion": "1.3.0.152"
-          }
-        }
-      },
-      "MediaToolkit/1.1.0.1": {
-        "runtime": {
-          "lib/net40/MediaToolkit.dll": {
-            "assemblyVersion": "1.1.0.1",
-            "fileVersion": "1.1.0.1"
           }
         }
       },
@@ -1672,13 +1663,6 @@
       "sha512": "sha512-b/XezEJDaiEp9bUhoPMXbPPSes7ugA+z97sRu5CnpOkGnbbJZJtgaz16uSp63/7DHqNuaL+g/Tr9mPmS0HzjVA==",
       "path": "imageprocessor.plugins.webp/1.3.0",
       "hashPath": "imageprocessor.plugins.webp.1.3.0.nupkg.sha512"
-    },
-    "MediaToolkit/1.1.0.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-R3u+udQOUDBGUzx4wOHsp6yiSLMdJle7a9E7JK4/btL4w/pdXAmNHP2JMe2Fpt35kLjKNE74oNKUM1hc6RceIA==",
-      "path": "mediatoolkit/1.1.0.1",
-      "hashPath": "mediatoolkit.1.1.0.1.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Authentication.Abstractions/2.2.0": {
       "type": "package",
