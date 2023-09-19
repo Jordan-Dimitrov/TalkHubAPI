@@ -125,7 +125,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest("This thread does not exist");
             }
 
-            string response = _FileProcessingService.UploadMedia(file);
+            string response = await _FileProcessingService.UploadImageAsync(file);
 
             if (response == "Empty" || response == "Invalid file format" || response == "File already exists")
             {
@@ -141,7 +141,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             message.ForumThread = _Mapper.Map<ForumThread>(await _ForumThreadRepository.GetForumThreadAsync(message.ForumThreadId));
 
             User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
-            message.FileName = file.FileName;
+            message.FileName = response;
             message.DateCreated = DateTime.Now;
             message.User = user;
             message.UpvoteCount = 0;
@@ -185,14 +185,14 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [HttpGet("file/{fileName}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(void), 404)]
-        public IActionResult GetMedia(string fileName)
+        public async Task<IActionResult> GetMedia(string fileName)
         {
             if (_FileProcessingService.GetContentType(fileName) == "video/mp4")
             {
                 return BadRequest(ModelState);
             }
 
-            FileContentResult file = _FileProcessingService.GetMedia(fileName);
+            FileContentResult file = await _FileProcessingService.GetImageAsync(fileName);
 
             if (file == null)
             {
@@ -245,7 +245,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
 
             if (messageToHide.FileName!=null)
             {
-                if (!_FileProcessingService.RemoveMedia(messageToHide.FileName))
+                if (!await _FileProcessingService.RemoveMediaAsync(messageToHide.FileName))
                 {
                     return BadRequest("Unexpected error");
                 }

@@ -9,6 +9,7 @@ using TalkHubAPI.Models;
 using TalkHubAPI.Dto.VideoPlayerDtos;
 using TalkHubAPI.Models.VideoPlayerModels;
 using TalkHubAPI.Repository.VideoPlayerRepositories;
+using Azure;
 
 namespace TalkHubAPI.Controllers.VideoPlayerControllers
 {
@@ -105,14 +106,14 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            string response1 = _FileProcessingService.UploadMedia(video);
+            string response1 = await _FileProcessingService.UploadVideoAsync(video);
 
             if (response1 == "Empty" || response1 == "Invalid file format" || response1 == "File already exists")
             {
                 return BadRequest(response1);
             }
 
-            string response2 = _FileProcessingService.UploadMedia(thumbnail);
+            string response2 = await _FileProcessingService.UploadImageAsync(thumbnail);
 
             if (response2 == "Empty" || response2 == "Invalid file format" || response2 == "File already exists")
             {
@@ -129,8 +130,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
 
-            videoToUpload.ThumbnailName = thumbnail.FileName;
-            videoToUpload.Mp4name = video.FileName;
+            videoToUpload.ThumbnailName = response2;
+            videoToUpload.Mp4name = response1;
             videoToUpload.LikeCount = 0;
             videoToUpload.User = user;
 
@@ -233,12 +234,12 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetVideo(string fileName)
         {
-            if (_FileProcessingService.GetContentType(fileName) != "video/mp4")
+            if (_FileProcessingService.GetContentType(fileName) != "video/webm")
             {
                 return BadRequest(ModelState);
             }
 
-            FileContentResult file = _FileProcessingService.GetMedia(fileName);
+            FileStreamResult file = _FileProcessingService.GetVideos(fileName);
 
             if (file == null)
             {
@@ -251,14 +252,14 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [HttpGet("thumbnail/{fileName}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(void), 404)]
-        public IActionResult GetThumbnail(string fileName)
+        public async Task<IActionResult> GetThumbnail(string fileName)
         {
             if (_FileProcessingService.GetContentType(fileName) == "video/mp4")
             {
                 return BadRequest(ModelState);
             }
 
-            FileContentResult file = _FileProcessingService.GetMedia(fileName);
+            FileContentResult file = await _FileProcessingService.GetImageAsync(fileName);
 
             if (file == null)
             {
@@ -286,8 +287,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!_FileProcessingService.RemoveMedia(videoToHide.Mp4name) ||
-                !_FileProcessingService.RemoveMedia(videoToHide.ThumbnailName))
+            if (!await _FileProcessingService.RemoveMediaAsync(videoToHide.Mp4name) ||
+                !await _FileProcessingService.RemoveMediaAsync(videoToHide.ThumbnailName))
             {
                 return BadRequest("Unexpected error");
             }

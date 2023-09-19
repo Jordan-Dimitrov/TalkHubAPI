@@ -153,7 +153,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
 
             if (messageToHide.FileName != null)
             {
-                if (!_FileProcessingService.RemoveMedia(messageToHide.FileName))
+                if (!await _FileProcessingService.RemoveMediaAsync(messageToHide.FileName))
                 {
                     return BadRequest("Unexpected error");
                 }

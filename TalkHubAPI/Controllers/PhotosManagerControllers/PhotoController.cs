@@ -73,7 +73,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 return BadRequest("This category does not exist");
             }
 
-            string response = _FileProcessingService.UploadMedia(file);
+            string response = await _FileProcessingService.UploadImageAsync(file);
 
             if (response == "Empty" || response == "Invalid file format" || response == "File already exists")
             {
@@ -89,7 +89,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             photo.Category = _Mapper.Map<PhotoCategory>(await _PhotoCategoryRepository.GetCategoryAsync(photo.CategoryId));
 
             User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
-            photo.FileName = file.FileName;
+            photo.FileName = response;
             photo.Timestamp = DateTime.Now;
             photo.User = user;
 
@@ -128,14 +128,14 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [HttpGet("file/{fileName}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(void), 404)]
-        public IActionResult GetMedia(string fileName)
+        public async Task<IActionResult> GetMedia(string fileName)
         {
             if (_FileProcessingService.GetContentType(fileName) == "video/mp4")
             {
                 return BadRequest(ModelState);
             }
 
-            FileContentResult file = _FileProcessingService.GetMedia(fileName);
+            FileContentResult file = await _FileProcessingService.GetImageAsync(fileName);
 
             if (file == null)
             {
@@ -242,7 +242,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!_FileProcessingService.RemoveMedia(photoToDelete.FileName))
+            if (!await _FileProcessingService.RemoveMediaAsync(photoToDelete.FileName))
             {
                 return BadRequest("Unexpected error");
             }

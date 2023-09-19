@@ -69,7 +69,7 @@ namespace TalkHubAPI
                 {
                     new Photo()
                     {
-                        FileName = "hidden.png",
+                        FileName = "hidden.webp",
                         Timestamp = DateTime.Now,
                         Description = "CLUSTER CHARGE GOING LIVE",
                         UserId = _Context.Users.First().Id,
@@ -77,7 +77,7 @@ namespace TalkHubAPI
                     },
                     new Photo()
                     {
-                        FileName = "hidden.png",
+                        FileName = "hidden.webp",
                         Timestamp = DateTime.Now,
                         Description = "lord tachanka",
                         UserId = _Context.Users.First().Id + 1,
@@ -110,7 +110,7 @@ namespace TalkHubAPI
                     new ForumMessage()
                     {
                         MessageContent = "Starting area glitch",
-                        FileName = "hidden.png",
+                        FileName = "hidden.webp",
                         UserId = _Context.Users.First().Id,
                         DateCreated = DateTime.Now,
                         ForumThreadId = _Context.ForumThreads.First().Id,
@@ -119,7 +119,7 @@ namespace TalkHubAPI
                     new ForumMessage()
                     {
                         MessageContent = "Good one",
-                        FileName = "hidden.png",
+                        FileName = "hidden.webp",
                         UserId = _Context.Users.First().Id + 1,
                         DateCreated = DateTime.Now,
                         ForumThreadId = _Context.ForumThreads.First().Id,
@@ -216,7 +216,7 @@ namespace TalkHubAPI
                     new Video()
                     {
                         VideoName = "The story of Geralt of Rivia",
-                        Mp4name = "hidden_video.mp4",
+                        Mp4name = "hidden_video.webm",
                         ThumbnailName = "hidden.png",
                         VideoDescription = "The full story",
                         LikeCount = 0,
@@ -226,7 +226,7 @@ namespace TalkHubAPI
                     new Video()
                     {
                         VideoName = "Death note lore",
-                        Mp4name = "hidden_video.mp4",
+                        Mp4name = "hidden_video.webm",
                         ThumbnailName = "hidden.png",
                         VideoDescription = "The full story",
                         LikeCount = 0,

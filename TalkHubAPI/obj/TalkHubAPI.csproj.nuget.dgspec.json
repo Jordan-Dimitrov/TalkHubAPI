@@ -50,6 +50,18 @@
               "target": "Package",
               "version": "[12.0.1, )"
             },
+            "ImageProcessor": {
+              "target": "Package",
+              "version": "[2.9.1, )"
+            },
+            "ImageProcessor.Plugins.WebP": {
+              "target": "Package",
+              "version": "[1.3.0, )"
+            },
+            "MediaToolkit": {
+              "target": "Package",
+              "version": "[1.1.0.1, )"
+            },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
               "version": "[6.0.20, )"
@@ -79,6 +91,10 @@
             "Swashbuckle.AspNetCore.Filters": {
               "target": "Package",
               "version": "[7.0.8, )"
+            },
+            "System.Drawing.Common": {
+              "target": "Package",
+              "version": "[7.0.0, )"
             }
           },
           "imports": [

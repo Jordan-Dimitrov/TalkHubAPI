@@ -5,9 +5,11 @@ namespace TalkHubAPI.Interfaces
 {
     public interface IFileProcessingService
     {
-        string UploadMedia(IFormFile file);
-        FileContentResult GetMedia(string fileName);
+        Task<string> UploadImageAsync(IFormFile file);
+        Task<string> UploadVideoAsync(IFormFile file);
+        Task<FileContentResult> GetImageAsync(string fileName);
+        FileStreamResult GetVideos(string fileName);
         string GetContentType(string fileName);
-        bool RemoveMedia(string fileName);
+        Task<bool> RemoveMediaAsync(string fileName);
     }
 }

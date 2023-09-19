@@ -4,6 +4,7 @@ namespace TalkHubAPI.Dto.PhotosDtos
 {
     public class PhotoDto
     {
+        public int Id { get; set; }
         public string FileName { get; set; } = null!;
         public DateTime Timestamp { get; set; }
         public string Description { get; set; } = null!;
