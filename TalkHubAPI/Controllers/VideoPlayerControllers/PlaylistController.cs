@@ -96,7 +96,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             if (await _PlaylistRepository.PlaylistExistsAsync(playlistCreate.PlaylistName))
             {
-                ModelState.AddModelError("", "Playlist already exists");
+                ModelState.AddModelError("", "Playlist with such name already exists");
                 return StatusCode(422, ModelState);
             }
 
@@ -178,19 +178,20 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return NoContent();
         }
 
-        [HttpPost("addToPlaylist"), Authorize(Roles = "User,Admin")]
+        [HttpPost("addToPlaylist/{playlistId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> AddVideoToPlaylist([FromQuery] int videoId, [FromBody] PlaylistDto playlistCreate)
+        public async Task<IActionResult> AddVideoToPlaylist([FromQuery] int videoId, int playlistId)
         {
-            if (playlistCreate == null)
-            {
-                return BadRequest(ModelState);
-            }
 
-            if (!await _PlaylistRepository.PlaylistExistsAsync(playlistCreate.Id))
+            if (!await _PlaylistRepository.PlaylistExistsAsync(playlistId))
             {
                 return BadRequest("This playlist does not exist");
+            }
+
+            if (!await _VideoRepository.VideoExistsAsync(videoId))
+            {
+                return BadRequest("This video does not exist");
             }
 
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
@@ -207,7 +208,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             }
 
             User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
-            Playlist playlist = _Mapper.Map<Playlist>(await _PlaylistRepository.GetPlaylistAsync(playlistCreate.Id));
+            Playlist playlist = _Mapper.Map<Playlist>(await _PlaylistRepository.GetPlaylistAsync(playlistId));
             VideoPlaylist videoPlaylist = new VideoPlaylist();
             videoPlaylist.Playlist = playlist;
             videoPlaylist.Video = _Mapper.Map<Video>(await _VideoRepository.GetVideoAsync(videoId));
@@ -226,19 +227,19 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return Ok("Successfully created");
         }
 
-        [HttpDelete("deleteFromPlaylist"), Authorize(Roles = "User,Admin")]
+        [HttpDelete("deleteFromPlaylist/{playlistId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> DeleteVideoFromPlaylist([FromQuery] int videoId, [FromBody] PlaylistDto playlistCreate)
+        public async Task<IActionResult> DeleteVideoFromPlaylist([FromQuery] int videoId, int playlistId)
         {
-            if (playlistCreate == null)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (!await _PlaylistRepository.PlaylistExistsAsync(playlistCreate.Id))
+            if (!await _PlaylistRepository.PlaylistExistsAsync(playlistId))
             {
                 return BadRequest("This playlist does not exist");
+            }
+
+            if (!await _VideoRepository.VideoExistsAsync(videoId))
+            {
+                return BadRequest("This video does not exist");
             }
 
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
@@ -254,13 +255,13 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (!await _VideoPlaylistRepository.VideoPlaylistExistsForVideoAndPlaylistAsync(videoId, playlistCreate.Id))
+            if (!await _VideoPlaylistRepository.VideoPlaylistExistsForVideoAndPlaylistAsync(videoId, playlistId))
             {
                 return BadRequest("Video in this playlist does not exist!");
             }
 
             User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
-            Playlist playlist = _Mapper.Map<Playlist>(await _PlaylistRepository.GetPlaylistAsync(playlistCreate.Id));
+            Playlist playlist = _Mapper.Map<Playlist>(await _PlaylistRepository.GetPlaylistAsync(playlistId));
 
             VideoPlaylist videoPlaylist = _Mapper
                 .Map<VideoPlaylist>(await _VideoPlaylistRepository

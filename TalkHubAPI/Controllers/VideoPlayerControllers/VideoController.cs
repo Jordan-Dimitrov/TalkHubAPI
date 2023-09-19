@@ -83,6 +83,12 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
+            if (await _VideoRepository.VideoExistsAsync(videoDto.VideoName))
+            {
+                ModelState.AddModelError("", "Video with such name already exists");
+                return StatusCode(422, ModelState);
+            }
+
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
