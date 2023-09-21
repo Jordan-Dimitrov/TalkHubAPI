@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using System.Data;
 using TalkHubAPI.Dto.PhotosDtos;
 using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
@@ -13,10 +14,14 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
     public class CategoryController : Controller
     {
         private readonly IPhotoCategoryRepository _PhotoCategoryRepository;
+        private readonly string CategoriesCacheKey;
+        private readonly IMemoryCache _MemoryCache;
         private readonly IMapper _Mapper;
-        public CategoryController(IPhotoCategoryRepository photoCategoryRepository, IMapper mapper)
+        public CategoryController(IPhotoCategoryRepository photoCategoryRepository, IMapper mapper, IMemoryCache memoryCache)
         {
             _PhotoCategoryRepository = photoCategoryRepository;
+            _MemoryCache= memoryCache;
+            CategoriesCacheKey = "photoCategories";
             _Mapper = mapper;
         }
 
@@ -24,8 +29,13 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoCategoryDto>))]
         public async Task<IActionResult> GetCategories()
         {
-            ICollection<PhotoCategoryDto> categories = _Mapper.Map<List<PhotoCategoryDto>>(await _PhotoCategoryRepository
-                .GetCategoriesAsync());
+            ICollection<PhotoCategoryDto> categories = _MemoryCache.Get<List<PhotoCategoryDto>>(CategoriesCacheKey);
+
+            if (categories == null)
+            {
+                categories = _Mapper.Map<List<PhotoCategoryDto>>(await _PhotoCategoryRepository.GetCategoriesAsync());
+                _MemoryCache.Set(CategoriesCacheKey, categories, TimeSpan.FromMinutes(1));
+            }
 
             if (!ModelState.IsValid)
             {

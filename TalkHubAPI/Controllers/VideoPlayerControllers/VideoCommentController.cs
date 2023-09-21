@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using System.Data;
 using TalkHubAPI.Dto.UserDtos;
 using TalkHubAPI.Dto.VideoPlayerDtos;
@@ -21,6 +22,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         private readonly IMapper _Mapper;
         private readonly IUserRepository _UserRepository;
         private readonly IAuthService _AuthService;
+        private readonly string _VideoCommentsCacheKey;
+        private readonly IMemoryCache _MemoryCache;
         private readonly IVideoRepository _VideoRepository;
         private readonly IVideoCommentsLikeRepository _VideoCommentsLikeRepository;
         private readonly IVideoTagRepository _VideoTagRepository;
@@ -30,7 +33,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             IAuthService authService,
             IVideoRepository videoRepository,
             IVideoCommentsLikeRepository videoCommentsLikeRepository,
-            IVideoTagRepository videoTagRepository)
+            IVideoTagRepository videoTagRepository,
+            IMemoryCache memoryCache)
         {
             _VideoCommentRepository = videoCommentRepository;
             _Mapper = mapper;
@@ -39,6 +43,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             _VideoRepository = videoRepository;
             _VideoCommentsLikeRepository = videoCommentsLikeRepository;
             _VideoTagRepository = videoTagRepository;
+            _MemoryCache = memoryCache;
+            _VideoCommentsCacheKey = "videoComments";
         }
         
         [HttpPost, Authorize(Roles = "User,Admin")]
@@ -133,29 +139,38 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("This video does not exist");
             }
 
-            List<VideoComment> comments = (await _VideoCommentRepository
-                .GetVideoCommentsByVideoIdAsync(videoId)).ToList();
+            string cacheKey = _VideoCommentsCacheKey + $"_{videoId}";
 
-            List<VideoCommentDto> commentDtos = _Mapper
+            List<VideoCommentDto> commentDtos = _MemoryCache.Get<List<VideoCommentDto>>(cacheKey);
+
+            if (commentDtos == null)
+            {
+                commentDtos = _Mapper
                 .Map<List<VideoCommentDto>>(await _VideoCommentRepository
                 .GetVideoCommentsByVideoIdAsync(videoId)).ToList();
+
+                List<VideoComment> comments = (await _VideoCommentRepository
+               .GetVideoCommentsByVideoIdAsync(videoId)).ToList();
+
+                for (int i = 0; i < comments.Count; i++)
+                {
+                    Video video = await _VideoRepository.GetVideoAsync(comments[i].VideoId);
+
+                    commentDtos[i].Video = _Mapper.Map<VideoDto>(await _VideoRepository.GetVideoAsync(comments[i].VideoId));
+                    commentDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(comments[i].UserId));
+
+                    commentDtos[i].Video.Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository
+                        .GetVideoTagAsync(comments[i].Video.TagId));
+
+                    commentDtos[i].Video.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(video.UserId));
+                }
+
+                _MemoryCache.Set(cacheKey, commentDtos, TimeSpan.FromMinutes(1));
+            }
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
-            }
-
-            for (int i = 0; i < comments.Count; i++)
-            {
-                Video video = await _VideoRepository.GetVideoAsync(comments[i].VideoId);
-
-                commentDtos[i].Video = _Mapper.Map<VideoDto>(await _VideoRepository.GetVideoAsync(comments[i].VideoId));
-                commentDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(comments[i].UserId));
-
-                commentDtos[i].Video.Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository
-                    .GetVideoTagAsync(comments[i].Video.TagId));
-
-                commentDtos[i].Video.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(video.UserId));
             }
 
             return Ok(commentDtos);

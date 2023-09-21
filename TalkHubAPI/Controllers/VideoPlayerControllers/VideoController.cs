@@ -10,6 +10,7 @@ using TalkHubAPI.Dto.VideoPlayerDtos;
 using TalkHubAPI.Models.VideoPlayerModels;
 using TalkHubAPI.Repository.VideoPlayerRepositories;
 using Azure;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace TalkHubAPI.Controllers.VideoPlayerControllers
 {
@@ -21,6 +22,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         private readonly IMapper _Mapper;
         private readonly IAuthService _AuthService;
         private readonly IUserRepository _UserRepository;
+        private readonly string _VideosCacheKey;
+        private readonly IMemoryCache _MemoryCache;
         private readonly IFileProcessingService _FileProcessingService;
         private readonly IVideoUserLikeRepository _VideoUserLikeRepository;
         private readonly IVideoTagRepository _VideoTagRepository;
@@ -32,7 +35,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             IFileProcessingService fileProcessingService,
             IVideoUserLikeRepository videoUserLikeRepository,
             IVideoTagRepository videoTagRepository,
-            IPlaylistRepository playlistRepository)
+            IPlaylistRepository playlistRepository,
+            IMemoryCache memoryCache)
         {
             _VideoRepository = videoRepository;
             _Mapper = mapper;
@@ -42,6 +46,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             _VideoUserLikeRepository = videoUserLikeRepository;
             _VideoTagRepository = videoTagRepository;
             _PlaylistRepository = playlistRepository;
+            _MemoryCache = memoryCache;
+            _VideosCacheKey = "videos";
         }
 
         [HttpGet("{videoId}"), Authorize(Roles = "User,Admin")]
@@ -160,19 +166,28 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             {
                 return BadRequest("This tag does not exist");
             }
-            List<Video> videos = (await _VideoRepository.GetVideosByTagIdAsync(tagId)).ToList();
-            List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(await _VideoRepository
-                .GetVideosByTagIdAsync(tagId)).ToList();
+
+            string cacheKey = _VideosCacheKey + $"_{tagId}";
+
+            List<VideoDto> videoDtos = _MemoryCache.Get<List<VideoDto>>(cacheKey);
+
+            if (videoDtos == null)
+            {
+                videoDtos = _Mapper.Map<List<VideoDto>>(await _VideoRepository.GetVideosByTagIdAsync(tagId)).ToList();
+                List<Video> videos = (await _VideoRepository.GetVideosByTagIdAsync(tagId)).ToList();
+
+                for (int i = 0; i < videos.Count; i++)
+                {
+                    videoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(videos[i].UserId));
+                    videoDtos[i].Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository.GetVideoTagAsync(videos[i].TagId));
+                }
+
+                _MemoryCache.Set(cacheKey, videoDtos, TimeSpan.FromMinutes(1));
+            }
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
-            }
-
-            for (int i = 0; i < videos.Count; i++)
-            {
-                videoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(videos[i].UserId));
-                videoDtos[i].Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository.GetVideoTagAsync(videos[i].TagId));
             }
 
             return Ok(videoDtos);

@@ -44,7 +44,7 @@ namespace TalkHubAPI.Repository.ForumRepositories
 
         public async Task<bool> SaveAsync()
         {
-            int saved = _Context.SaveChanges();
+            int saved = await _Context.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 

@@ -12,6 +12,8 @@ using TalkHubAPI.Dto.UserDtos;
 using TalkHubAPI.Dto.PhotosDtos;
 using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
 using TalkHubAPI.Models.PhotosManagerModels;
+using Microsoft.Extensions.Caching.Memory;
+using System.Threading;
 
 namespace TalkHubAPI.Controllers.PhotosManagerControllers
 {
@@ -23,6 +25,8 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         private readonly IMapper _Mapper;
         private readonly IFileProcessingService _FileProcessingService;
         private readonly IUserRepository _UserRepository;
+        private readonly string _PhotosCacheKey;
+        private readonly IMemoryCache _MemoryCache;
         private readonly IAuthService _AuthService;
         private readonly IPhotoCategoryRepository _PhotoCategoryRepository;
         public PhotoController(IPhotoRepository photoRepository,
@@ -30,7 +34,8 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             IFileProcessingService fileProcessingService,
             IUserRepository userRepository,
             IAuthService authService,
-            IPhotoCategoryRepository photoCategoryRepository)
+            IPhotoCategoryRepository photoCategoryRepository,
+            IMemoryCache memoryCache)
         {
             _PhotoRepository = photoRepository;
             _Mapper = mapper;
@@ -38,6 +43,8 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             _UserRepository = userRepository;
             _AuthService = authService;
             _PhotoCategoryRepository = photoCategoryRepository;
+            _MemoryCache = memoryCache;
+            _PhotosCacheKey = "photos";
         }
         [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
@@ -144,27 +151,37 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
             return file;
         }
+
         [HttpGet, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllMedia()
         {
-            List<Photo> photos = (await _PhotoRepository.GetPhotosAsync()).ToList();
-            List<PhotoDto> photosDto = _Mapper.Map<List<PhotoDto>>(await _PhotoRepository.GetPhotosAsync());
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            List<PhotoDto> photosDto = _MemoryCache.Get<List<PhotoDto>>(_PhotosCacheKey);
 
-            for (int i = 0; i < photos.Count; i++)
+            if (photosDto == null)
             {
-                photosDto[i].Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
-                    .GetCategoryAsync(photos[i].CategoryId));
-                photosDto[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(photos[i].UserId));
+                photosDto = _Mapper.Map<List<PhotoDto>>(await _PhotoRepository.GetPhotosAsync());
+                List<Photo> photos = (await _PhotoRepository.GetPhotosAsync()).ToList();
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                for (int i = 0; i < photos.Count; i++)
+                {
+                    photosDto[i].Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
+                        .GetCategoryAsync(photos[i].CategoryId));
+                    photosDto[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(photos[i].UserId));
+                }
+
+                _MemoryCache.Set(_PhotosCacheKey, photosDto, TimeSpan.FromMinutes(1));
             }
 
             return Ok(photosDto);
         }
+
         [HttpGet("photosByCategory/{categoryId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoDto>))]
         [ProducesResponseType(typeof(void), 404)]
@@ -175,23 +192,29 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             {
                 return BadRequest("This category does not exist");
             }
+            string cacheKey = _PhotosCacheKey + $"_{categoryId}";
+            List<PhotoDto> photosDto = _MemoryCache.Get<List<PhotoDto>>(cacheKey);
 
-            List<Photo> photos = (await _PhotoRepository.GetPhotosByCategoryIdAsync(categoryId)).ToList();
+            if (photosDto == null)
+            {
+                photosDto = _Mapper.Map<List<PhotoDto>>(await _PhotoRepository.GetPhotosByCategoryIdAsync(categoryId));
 
-            List<PhotoDto> photosDto = _Mapper.Map<List<PhotoDto>>(await _PhotoRepository
-                .GetPhotosByCategoryIdAsync(categoryId));
+                List<Photo> photos = (await _PhotoRepository.GetPhotosByCategoryIdAsync(categoryId)).ToList();
+
+                for (int i = 0; i < photos.Count; i++)
+                {
+                    photosDto[i].Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
+                        .GetCategoryAsync(photos[i].CategoryId));
+
+                    photosDto[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(photos[i].UserId));
+                }
+
+                _MemoryCache.Set(cacheKey, photosDto, TimeSpan.FromMinutes(1));
+            }
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
-            }
-
-            for (int i = 0; i < photos.Count; i++)
-            {
-                photosDto[i].Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
-                    .GetCategoryAsync(photos[i].CategoryId));
-
-                photosDto[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(photos[i].UserId));
             }
 
             return Ok(photosDto);

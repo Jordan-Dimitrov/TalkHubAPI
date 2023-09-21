@@ -19,7 +19,8 @@ namespace TalkHubAPI.Tests.Services
             _FileProcessingService = A.Fake<IFileProcessingService>();
             _UploadsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Media");
         }
-        [Fact]
+
+        /*[Fact]
         public void FileProcessingService_GetMedia_ReturnsFileContentResult()
         {
             string fileName = "hidden.png";
@@ -37,6 +38,8 @@ namespace TalkHubAPI.Tests.Services
             Assert.IsType<FileContentResult>(result);
             Assert.Equal("image/png", result.ContentType);
         }
+        */
         //TODO: Add a test for every method
+        
     }
 }

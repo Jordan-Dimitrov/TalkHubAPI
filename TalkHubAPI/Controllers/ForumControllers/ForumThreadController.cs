@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using TalkHubAPI.Dto.ForumDtos;
 using TalkHubAPI.Interfaces.ForumInterfaces;
 using TalkHubAPI.Models.ForumModels;
@@ -12,20 +13,30 @@ namespace TalkHubAPI.Controllers.ForumControllers
     public class ForumThreadController : Controller
     {
         private readonly IForumThreadRepository _ForumThreadRepository;
+        private readonly string _ThreadsCacheKey;
+        private readonly IMemoryCache _MemoryCache;
         private readonly IMapper _Mapper;
-
-        public ForumThreadController(IForumThreadRepository forumThreadRepository, IMapper mapper)
+        public ForumThreadController(IForumThreadRepository forumThreadRepository, IMapper mapper, IMemoryCache memoryCache)
         {
             _ForumThreadRepository = forumThreadRepository;
             _Mapper = mapper;
+            _MemoryCache = memoryCache;
+            _ThreadsCacheKey = "forumThreads";
         }
 
         [HttpGet, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ForumThreadDto>))]
         public async Task<IActionResult> GetThreads()
         {
-            ICollection<ForumThreadDto> threads = _Mapper.Map<List<ForumThreadDto>>(await _ForumThreadRepository.GetForumThreadsAsync());
+            ICollection<ForumThreadDto> threads = _MemoryCache.Get<List<ForumThreadDto>>(_ThreadsCacheKey);
+            
+            if (threads == null)
+            {
+                threads = _Mapper.Map<List<ForumThreadDto>>(await _ForumThreadRepository.GetForumThreadsAsync());
 
+                _MemoryCache.Set(_ThreadsCacheKey, threads, TimeSpan.FromMinutes(1));
+            }
+            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

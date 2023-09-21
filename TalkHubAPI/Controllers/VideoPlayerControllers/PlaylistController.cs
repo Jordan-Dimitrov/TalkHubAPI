@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using System.Data;
+using System.Threading;
 using TalkHubAPI.Dto.VideoPlayerDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
@@ -18,6 +20,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         private readonly IMapper _Mapper;
         private readonly IAuthService _AuthService;
         private readonly IUserRepository _UserRepository;
+        private readonly string _PlaylistsCacheKey;
+        private readonly IMemoryCache _MemoryCache;
         private readonly IVideoPlaylistRepository _VideoPlaylistRepository;
         private readonly IVideoRepository _VideoRepository;
         public PlaylistController(IPlaylistRepository playlistRepository,
@@ -25,7 +29,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             IAuthService authService,
             IUserRepository userRepository,
             IVideoPlaylistRepository videoPlaylistRepository,
-            IVideoRepository videoRepository)
+            IVideoRepository videoRepository,
+            IMemoryCache memoryCache)
         {
             _PlaylistRepository = playlistRepository;
             _Mapper = mapper;
@@ -33,14 +38,22 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             _UserRepository = userRepository;
             _VideoPlaylistRepository = videoPlaylistRepository;
             _VideoRepository = videoRepository;
+            _MemoryCache = memoryCache;
+            _PlaylistsCacheKey = "playlists";
         }
 
         [HttpGet, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PlaylistDto>))]
         public async Task<IActionResult> GetPlaylists()
         {
-            ICollection<PlaylistDto> playlists = _Mapper.Map<List<PlaylistDto>>(await _PlaylistRepository
-                .GetPlaylistsAsync());
+            ICollection<PlaylistDto> playlists = _MemoryCache.Get<List<PlaylistDto>>(_PlaylistsCacheKey);
+
+            if (playlists == null)
+            {
+                playlists = _Mapper.Map<List<PlaylistDto>>(await _PlaylistRepository.GetPlaylistsAsync());
+
+                _MemoryCache.Set(_PlaylistsCacheKey, playlists, TimeSpan.FromMinutes(1));
+            }
 
             if (!ModelState.IsValid)
             {

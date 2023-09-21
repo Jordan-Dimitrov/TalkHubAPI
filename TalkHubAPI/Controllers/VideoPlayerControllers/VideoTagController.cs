@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using System.Data;
+using System.Threading;
 using TalkHubAPI.Dto.VideoPlayerDtos;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models.VideoPlayerModels;
@@ -13,11 +15,15 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
     public class VideoTagController : Controller
     {
         private readonly IVideoTagRepository _VideoTagRepository;
+        private readonly string _VideoTagsCacheKey;
+        private readonly IMemoryCache _MemoryCache;
         private readonly IMapper _Mapper;
 
-        public VideoTagController(IVideoTagRepository videoTagRepository, IMapper mapper)
+        public VideoTagController(IVideoTagRepository videoTagRepository, IMapper mapper, IMemoryCache memoryCache)
         {
             _VideoTagRepository = videoTagRepository;
+            _MemoryCache = memoryCache;
+            _VideoTagsCacheKey = "videoTags";
             _Mapper = mapper;
         }
 
@@ -25,7 +31,14 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<VideoTagDto>))]
         public async Task<IActionResult> GetTags()
         {
-            ICollection<VideoTagDto> tags = _Mapper.Map<List<VideoTagDto>>(await _VideoTagRepository.GetVideoTagsAsync());
+            ICollection<VideoTagDto> tags = _MemoryCache.Get<List<VideoTagDto>>(_VideoTagsCacheKey);
+
+            if (tags == null)
+            {
+                tags = _Mapper.Map<List<VideoTagDto>>(await _VideoTagRepository.GetVideoTagsAsync());
+
+                _MemoryCache.Set(_VideoTagsCacheKey, tags, TimeSpan.FromMinutes(1));
+            }
 
             if (!ModelState.IsValid)
             {

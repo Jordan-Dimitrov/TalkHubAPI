@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using System.Data;
+using System.Threading;
 using TalkHubAPI.Dto.ForumDtos;
 using TalkHubAPI.Dto.MessengerDtos;
 using TalkHubAPI.Interfaces;
@@ -19,6 +21,8 @@ namespace TalkHubAPI.Controllers.MessengerControllers
     {
         private readonly IMessageRoomRepository _MessageRoomRepository;
         private readonly IMapper _Mapper;
+        private readonly string _ThreadsCacheKey;
+        private readonly IMemoryCache _MemoryCache;
         private readonly IAuthService _AuthService;
         private readonly IUserRepository _UserRepository;
         private readonly IUserMessageRoomRepository _UserMessageRoomRepository;
@@ -27,20 +31,30 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             IMapper mapper,
             IAuthService authService,
             IUserRepository userRepository,
-            IUserMessageRoomRepository userMessageRoomRepository)
+            IUserMessageRoomRepository userMessageRoomRepository,
+            IMemoryCache memoryCache)
         {
             _MessageRoomRepository = messageRoomRepository;
             _Mapper = mapper;
             _AuthService = authService;
             _UserRepository = userRepository;
             _UserMessageRoomRepository = userMessageRoomRepository;
+            _MemoryCache = memoryCache;
+            _ThreadsCacheKey = "messageRooms";
         }
 
         [HttpGet, Authorize(Roles = "Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<MessageRoomDto>))]
         public async Task<IActionResult> GetRooms()
         {
-            ICollection<MessageRoomDto> rooms = _Mapper.Map<List<MessageRoomDto>>(await _MessageRoomRepository.GetMessageRoomsAsync());
+            ICollection<MessageRoomDto> rooms = _MemoryCache.Get<List<MessageRoomDto>>(_ThreadsCacheKey);
+
+            if (rooms == null)
+            {
+                rooms = _Mapper.Map<List<MessageRoomDto>>(await _MessageRoomRepository.GetMessageRoomsAsync());
+
+                _MemoryCache.Set(_ThreadsCacheKey, rooms, TimeSpan.FromMinutes(1));
+            }
 
             if (!ModelState.IsValid)
             {

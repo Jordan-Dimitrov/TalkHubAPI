@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using System.Data;
+using System.Threading;
 using TalkHubAPI.Dto.ForumDtos;
 using TalkHubAPI.Dto.UserDtos;
 using TalkHubAPI.Interfaces;
@@ -21,6 +23,8 @@ namespace TalkHubAPI.Controllers.ForumControllers
         private readonly IFileProcessingService _FileProcessingService;
         private readonly IUserRepository _UserRepository;
         private readonly IAuthService _AuthService;
+        private readonly string _ForumMessagesCacheKey;
+        private readonly IMemoryCache _MemoryCache;
         private readonly IForumThreadRepository _ForumThreadRepository;
         private readonly IUserUpvoteRepository _UserUpvoteRepository;
         public ForumMessageController(IForumMessageRepository forumMessageRepository,
@@ -29,7 +33,8 @@ namespace TalkHubAPI.Controllers.ForumControllers
             IUserRepository userRepository,
             IAuthService authService,
             IForumThreadRepository forumThreadRepository,
-            IUserUpvoteRepository userUpvoteRepository)
+            IUserUpvoteRepository userUpvoteRepository,
+            IMemoryCache memoryCache)
         {
             _ForumMessageRepository = forumMessageRepository;
             _Mapper = mapper;
@@ -38,6 +43,8 @@ namespace TalkHubAPI.Controllers.ForumControllers
             _AuthService = authService;
             _ForumThreadRepository = forumThreadRepository;
             _UserUpvoteRepository = userUpvoteRepository;
+            _MemoryCache = memoryCache;
+            _ForumMessagesCacheKey = "forumMessages";
         }
 
         [HttpPost("forumMessage"), Authorize(Roles = "User,Admin")]
@@ -165,18 +172,26 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest("This thread does not exist");
             }
 
-            List<ForumMessage> messages = (await _ForumMessageRepository.GetForumMessagesByForumThreadIdAsync(threadId)).ToList();
-            List<ForumMessageDto> messageDto = _Mapper.Map<List<ForumMessageDto>>(await _ForumMessageRepository.GetForumMessagesByForumThreadIdAsync(threadId)).ToList();
+            string cacheKey = _ForumMessagesCacheKey + $"_{threadId}";
+            List<ForumMessageDto> messageDto = _MemoryCache.Get<List<ForumMessageDto>>(cacheKey);
+
+            if (messageDto == null)
+            {
+                messageDto = _Mapper.Map<List<ForumMessageDto>>(await _ForumMessageRepository.GetForumMessagesByForumThreadIdAsync(threadId)).ToList();
+                List<ForumMessage> messages = (await _ForumMessageRepository.GetForumMessagesByForumThreadIdAsync(threadId)).ToList();
+
+                for (int i = 0; i < messages.Count; i++)
+                {
+                    messageDto[i].ForumThread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository.GetForumThreadAsync(messages[i].ForumThreadId));
+                    messageDto[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(messages[i].UserId));
+                }
+
+                _MemoryCache.Set(cacheKey, messageDto, TimeSpan.FromMinutes(1));
+            }
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
-            }
-
-            for (int i = 0; i < messages.Count; i++)
-            {
-                messageDto[i].ForumThread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository.GetForumThreadAsync(messages[i].ForumThreadId));
-                messageDto[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(messages[i].UserId));
             }
 
             return Ok(messageDto);
