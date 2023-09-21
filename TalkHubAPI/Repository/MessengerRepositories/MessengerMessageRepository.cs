@@ -34,7 +34,7 @@ namespace TalkHubAPI.Repository.MessengerRepositories
         public async Task<ICollection<MessengerMessage>> GetLastTenMessengerMessagesFromLastMessageIdAsync(int messageId, int roomId)
         {
             return await _Context.MessengerMessages
-                .Where(x => x.Id > messageId && x.RoomId == roomId)
+                .Where(x => x.Id < messageId && x.RoomId == roomId)
                 .OrderBy(x => x.Id)
                 .Take(_MessagesToRetrieve)
                 .ToListAsync();

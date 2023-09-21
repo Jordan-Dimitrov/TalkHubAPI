@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Data;
 using System.Security.Claims;
@@ -14,7 +15,6 @@ using TalkHubAPI.Repository;
 
 namespace TalkHubAPI.Hubs
 {
-    //Not tested, probably won't work
     public class ChatHub : Hub
     {
         private readonly IMessageRoomRepository _MessageRoomRepository;
@@ -41,66 +41,72 @@ namespace TalkHubAPI.Hubs
             _UserRepository = userRepository;
         }
         [Authorize(Roles = "User,Admin")]
-        public async Task<List<MessengerMessageDto>> JoinRoom(MessageRoomDto request)
+        public async Task TestMe(string temp)
+        {
+            await Clients.All.SendAsync($"{this.Context.User.Identity.Name} : {temp}",CancellationToken.None);
+        }
+
+        [Authorize(Roles = "User,Admin")]
+        public async Task JoinRoom(MessageRoomDto request)
         {
 
-            var jwtToken = Context.GetHttpContext().Request.Headers["Authorization"].ToString().Replace("bearer ", "");
-            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
-
-            if (username == null ||
-                !await _UserRepository.UsernameExistsAsync(username) ||
-                !await _MessageRoomRepository.MessageRoomExistsAsync(request.RoomName))
+            if (!await _MessageRoomRepository.MessageRoomExistsAsync(request.RoomName))
             {
                 Context.Abort();
+                return;
             }
 
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
+            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(this.Context.User.Identity.Name));
             MessageRoom room = _Mapper.Map<MessageRoom>(await _MessageRoomRepository
                 .GetMessageRoomByNameAsync(request.RoomName));
 
             if (!await _UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id))
             {
                 Context.Abort();
+                return;
             }
 
             await Groups.AddToGroupAsync(Context.ConnectionId, request.RoomName);
 
             MessengerMessage lastMessage = await _MessengerMessageRepository.GetLastMessageAsync();
 
-            return _Mapper.Map<List<MessengerMessageDto>>(await _MessengerMessageRepository.
-                GetLastTenMessengerMessagesFromLastMessageIdAsync(lastMessage.Id, request.Id));
-        }
-        [Authorize(Roles = "User,Admin")]
+            string messageJson = JsonConvert.SerializeObject(_Mapper.Map<List<MessengerMessageDto>>(await _MessengerMessageRepository.
+                GetLastTenMessengerMessagesFromLastMessageIdAsync(lastMessage.Id, request.Id)));
 
+            await Clients.Caller.SendAsync(messageJson);
+        }
+
+        [Authorize(Roles = "User,Admin")]
         public Task LeaveRoom(MessageRoomDto request)
         {
             return Groups.RemoveFromGroupAsync(Context.ConnectionId, request.RoomName);
         }
+
         [Authorize(Roles = "User,Admin")]
-
-        public async Task SendMessageAsync(SendMessengerMessageDto request, MessageRoomDto request2)
+        public async Task SendMessageAsync(SendMessengerMessageDto request)
         {
-            var jwtToken = Context.GetHttpContext().Request.Headers["Authorization"].ToString().Replace("bearer ", "");
-            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
-
-            if (username == null || !(await _UserRepository.UsernameExistsAsync(username)))
+            if (!await _MessageRoomRepository.MessageRoomExistsAsync(request.RoomId))
             {
                 Context.Abort();
                 return;
             }
 
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
-            MessageRoom room = _Mapper.Map<MessageRoom>(await _MessageRoomRepository.GetMessageRoomByNameAsync(request2.RoomName));
+            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(this.Context.User.Identity.Name));
+            MessageRoom room = _Mapper.Map<MessageRoom>(await _MessageRoomRepository.GetMessageRoomAsync(request.RoomId));
+
+            Console.WriteLine(user.Username + " " + room.RoomName + "--------------");
 
             MessengerMessage message = _Mapper.Map<MessengerMessage>(request);
             message.User = user;
             message.Room = room;
             message.DateCreated = DateTime.Now;
 
+            Console.WriteLine(message.MessageContent);
+
             await _MessengerMessageRepository.AddMessengerMessageAsync(message);
 
             await Clients.GroupExcept(message.Room.RoomName, new[] { Context.ConnectionId })
-                .SendAsync("send_message", message.MessageContent);
+                .SendAsync(message.MessageContent);
         }
 
     }

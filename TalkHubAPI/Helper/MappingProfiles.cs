@@ -41,6 +41,8 @@ namespace TalkHubAPI.Helper
             CreateMap<MessengerMessageDto, MessengerMessage>();
             CreateMap<MessengerMessage, SendMessengerMessageDto>();
             CreateMap<MessengerMessageDto, MessengerMessage>();
+            CreateMap<MessengerMessage, SendMessengerMessageDto>();
+            CreateMap<SendMessengerMessageDto, MessengerMessage>();
 
             CreateMap<VideoTag, VideoTagDto>();
             CreateMap<VideoTagDto, VideoTag>();
