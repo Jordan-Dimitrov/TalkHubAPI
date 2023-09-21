@@ -46,6 +46,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             _MemoryCache = memoryCache;
             _PhotosCacheKey = "photos";
         }
+
         [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
@@ -92,6 +93,8 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 return BadRequest(ModelState);
             }
 
+            string cacheKey = _PhotosCacheKey + $"_{photoDto.CategoryId}";
+
             Photo photo = _Mapper.Map<Photo>(photoDto);
             photo.Category = _Mapper.Map<PhotoCategory>(await _PhotoCategoryRepository.GetCategoryAsync(photo.CategoryId));
 
@@ -105,6 +108,9 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
             }
+
+            _MemoryCache.Remove(_PhotosCacheKey);
+            _MemoryCache.Remove(cacheKey);
 
             return Ok("Successfully created");
         }
@@ -219,6 +225,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
             return Ok(photosDto);
         }
+
         [HttpGet("photosByUser/{userId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoDto>))]
         [ProducesResponseType(typeof(void), 404)]
@@ -247,6 +254,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
             return Ok(photosDto);
         }
+
         [HttpDelete("{photoId}"), Authorize(Roles = "Admin")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
@@ -259,6 +267,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             }
 
             Photo photoToDelete = await _PhotoRepository.GetPhotoAsync(photoId);
+            string cacheKey = _PhotosCacheKey + $"_{photoToDelete.CategoryId}";
 
             if (!ModelState.IsValid)
             {
@@ -274,6 +283,9 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             {
                 ModelState.AddModelError("", "Something went wrong deleting category");
             }
+
+            _MemoryCache.Remove(_PhotosCacheKey);
+            _MemoryCache.Remove(cacheKey);
 
             return NoContent();
         }

@@ -97,6 +97,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return StatusCode(500, ModelState);
             }
 
+            _MemoryCache.Remove(_VideoTagsCacheKey);
+
             return Ok("Successfully created");
         }
 
@@ -129,6 +131,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return StatusCode(500, ModelState);
             }
 
+            _MemoryCache.Remove(_VideoTagsCacheKey);
+
             return NoContent();
         }
 
@@ -154,6 +158,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             {
                 ModelState.AddModelError("", "Something went wrong deleting the tag");
             }
+
+            _MemoryCache.Remove(_VideoTagsCacheKey);
 
             return NoContent();
         }

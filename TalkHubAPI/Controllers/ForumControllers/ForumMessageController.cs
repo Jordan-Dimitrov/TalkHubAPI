@@ -94,6 +94,8 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
             }
+            string cacheKey = _ForumMessagesCacheKey + $"_{message.ForumThreadId}";
+            _MemoryCache.Remove(cacheKey);
 
             return Ok("Successfully created");
         }
@@ -158,6 +160,9 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
             }
+
+            string cacheKey = _ForumMessagesCacheKey + $"_{message.ForumThreadId}";
+            _MemoryCache.Remove(cacheKey);
 
             return Ok("Successfully created");
         }
@@ -251,6 +256,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return NotFound();
             }
 
+            string cacheKey = _ForumMessagesCacheKey + $"_{forumMessageId}";
             ForumMessage messageToHide = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
 
             if (!ModelState.IsValid)
@@ -274,6 +280,8 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 ModelState.AddModelError("", "Something went wrong updating message");
                 return StatusCode(500, ModelState);
             }
+
+            _MemoryCache.Remove(cacheKey);
 
             return NoContent();
         }
@@ -312,6 +320,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest(ModelState);
             }
 
+            string cacheKey = _ForumMessagesCacheKey + $"_{forumMessageId}";
             ForumMessage message = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
             User user = await _UserRepository.GetUserByNameAsync(username);
 
@@ -351,6 +360,8 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 ModelState.AddModelError("", "Something went wrong while updating");
                 return StatusCode(500, ModelState);
             }
+
+            _MemoryCache.Remove(cacheKey);
 
             return NoContent();
         }

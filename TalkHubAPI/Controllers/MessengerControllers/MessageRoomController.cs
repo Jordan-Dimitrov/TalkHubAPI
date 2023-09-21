@@ -21,7 +21,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
     {
         private readonly IMessageRoomRepository _MessageRoomRepository;
         private readonly IMapper _Mapper;
-        private readonly string _ThreadsCacheKey;
+        private readonly string _MessageRoomsCacheKey;
         private readonly IMemoryCache _MemoryCache;
         private readonly IAuthService _AuthService;
         private readonly IUserRepository _UserRepository;
@@ -40,20 +40,20 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             _UserRepository = userRepository;
             _UserMessageRoomRepository = userMessageRoomRepository;
             _MemoryCache = memoryCache;
-            _ThreadsCacheKey = "messageRooms";
+            _MessageRoomsCacheKey = "messageRooms";
         }
 
         [HttpGet, Authorize(Roles = "Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<MessageRoomDto>))]
         public async Task<IActionResult> GetRooms()
         {
-            ICollection<MessageRoomDto> rooms = _MemoryCache.Get<List<MessageRoomDto>>(_ThreadsCacheKey);
+            ICollection<MessageRoomDto> rooms = _MemoryCache.Get<List<MessageRoomDto>>(_MessageRoomsCacheKey);
 
             if (rooms == null)
             {
                 rooms = _Mapper.Map<List<MessageRoomDto>>(await _MessageRoomRepository.GetMessageRoomsAsync());
 
-                _MemoryCache.Set(_ThreadsCacheKey, rooms, TimeSpan.FromMinutes(1));
+                _MemoryCache.Set(_MessageRoomsCacheKey, rooms, TimeSpan.FromMinutes(1));
             }
 
             if (!ModelState.IsValid)
@@ -144,6 +144,8 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return StatusCode(500, ModelState);
             }
 
+            _MemoryCache.Remove(_MessageRoomsCacheKey);
+
             return Ok("Successfully created");
         }
 
@@ -228,6 +230,8 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return StatusCode(500, ModelState);
             }
 
+            _MemoryCache.Remove(_MessageRoomsCacheKey);
+
             return NoContent();
         }
 
@@ -254,6 +258,8 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             {
                 ModelState.AddModelError("", "Something went wrong deleting the room");
             }
+
+            _MemoryCache.Remove(_MessageRoomsCacheKey);
 
             return NoContent();
         }

@@ -62,6 +62,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             return Ok(playlists);
         }
+
         [HttpGet("playlistsByUser/{userId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PlaylistDto>))]
         public async Task<IActionResult> GetPlaylistsByUser(int userId)
@@ -76,6 +77,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             return Ok(playlists);
         }
+
         [HttpGet("{playlistId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(PlaylistDto))]
         [ProducesResponseType(400)]
@@ -141,6 +143,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return StatusCode(500, ModelState);
             }
 
+            _MemoryCache.Remove(_PlaylistsCacheKey);
+
             return Ok("Successfully created");
         }
 
@@ -187,6 +191,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 ModelState.AddModelError("", "Something went wrong updating the playlist");
                 return StatusCode(500, ModelState);
             }
+
+            _MemoryCache.Remove(_PlaylistsCacheKey);
 
             return NoContent();
         }
@@ -236,6 +242,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
             }
+
+            _MemoryCache.Remove(_PlaylistsCacheKey);
 
             return Ok("Successfully created");
         }
@@ -291,6 +299,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return StatusCode(500, ModelState);
             }
 
+            _MemoryCache.Remove(_PlaylistsCacheKey);
+
             return NoContent();
         }
 
@@ -316,6 +326,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             {
                 ModelState.AddModelError("", "Something went wrong deleting the playlist");
             }
+
+            _MemoryCache.Remove(_PlaylistsCacheKey);
 
             return NoContent();
         }

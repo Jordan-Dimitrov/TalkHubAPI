@@ -81,6 +81,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
+            string cacheKey = _VideoCommentsCacheKey + $"_{commentDto.VideoId}";
+
             VideoComment comment = _Mapper.Map<VideoComment>(commentDto);
             comment.Video = _Mapper.Map<Video>(await _VideoRepository.GetVideoAsync(commentDto.VideoId));
             comment.User = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
@@ -92,6 +94,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
             }
+
+            _MemoryCache.Remove(cacheKey);
 
             return Ok("Successfully created");
         }
@@ -187,6 +191,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return NotFound();
             }
 
+            string cacheKey = _VideoCommentsCacheKey + $"_{videoCommentId}";
             VideoComment commentToHide = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
 
             if (!ModelState.IsValid)
@@ -201,6 +206,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 ModelState.AddModelError("", "Something went wrong updating comment");
                 return StatusCode(500, ModelState);
             }
+
+            _MemoryCache.Remove(cacheKey);
 
             return NoContent();
         }
@@ -239,6 +246,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
+            string cacheKey = _VideoCommentsCacheKey + $"_{videoCommentId}";
             VideoComment comment = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
             User user = await _UserRepository.GetUserByNameAsync(username);
 
@@ -280,6 +288,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 ModelState.AddModelError("", "Something went wrong while updating");
                 return StatusCode(500, ModelState);
             }
+
+            _MemoryCache.Remove(cacheKey);
 
             return NoContent();
         }

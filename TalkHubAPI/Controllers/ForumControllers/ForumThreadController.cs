@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using System.Threading;
 using TalkHubAPI.Dto.ForumDtos;
 using TalkHubAPI.Interfaces.ForumInterfaces;
 using TalkHubAPI.Models.ForumModels;
@@ -94,6 +95,8 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return StatusCode(500, ModelState);
             }
 
+            _MemoryCache.Remove(_ThreadsCacheKey);
+
             return Ok("Successfully created");
         }
 
@@ -151,6 +154,8 @@ namespace TalkHubAPI.Controllers.ForumControllers
             {
                 ModelState.AddModelError("", "Something went wrong deleting the thread");
             }
+
+            _MemoryCache.Remove(_ThreadsCacheKey);
 
             return NoContent();
         }

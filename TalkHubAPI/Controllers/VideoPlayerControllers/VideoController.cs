@@ -138,6 +138,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
+            string cacheKey = _VideosCacheKey + $"_{videoDto.TagId}";
+
             Video videoToUpload = _Mapper.Map<Video>(videoDto);
             videoToUpload.Tag = _Mapper.Map<VideoTag>(await _VideoTagRepository.GetVideoTagAsync(videoToUpload.TagId));
 
@@ -153,6 +155,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
             }
+
+            _MemoryCache.Remove(cacheKey);
 
             return Ok("Successfully created");
         }
@@ -202,6 +206,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             {
                 return BadRequest("This user does not exist");
             }
+
             List<Video> videos = (await _VideoRepository.GetVideosByUserIdAsync(userId)).ToList();
 
             List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(await _VideoRepository
@@ -315,6 +320,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("Unexpected error");
             }
 
+            string cacheKey = _VideosCacheKey + $"_{videoToHide.TagId}";
+
             videoToHide.Mp4name = "hidden_video.mp4";
             videoToHide.ThumbnailName = "hidden.png";
             videoToHide.VideoDescription = "video was hidden";
@@ -324,6 +331,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 ModelState.AddModelError("", "Something went wrong updating video");
                 return StatusCode(500, ModelState);
             }
+
+            _MemoryCache.Remove(cacheKey);
 
             return NoContent();
         }
@@ -362,8 +371,11 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
+
             Video video = await _VideoRepository.GetVideoAsync(videoId);
             User user = await _UserRepository.GetUserByNameAsync(username);
+
+            string cacheKey = _VideosCacheKey + $"_{video.TagId}";
 
             if (!await _VideoUserLikeRepository.VideoUserLikeExistsForVideoAndUserAsync(video.Id, user.Id))
             {
@@ -402,6 +414,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 ModelState.AddModelError("", "Something went wrong while updating");
                 return StatusCode(500, ModelState);
             }
+
+            _MemoryCache.Remove(cacheKey);
 
             return NoContent();
         }

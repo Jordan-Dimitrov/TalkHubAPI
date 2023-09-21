@@ -14,14 +14,14 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
     public class CategoryController : Controller
     {
         private readonly IPhotoCategoryRepository _PhotoCategoryRepository;
-        private readonly string CategoriesCacheKey;
+        private readonly string _CategoriesCacheKey;
         private readonly IMemoryCache _MemoryCache;
         private readonly IMapper _Mapper;
         public CategoryController(IPhotoCategoryRepository photoCategoryRepository, IMapper mapper, IMemoryCache memoryCache)
         {
             _PhotoCategoryRepository = photoCategoryRepository;
             _MemoryCache= memoryCache;
-            CategoriesCacheKey = "photoCategories";
+            _CategoriesCacheKey = "photoCategories";
             _Mapper = mapper;
         }
 
@@ -29,12 +29,12 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoCategoryDto>))]
         public async Task<IActionResult> GetCategories()
         {
-            ICollection<PhotoCategoryDto> categories = _MemoryCache.Get<List<PhotoCategoryDto>>(CategoriesCacheKey);
+            ICollection<PhotoCategoryDto> categories = _MemoryCache.Get<List<PhotoCategoryDto>>(_CategoriesCacheKey);
 
             if (categories == null)
             {
                 categories = _Mapper.Map<List<PhotoCategoryDto>>(await _PhotoCategoryRepository.GetCategoriesAsync());
-                _MemoryCache.Set(CategoriesCacheKey, categories, TimeSpan.FromMinutes(1));
+                _MemoryCache.Set(_CategoriesCacheKey, categories, TimeSpan.FromMinutes(1));
             }
 
             if (!ModelState.IsValid)
@@ -94,6 +94,8 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 return StatusCode(500, ModelState);
             }
 
+            _MemoryCache.Remove(_CategoriesCacheKey);
+
             return Ok("Successfully created");
         }
         [HttpPut("{categoryId}"), Authorize(Roles = "Admin")]
@@ -125,6 +127,8 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 return StatusCode(500, ModelState);
             }
 
+            _MemoryCache.Remove(_CategoriesCacheKey);
+
             return NoContent();
         }
         [HttpDelete("{categoryId}"), Authorize(Roles = "Admin")]
@@ -150,6 +154,8 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 ModelState.AddModelError("", "Something went wrong deleting category");
                 return StatusCode(500, ModelState);
             }
+
+            _MemoryCache.Remove(_CategoriesCacheKey);
 
             return NoContent();
         }
