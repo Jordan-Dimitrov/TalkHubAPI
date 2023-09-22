@@ -29,28 +29,30 @@ namespace TalkHubAPI.Tests.Repository
             var options = new DbContextOptionsBuilder<TalkHubContext>().EnableSensitiveDataLogging(true)
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
+
             TalkHubContext context = new TalkHubContext(options);
             context.Database.EnsureCreated();
 
             if (!context.Users.Any())
             {
-                //This is not faked and the test will not pass
-                _AuthService.CreatePasswordHash("prototype", out byte[] passwordHash, out byte[] passwordSalt);
+                var userPassword = A.Fake<UserPassword>();
+                userPassword.PasswordHash = Encoding.UTF8.GetBytes("fakeHash");
+                userPassword.PasswordSalt = Encoding.UTF8.GetBytes("fakeSalt");
+
+                A.CallTo(() => _AuthService.CreatePasswordHash("prototype")).Returns(userPassword);//This is not faked and the test will not pass
                 List<User> users = new List<User>()
                 {
                     new User()
                     {
                         Username = "TOMAAAA",
-                        PasswordHash = passwordHash,
-                        PasswordSalt = passwordSalt,
-                        RefreshToken = _AuthService.GenerateRefreshToken()
+                        PasswordHash = userPassword.PasswordHash,
+                        PasswordSalt = userPassword.PasswordSalt,
                     },
                     new User()
                     {
                         Username = "KristiQn Enchev",
-                        PasswordHash = passwordHash,
-                        PasswordSalt = passwordSalt,
-                        RefreshToken = _AuthService.GenerateRefreshToken()
+                        PasswordHash = userPassword.PasswordHash,
+                        PasswordSalt = userPassword.PasswordSalt,
                     }
                 };
 
@@ -61,19 +63,18 @@ namespace TalkHubAPI.Tests.Repository
             return context;
         }
 
-        /*[Fact]
-        public void UserRepository_GetUser_ReturnsUser()
+        [Fact]
+        public async Task UserRepository_GetUserAsync_ReturnsUser()
         {
             string name = "TOMAAAA";
             TalkHubContext context = GetDatabaseContext();
             UserRepository userRepository= new UserRepository(context);
 
-            User result = userRepository.GetUserByName(name);
+            User result = await userRepository.GetUserByNameAsync(name);
 
             result.Should().NotBeNull();
             result.Should().BeOfType<User>();
         }
-        */
         //TODO: Add a test for every method and fix the GetDatabaseContext method
     }
 }

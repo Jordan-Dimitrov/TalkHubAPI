@@ -77,11 +77,11 @@
                     return BadRequest(ModelState);
                 }
 
-                _AuthService.CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+                UserPassword pass = _AuthService.CreatePasswordHash(request.Password);
 
                 User user = _Mapper.Map<User>(request);
-                user.PasswordHash = passwordHash;
-                user.PasswordSalt = passwordSalt;
+                user.PasswordHash = pass.PasswordHash;
+                user.PasswordSalt = pass.PasswordSalt;
                 user.PermissionType = 0;
 
                 if (!await _UserRepository.CreateUserAsync(user))

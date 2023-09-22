@@ -6,7 +6,7 @@ namespace TalkHubAPI.Interfaces
     {
         string GenerateJwtToken(User user);
         RefreshToken GenerateRefreshToken();
-        void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt);
+        UserPassword CreatePasswordHash(string password);
         bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt);
         string GetUsernameFromJwtToken(string token);
     }

@@ -20,25 +20,24 @@ namespace TalkHubAPI.Tests.Services
             _UploadsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Media");
         }
 
-        /*[Fact]
-        public void FileProcessingService_GetMedia_ReturnsFileContentResult()
+        [Fact]
+        public async Task FileProcessingService_GetImageAsync_ReturnsFileContentResult()
         {
-            string fileName = "hidden.png";
+            string fileName = "hidden.webp";
             string filePath = Path.Combine(_UploadsDirectory, fileName);
 
             Directory.CreateDirectory(_UploadsDirectory);
 
             File.WriteAllBytes(filePath, new byte[] { 0x1, 0x2, 0x3 });
-            A.CallTo(() => _FileProcessingService.GetMedia(fileName))
-               .Returns(new FileContentResult(new byte[] { 0x1, 0x2, 0x3 }, "image/png"));
+            A.CallTo(() => _FileProcessingService.GetImageAsync(fileName))
+               .Returns(new FileContentResult(new byte[] { 0x1, 0x2, 0x3 }, "image/webp"));
 
-            FileContentResult result = _FileProcessingService.GetMedia(fileName);
+            FileContentResult result = await _FileProcessingService.GetImageAsync(fileName);
 
             Assert.NotNull(result);
             Assert.IsType<FileContentResult>(result);
-            Assert.Equal("image/png", result.ContentType);
+            Assert.Equal("image/webp", result.ContentType);
         }
-        */
         //TODO: Add a test for every method
         
     }

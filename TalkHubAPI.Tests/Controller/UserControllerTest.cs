@@ -27,17 +27,18 @@ namespace TalkHubAPI.Tests.Controller
         }
 
         [Fact]
-        public void UserController_GetUsers_ReturnOk()
+        public async Task UserController_GetUsers_ReturnOk()
         {
             var users = A.Fake<ICollection<UserDto>>();
             var usersList = A.Fake<List<UserDto>>();
+
             A.CallTo(() => _Mapper.Map<List<UserDto>>(users)).Returns(usersList);
             UserController controller = new UserController(_UserRepository, _Mapper, _AuthService);
 
-            var result = controller.GetUsers();
+            IActionResult result = await controller.GetUsers();
 
             result.Should().NotBeNull();
-            result.Should().BeOfType(typeof(OkObjectResult));
+            result.Should().BeOfType<OkObjectResult>();
         }
         //TODO: Add a test for every method
     }

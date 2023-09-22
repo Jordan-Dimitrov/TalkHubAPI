@@ -60,12 +60,14 @@ namespace TalkHubAPI.Helper
 
             return refreshToken;
         }
-        public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        public UserPassword CreatePasswordHash(string password)
         {
             using (HMACSHA512 hmac = new HMACSHA512())
             {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                UserPassword pass = new UserPassword();
+                pass.PasswordSalt = hmac.Key;
+                pass.PasswordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                return pass;
             }
         }
 

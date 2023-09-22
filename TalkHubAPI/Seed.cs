@@ -24,7 +24,7 @@ namespace TalkHubAPI
 
         public void SeedTalkHubContext()
         {
-            _AuthService.CreatePasswordHash("prototype", out byte[] passwordHash, out byte[] passwordSalt);
+            UserPassword pass = _AuthService.CreatePasswordHash("prototype");
 
             if (!_Context.Users.Any())
             {
@@ -33,16 +33,16 @@ namespace TalkHubAPI
                     new User()
                     {
                         Username = "TOMAAAA",
-                        PasswordHash = passwordHash,
-                        PasswordSalt = passwordSalt,
+                        PasswordHash = pass.PasswordHash,
+                        PasswordSalt = pass.PasswordSalt,
                         RefreshToken = _AuthService.GenerateRefreshToken(),
                         PermissionType = 1
                     },
                     new User()
                     {
                         Username = "KristiQn Enchev",
-                        PasswordHash = passwordHash,
-                        PasswordSalt = passwordSalt,
+                        PasswordHash = pass.PasswordHash,
+                        PasswordSalt = pass.PasswordSalt,
                         RefreshToken = _AuthService.GenerateRefreshToken()
                     }
                 };
