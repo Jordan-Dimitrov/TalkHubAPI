@@ -63,7 +63,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return Ok(playlists);
         }
 
-        [HttpGet("playlistsByUser/{userId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("playlists/user/{userId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PlaylistDto>))]
         public async Task<IActionResult> GetPlaylistsByUser(int userId)
         {
@@ -197,7 +197,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return NoContent();
         }
 
-        [HttpPost("addToPlaylist/{playlistId}"), Authorize(Roles = "User,Admin")]
+        [HttpPost("video/{playlistId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> AddVideoToPlaylist([FromQuery] int videoId, int playlistId)
@@ -248,7 +248,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return Ok("Successfully created");
         }
 
-        [HttpDelete("deleteFromPlaylist/{playlistId}"), Authorize(Roles = "User,Admin")]
+        [HttpDelete("video/{playlistId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> DeleteVideoFromPlaylist([FromQuery] int videoId, int playlistId)

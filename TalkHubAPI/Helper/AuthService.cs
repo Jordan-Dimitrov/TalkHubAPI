@@ -89,5 +89,16 @@ namespace TalkHubAPI.Helper
 
             return username;
         }
+
+        public DateTime GetDateFromJwtToken(string token)
+        {
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+
+            JwtSecurityToken jwtToken = tokenHandler.ReadJwtToken(token);
+
+            DateTime date = jwtToken.ValidTo;
+
+            return date;
+        }
     }
 }

@@ -14,5 +14,7 @@ namespace TalkHubAPI.Interfaces
         Task<bool> DeleteUserAsync(User user);
         Task<bool> SaveAsync();
         Task<bool> UpdateRefreshTokenToUserAsync(User user, RefreshToken refreshToken);
+        Task<User> GetUserByRefreshTokenAsync(string refreshToken);
+        Task<bool> RefreshTokenExistsForUserAsync(string refreshToken);
     }
 }

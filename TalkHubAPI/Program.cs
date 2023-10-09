@@ -102,8 +102,9 @@ namespace TalkHubAPI
             {
                 options.AddPolicy("AllowOrigin", builder =>
                 {
-                    builder.AllowAnyOrigin()
+                    builder.WithOrigins("http://localhost:5173")
                            .AllowAnyHeader()
+                           .AllowCredentials()
                            .AllowAnyMethod();
                 });
             });

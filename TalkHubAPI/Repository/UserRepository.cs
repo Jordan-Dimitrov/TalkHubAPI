@@ -61,7 +61,7 @@ namespace TalkHubAPI.Repository
 
         public async Task<User> GetUserByNameAsync(string username)
         {
-            var user = await _Context.Users.Where(x => x.Username == username).FirstOrDefaultAsync();
+            User user = await _Context.Users.Where(x => x.Username == username).FirstOrDefaultAsync();
             if (user != null)
             {
                 await _Context.Entry(user).Reference(u => u.RefreshToken).LoadAsync();
@@ -73,6 +73,19 @@ namespace TalkHubAPI.Repository
         {
             user.RefreshToken = newRefreshToken;
             return await UpdateUserAsync(user);
+        }
+
+        public async Task<User> GetUserByRefreshTokenAsync(string refreshToken)
+        {
+            User user = await _Context.Users.Where(x => x.RefreshToken.Token == refreshToken).FirstOrDefaultAsync();
+            await _Context.Entry(user).Reference(u => u.RefreshToken).LoadAsync();
+
+            return user;
+        }
+
+        public async Task<bool> RefreshTokenExistsForUserAsync(string refreshToken)
+        {
+            return await _Context.Users.AnyAsync(x => x.RefreshToken.Token == refreshToken);
         }
     }
 }

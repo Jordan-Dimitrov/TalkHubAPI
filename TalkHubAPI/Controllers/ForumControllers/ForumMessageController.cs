@@ -47,7 +47,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             _ForumMessagesCacheKey = "forumMessages";
         }
 
-        [HttpPost("forumMessage"), Authorize(Roles = "User,Admin")]
+        [HttpPost("forum-message"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [Authorize]
@@ -100,7 +100,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             return Ok("Successfully created");
         }
 
-        [HttpPost("forumMessageWithFile"), Authorize(Roles = "User,Admin")]
+        [HttpPost("forum-message-with-file"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [Authorize]
@@ -167,7 +167,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             return Ok("Successfully created");
         }
 
-        [HttpGet("forumMessagesByForumThread/{threadId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("thread/{threadId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ForumMessageDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllMessagesByForumThread(int threadId)
@@ -286,7 +286,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             return NoContent();
         }
 
-        [HttpPut("upvoteForumMessage/{forumMessageId}"), Authorize(Roles = "User,Admin")]
+        [HttpPut("upvote/{forumMessageId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [Authorize]

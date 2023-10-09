@@ -43,7 +43,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             _UserRepository = userRepository;
         }
 
-        [HttpGet("messages/{roomId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("{roomId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<MessengerMessageDto>))]
         public async Task<IActionResult> GetMessagesFromRoom(int roomId)
         {
@@ -85,7 +85,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             return Ok(messages);
         }
 
-        [HttpGet("lastTenMessagesById/{messageId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("last/{messageId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(MessageRoomDto))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetLastTenMessengerMessages([FromQuery] int roomId, int messageId)

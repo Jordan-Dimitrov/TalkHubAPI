@@ -161,7 +161,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return Ok("Successfully created");
         }
 
-        [HttpGet("videosByTag/{tagId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("tag/{tagId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<VideoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllVideosByTag(int tagId)
@@ -197,7 +197,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return Ok(videoDtos);
         }
 
-        [HttpGet("videosByUser/{userId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("user/{userId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<VideoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllVideosByUser(int userId)
@@ -226,7 +226,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return Ok(videoDtos);
         }
 
-        [HttpGet("videosByPlaylist/{playlistId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("playlist/{playlistId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<VideoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllVideosByPlaylistId(int playlistId)
@@ -337,7 +337,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return NoContent();
         }
 
-        [HttpPut("upvoteVideo/{videoId}"), Authorize(Roles = "User,Admin")]
+        [HttpPut("upvote/{videoId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         [Authorize]

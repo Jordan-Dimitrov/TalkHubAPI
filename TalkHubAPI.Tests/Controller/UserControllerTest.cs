@@ -82,6 +82,7 @@ namespace TalkHubAPI.Tests.Controller
         public async Task UserController_Login_ReturnOk()
         {
             CreateUserDto userDto = A.Fake<CreateUserDto>();
+            userDto.Password = "fakeHash";
             User user = A.Fake<User>();
             UserPassword pass = A.Fake<UserPassword>();
             user.PasswordHash = Encoding.UTF8.GetBytes("fakeHash");
@@ -95,7 +96,7 @@ namespace TalkHubAPI.Tests.Controller
             A.CallTo(() => _UserRepository.UsernameExistsAsync(userDto.Username)).Returns(true);
             A.CallTo(() => _UserRepository.GetUserByNameAsync(userDto.Username)).Returns(user);
             A.CallTo(() => _Mapper.Map<User>(userDto)).Returns(user);
-            A.CallTo(() => _AuthService.VerifyPasswordHash("fakePass", user.PasswordHash, user.PasswordSalt)).Returns(true);
+            A.CallTo(() => _AuthService.VerifyPasswordHash("fakeHash", user.PasswordHash, user.PasswordSalt)).Returns(true);
             A.CallTo(() => _AuthService.GenerateJwtToken(user)).Returns("fakeJwtToken");
             A.CallTo(() => _AuthService.GenerateRefreshToken()).Returns(token);
             A.CallTo(() => _UserRepository.UpdateRefreshTokenToUserAsync(user, token)).Returns(true);

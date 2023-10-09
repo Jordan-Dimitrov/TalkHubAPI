@@ -188,7 +188,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             return Ok(photosDto);
         }
 
-        [HttpGet("photosByCategory/{categoryId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("category/{categoryId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllMediaByCategory(int categoryId)
@@ -226,7 +226,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             return Ok(photosDto);
         }
 
-        [HttpGet("photosByUser/{userId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("user/{userId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllMediaByUser(int userId)

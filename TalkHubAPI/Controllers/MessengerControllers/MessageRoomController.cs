@@ -64,7 +64,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             return Ok(rooms);
         }
 
-        [HttpGet("userRooms"), Authorize(Roles = "User,Admin")]
+        [HttpGet("user-rooms"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<MessageRoomDto>))]
         public async Task<IActionResult> GetUserRooms()
         {
@@ -149,10 +149,10 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             return Ok("Successfully created");
         }
 
-        [HttpPost("joinRoom/{roomId}"), Authorize(Roles = "User,Admin")]
+        [HttpPost("joinRoom"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> JoinRoom(int roomId)
+        public async Task<IActionResult> JoinRoom([FromBody]int roomId)
         {
             if (!await _MessageRoomRepository.MessageRoomExistsAsync(roomId))
             {

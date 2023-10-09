@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.Metrics;
+using System.IdentityModel.Tokens.Jwt;
 using TalkHubAPI.Dto.UserDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Models;
@@ -113,7 +115,7 @@ namespace TalkHubAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(request.Username));
+            User user = await _UserRepository.GetUserByNameAsync(request.Username);
 
             if (!_AuthService.VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
             {
@@ -128,46 +130,34 @@ namespace TalkHubAPI.Controllers
             {
                 ModelState.AddModelError("", "Something went wrong while updating the refresh token");
                 return StatusCode(500, ModelState);
-            }
+            } 
 
             SetRefreshToken(refreshToken);
 
             return Ok(token);
         }
 
-        [HttpPost("refresh-token"), Authorize(Roles = "User,Admin")]
+        [HttpPost("refresh-token")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetRefreshToken()
         {
-            string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
-            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            string refreshToken = Request.Cookies["refreshToken"];
+
+            if (!await _UserRepository.RefreshTokenExistsForUserAsync(refreshToken))
             {
-                return BadRequest(ModelState);
+                return Unauthorized("Invalid Refresh Token.");
             }
-
-            if (!await _UserRepository.UsernameExistsAsync(username))
-            {
-                return BadRequest("User with such name does not exist!");
-            }
-
-            var refreshToken = Request.Cookies["refreshToken"];
 
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
+            User user = _Mapper.Map<User>(await _UserRepository.GetUserByRefreshTokenAsync(refreshToken));
 
-            if (!user.RefreshToken.Token.Equals(refreshToken))
-            {
-                return Unauthorized("Invalid Refresh Token.");
-            }
-
-            else if (user.RefreshToken.TokenExpires < DateTime.Now)
+            if (user.RefreshToken.TokenExpires < DateTime.Now)
             {
                 return Unauthorized("Token expired.");
             }
@@ -186,6 +176,7 @@ namespace TalkHubAPI.Controllers
 
             return Ok(token);
         }
+
         private void SetRefreshToken(RefreshToken newRefreshToken)
         {
             CookieOptions cookieOptions = new CookieOptions
