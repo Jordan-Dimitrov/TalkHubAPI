@@ -141,7 +141,7 @@ namespace TalkHubAPI
 
             app.UseCors("AllowOrigin");
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
 
