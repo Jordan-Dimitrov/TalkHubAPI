@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata.Ecma335;
 using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models;
@@ -18,6 +19,51 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
         {
             await _Context.AddAsync(video);
             return await SaveAsync();
+        }
+
+        public async Task<ICollection<Video>> GetRecommendedVideosByUserId(int userId)
+        {
+            List<VideoUserLike> videoUserLikes = await _Context.VideoUserLikes
+                .Where(x => x.UserId == userId)
+                .Where(x => x.Rating == 1)
+                .Include(v => v.Video)
+                .ThenInclude(t => t.Tag)
+                .ToListAsync();
+
+            Dictionary<VideoTag, int> tags = new Dictionary<VideoTag, int>();
+
+            foreach (VideoUserLike item in videoUserLikes)
+            {
+                if (!tags.ContainsKey(item.Video.Tag))
+                {
+                    tags[item.Video.Tag] = 0;   
+                }
+
+                tags[item.Video.Tag] += 1;
+            }
+
+            foreach (var item in tags.Keys)
+            {
+                tags[item] = (int)((double)tags[item] / tags.Sum(x => x.Value) * 10);
+            }
+
+            tags = tags.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+
+            List<Video> videos = new List<Video>();
+
+            foreach (var item in tags)
+            {
+                List<Video> topVideosByCategory = _Context.Videos
+                    .Where(x => x.Tag.Equals(item.Key))
+                    .OrderByDescending(x => x.LikeCount)
+                    .Take(item.Value)
+                    .ToList();
+
+                videos.AddRange(topVideosByCategory);
+            }
+
+            return videos;
+
         }
 
         public async Task<Video> GetVideoAsync(int id)

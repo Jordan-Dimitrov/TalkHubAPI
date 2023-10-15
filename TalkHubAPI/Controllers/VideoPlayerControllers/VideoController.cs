@@ -177,8 +177,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             if (videoDtos == null)
             {
-                videoDtos = _Mapper.Map<List<VideoDto>>(await _VideoRepository.GetVideosByTagIdAsync(tagId)).ToList();
                 List<Video> videos = (await _VideoRepository.GetVideosByTagIdAsync(tagId)).ToList();
+                videoDtos = _Mapper.Map<List<VideoDto>>(videos);
 
                 for (int i = 0; i < videos.Count; i++)
                 {
@@ -209,8 +209,45 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             List<Video> videos = (await _VideoRepository.GetVideosByUserIdAsync(userId)).ToList();
 
-            List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(await _VideoRepository
-                .GetVideosByUserIdAsync(userId)).ToList();
+            List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(videos);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            for (int i = 0; i < videos.Count; i++)
+            {
+                videoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(videos[i].UserId));
+                videoDtos[i].Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository.GetVideoTagAsync(videos[i].TagId));
+            }
+
+            return Ok(videoDtos);
+        }
+
+        [HttpGet("recommend/user"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<VideoDto>))]
+        [ProducesResponseType(typeof(void), 404)]
+        public async Task<IActionResult> GetRecommendedVideosByUser()
+        {
+            string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!await _UserRepository.UsernameExistsAsync(username))
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
+
+            List<Video> videos = (await _VideoRepository.GetRecommendedVideosByUserId(user.Id)).ToList();
+
+            List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(videos);
 
             if (!ModelState.IsValid)
             {
@@ -238,9 +275,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             List<Video> videos = (await _VideoRepository.GetVideosByPlaylistIdAsync(playlistId)).ToList();
 
-            List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(await _VideoRepository
-                .GetVideosByPlaylistIdAsync(playlistId))
-                .ToList();
+            List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(videos);
 
             if (!ModelState.IsValid)
             {

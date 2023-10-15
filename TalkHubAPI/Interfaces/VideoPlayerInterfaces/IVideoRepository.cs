@@ -1,4 +1,5 @@
-﻿using TalkHubAPI.Models.VideoPlayerModels;
+﻿using TalkHubAPI.Models;
+using TalkHubAPI.Models.VideoPlayerModels;
 namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
 {
     public interface IVideoRepository
@@ -15,5 +16,6 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
         Task<ICollection<Video>> GetVideosByTagIdAsync(int tagId);
         Task<ICollection<Video>> GetVideosByUserIdAsync(int userId);
         Task<ICollection<Video>> GetVideosByPlaylistIdAsync(int playlistId);
+        Task<ICollection<Video>> GetRecommendedVideosByUserId(int userId);
     }
 }

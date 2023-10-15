@@ -178,20 +178,20 @@ namespace TalkHubAPI.Controllers.ForumControllers
             }
 
             string cacheKey = _ForumMessagesCacheKey + $"_{threadId}";
-            List<ForumMessageDto> messageDto = _MemoryCache.Get<List<ForumMessageDto>>(cacheKey);
+            List<ForumMessageDto> messageDtos = _MemoryCache.Get<List<ForumMessageDto>>(cacheKey);
 
-            if (messageDto == null)
+            if (messageDtos == null)
             {
-                messageDto = _Mapper.Map<List<ForumMessageDto>>(await _ForumMessageRepository.GetForumMessagesByForumThreadIdAsync(threadId)).ToList();
                 List<ForumMessage> messages = (await _ForumMessageRepository.GetForumMessagesByForumThreadIdAsync(threadId)).ToList();
+                messageDtos = _Mapper.Map<List<ForumMessageDto>>(messages);
 
                 for (int i = 0; i < messages.Count; i++)
                 {
-                    messageDto[i].ForumThread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository.GetForumThreadAsync(messages[i].ForumThreadId));
-                    messageDto[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(messages[i].UserId));
+                    messageDtos[i].ForumThread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository.GetForumThreadAsync(messages[i].ForumThreadId));
+                    messageDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(messages[i].UserId));
                 }
 
-                _MemoryCache.Set(cacheKey, messageDto, TimeSpan.FromMinutes(1));
+                _MemoryCache.Set(cacheKey, messageDtos, TimeSpan.FromMinutes(1));
             }
 
             if (!ModelState.IsValid)
@@ -199,7 +199,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest(ModelState);
             }
 
-            return Ok(messageDto);
+            return Ok(messageDtos);
         }
 
         [HttpGet("file/{fileName}"), Authorize(Roles = "User,Admin")]

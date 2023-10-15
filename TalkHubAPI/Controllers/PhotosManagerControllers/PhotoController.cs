@@ -163,12 +163,12 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllMedia()
         {
-            List<PhotoDto> photosDto = _MemoryCache.Get<List<PhotoDto>>(_PhotosCacheKey);
+            List<PhotoDto> photoDtos = _MemoryCache.Get<List<PhotoDto>>(_PhotosCacheKey);
 
-            if (photosDto == null)
+            if (photoDtos == null)
             {
-                photosDto = _Mapper.Map<List<PhotoDto>>(await _PhotoRepository.GetPhotosAsync());
                 List<Photo> photos = (await _PhotoRepository.GetPhotosAsync()).ToList();
+                photoDtos = _Mapper.Map<List<PhotoDto>>(photos);
 
                 if (!ModelState.IsValid)
                 {
@@ -177,15 +177,15 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
                 for (int i = 0; i < photos.Count; i++)
                 {
-                    photosDto[i].Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
+                    photoDtos[i].Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
                         .GetCategoryAsync(photos[i].CategoryId));
-                    photosDto[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(photos[i].UserId));
+                    photoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(photos[i].UserId));
                 }
 
-                _MemoryCache.Set(_PhotosCacheKey, photosDto, TimeSpan.FromMinutes(1));
+                _MemoryCache.Set(_PhotosCacheKey, photoDtos, TimeSpan.FromMinutes(1));
             }
 
-            return Ok(photosDto);
+            return Ok(photoDtos);
         }
 
         [HttpGet("category/{categoryId}"), Authorize(Roles = "User,Admin")]
@@ -199,23 +199,22 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 return BadRequest("This category does not exist");
             }
             string cacheKey = _PhotosCacheKey + $"_{categoryId}";
-            List<PhotoDto> photosDto = _MemoryCache.Get<List<PhotoDto>>(cacheKey);
+            List<PhotoDto> photoDtos = _MemoryCache.Get<List<PhotoDto>>(cacheKey);
 
-            if (photosDto == null)
+            if (photoDtos == null)
             {
-                photosDto = _Mapper.Map<List<PhotoDto>>(await _PhotoRepository.GetPhotosByCategoryIdAsync(categoryId));
-
                 List<Photo> photos = (await _PhotoRepository.GetPhotosByCategoryIdAsync(categoryId)).ToList();
+                photoDtos = _Mapper.Map<List<PhotoDto>>(photos);
 
                 for (int i = 0; i < photos.Count; i++)
                 {
-                    photosDto[i].Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
+                    photoDtos[i].Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
                         .GetCategoryAsync(photos[i].CategoryId));
 
-                    photosDto[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(photos[i].UserId));
+                    photoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(photos[i].UserId));
                 }
 
-                _MemoryCache.Set(cacheKey, photosDto, TimeSpan.FromMinutes(1));
+                _MemoryCache.Set(cacheKey, photoDtos, TimeSpan.FromMinutes(1));
             }
 
             if (!ModelState.IsValid)
@@ -223,7 +222,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 return BadRequest(ModelState);
             }
 
-            return Ok(photosDto);
+            return Ok(photoDtos);
         }
 
         [HttpGet("user/{userId}"), Authorize(Roles = "User,Admin")]
@@ -238,7 +237,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             }
 
             List<Photo> photos = (await _PhotoRepository.GetPhotosByUserIdAsync(userId)).ToList();
-            List<PhotoDto> photosDto = _Mapper.Map<List<PhotoDto>>(await _PhotoRepository.GetPhotosByUserIdAsync(userId));
+            List<PhotoDto> photosDto = _Mapper.Map<List<PhotoDto>>(photos);
 
             if (!ModelState.IsValid)
             {

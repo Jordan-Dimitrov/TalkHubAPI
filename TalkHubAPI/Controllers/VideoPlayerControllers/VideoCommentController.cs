@@ -149,12 +149,11 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             if (commentDtos == null)
             {
-                commentDtos = _Mapper
-                .Map<List<VideoCommentDto>>(await _VideoCommentRepository
-                .GetVideoCommentsByVideoIdAsync(videoId)).ToList();
 
                 List<VideoComment> comments = (await _VideoCommentRepository
-               .GetVideoCommentsByVideoIdAsync(videoId)).ToList();
+                .GetVideoCommentsByVideoIdAsync(videoId)).ToList();
+
+                commentDtos = _Mapper.Map<List<VideoCommentDto>>(comments);
 
                 for (int i = 0; i < comments.Count; i++)
                 {
