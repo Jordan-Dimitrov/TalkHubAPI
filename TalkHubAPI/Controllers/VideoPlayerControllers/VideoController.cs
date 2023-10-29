@@ -85,7 +85,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             }
 
             if (_FileProcessingService.GetContentType(video.FileName) != "video/mp4" || 
-                _FileProcessingService.GetContentType(thumbnail.FileName) == "video/mp4")
+                _FileProcessingService.GetContentType(thumbnail.FileName) == "video/mp4" ||
+                _FileProcessingService.GetContentType(thumbnail.FileName) == "unsupported")
             {
                 return BadRequest(ModelState);
             }

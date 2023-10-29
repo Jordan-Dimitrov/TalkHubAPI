@@ -58,7 +58,8 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 return BadRequest(ModelState);
             }
 
-            if (_FileProcessingService.GetContentType(file.FileName) == "video/mp4")
+            if (_FileProcessingService.GetContentType(file.FileName) == "unsupported"
+                || _FileProcessingService.GetContentType(file.FileName) == "video/mp4")
             {
                 return BadRequest(ModelState);
             }

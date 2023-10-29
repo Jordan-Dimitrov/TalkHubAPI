@@ -111,7 +111,8 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest(ModelState);
             }
 
-            if (_FileProcessingService.GetContentType(file.FileName) != "image/webp")
+            if (_FileProcessingService.GetContentType(file.FileName) == "unsupported" 
+                || _FileProcessingService.GetContentType(file.FileName) == "video/mp4")
             {
                 return BadRequest(ModelState);
             }
