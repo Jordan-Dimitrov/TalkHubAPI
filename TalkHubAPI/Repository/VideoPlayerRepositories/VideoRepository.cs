@@ -42,7 +42,7 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
                 tags[item.Video.Tag] += 1;
             }
 
-            foreach (var item in tags.Keys)
+            foreach (VideoTag item in tags.Keys)
             {
                 tags[item] = (int)((double)tags[item] / tags.Sum(x => x.Value) * 10);
             }
@@ -51,7 +51,7 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
 
             List<Video> videos = new List<Video>();
 
-            foreach (var item in tags)
+            foreach (KeyValuePair<VideoTag, int> item in tags)
             {
                 List<Video> topVideosByCategory = _Context.Videos
                     .Where(x => x.Tag.Equals(item.Key))

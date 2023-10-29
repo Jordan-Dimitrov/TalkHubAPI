@@ -27,7 +27,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         private readonly IFileProcessingService _FileProcessingService;
         private readonly IVideoUserLikeRepository _VideoUserLikeRepository;
         private readonly IVideoTagRepository _VideoTagRepository;
-        private IPlaylistRepository _PlaylistRepository;
+        private readonly IPlaylistRepository _PlaylistRepository;
         public VideoController(IVideoRepository videoRepository,
             IMapper mapper,
             IAuthService authService,

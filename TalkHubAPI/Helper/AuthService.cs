@@ -89,7 +89,16 @@ namespace TalkHubAPI.Helper
 
             return username;
         }
+        public string GetRoleFromJwtToken(string token)
+        {
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
+            JwtSecurityToken jwtToken = tokenHandler.ReadJwtToken(token);
+
+            string role = jwtToken.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Role)?.Value;
+
+            return role;
+        }
         public DateTime GetDateFromJwtToken(string token)
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();

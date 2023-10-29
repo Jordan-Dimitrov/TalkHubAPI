@@ -94,7 +94,27 @@ namespace TalkHubAPI.Controllers
 
             return Ok("Successfully created");
         }
+        [HttpGet("role"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetUserRole()
+        {
+            string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+            string role = _AuthService.GetRoleFromJwtToken(jwtToken);
 
+            if (username == null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!await _UserRepository.UsernameExistsAsync(username))
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            return Ok(role);
+        }
         [HttpPost("login")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]

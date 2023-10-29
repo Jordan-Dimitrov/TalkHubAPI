@@ -17,8 +17,8 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ThreadName = table.Column<string>(type: "varchar(45)", unicode: false, maxLength: 45, nullable: false),
-                    ThreadDescription = table.Column<string>(type: "varchar(45)", unicode: false, maxLength: 45, nullable: false)
+                    ThreadName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    ThreadDescription = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -31,7 +31,7 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RoomName = table.Column<string>(type: "varchar(45)", unicode: false, maxLength: 45, nullable: false)
+                    RoomName = table.Column<string>(type: "nvarchar(45)", maxLength: 45, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -72,7 +72,7 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TagName = table.Column<string>(type: "varchar(45)", unicode: false, maxLength: 45, nullable: false)
+                    TagName = table.Column<string>(type: "nvarchar(45)", maxLength: 45, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -107,8 +107,8 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MessageContent = table.Column<string>(type: "varchar(max)", unicode: false, nullable: false),
-                    FileName = table.Column<string>(type: "varchar(max)", unicode: false, nullable: true),
+                    MessageContent = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ReplyId = table.Column<int>(type: "int", nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "datetime", nullable: false),
@@ -143,8 +143,8 @@ namespace TalkHubAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     RoomId = table.Column<int>(type: "int", nullable: false),
-                    MessageContent = table.Column<string>(type: "varchar(max)", unicode: false, nullable: true),
-                    FileName = table.Column<string>(type: "varchar(max)", unicode: false, nullable: true),
+                    MessageContent = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateCreated = table.Column<DateTime>(type: "datetime", nullable: false)
                 },
                 constraints: table =>
@@ -168,7 +168,7 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FileName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Timestamp = table.Column<DateTime>(type: "datetime", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
@@ -195,7 +195,7 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    PlaylistName = table.Column<string>(type: "varchar(max)", unicode: false, nullable: false),
+                    PlaylistName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -238,10 +238,10 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    VideoName = table.Column<string>(type: "varchar(max)", unicode: false, nullable: false),
-                    MP4Name = table.Column<string>(type: "varchar(max)", unicode: false, nullable: false),
-                    ThumbnailName = table.Column<string>(type: "varchar(max)", unicode: false, nullable: false),
-                    VideoDescription = table.Column<string>(type: "varchar(max)", unicode: false, nullable: false),
+                    VideoName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MP4Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ThumbnailName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VideoDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LikeCount = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     TagId = table.Column<int>(type: "int", nullable: false)
@@ -292,7 +292,7 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MessageContent = table.Column<string>(type: "varchar(max)", unicode: false, nullable: false),
+                    MessageContent = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "datetime", nullable: false),
                     LikeCount = table.Column<int>(type: "int", nullable: false),
                     ReplyId = table.Column<int>(type: "int", nullable: true),
