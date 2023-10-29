@@ -15,7 +15,7 @@ namespace TalkHubAPI.Repository.PhotosManagerRepositories
         }
         public async Task<bool> AddPhotoAsync(Photo photo)
         {
-            _Context.Add(photo);
+            await _Context.AddAsync(photo);
             return await SaveAsync();
         }
 

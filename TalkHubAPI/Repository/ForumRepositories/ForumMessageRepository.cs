@@ -16,7 +16,7 @@ namespace TalkHubAPI.Repository.ForumRepositories
 
         public async Task<bool> AddForumMessageAsync(ForumMessage message)
         {
-            _Context.Add(message);
+            await _Context.AddAsync(message);
             return await SaveAsync();
         }
 

@@ -18,7 +18,7 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
 
         public async Task<bool> AddVideoPlaylistAsync(VideoPlaylist videoPlaylist)
         {
-            _Context.Add(videoPlaylist);
+            await _Context.AddAsync(videoPlaylist);
             return await SaveAsync();
         }
 

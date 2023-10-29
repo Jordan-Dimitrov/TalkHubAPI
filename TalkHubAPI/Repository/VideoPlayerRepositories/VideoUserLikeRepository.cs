@@ -17,7 +17,7 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
 
         public async Task<bool> AddVideoUserLikeAsync(VideoUserLike videoUserLike)
         {
-            _Context.Add(videoUserLike);
+            await _Context.AddAsync(videoUserLike);
             return await SaveAsync();
         }
 

@@ -17,7 +17,7 @@ namespace TalkHubAPI.Repository.ForumRepositories
 
         public async Task<bool> AddUserUpvoteAsync(UserUpvote upvote)
         {
-            _Context.Add(upvote);
+            await _Context.AddAsync(upvote);
             return await SaveAsync();
         }
 

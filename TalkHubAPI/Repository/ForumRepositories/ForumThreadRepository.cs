@@ -16,7 +16,7 @@ namespace TalkHubAPI.Repository.ForumRepositories
 
         public async Task<bool> AddForumThreadAsync(ForumThread thread)
         {
-            _Context.Add(thread);
+            await _Context.AddAsync(thread);
             return await SaveAsync();
         }
 

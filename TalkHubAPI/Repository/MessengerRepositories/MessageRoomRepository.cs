@@ -15,7 +15,7 @@ namespace TalkHubAPI.Repository.MessengerRepositories
         }
         public async Task<bool> AddMessageRoomAsync(MessageRoom room)
         {
-            _Context.Add(room);
+            await _Context.AddAsync(room);
             return await SaveAsync();
         }
 

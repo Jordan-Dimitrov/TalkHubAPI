@@ -17,7 +17,7 @@ namespace TalkHubAPI.Repository.MessengerRepositories
         }
         public async Task<bool> AddMessengerMessageAsync(MessengerMessage message)
         {
-            _Context.Add(message);
+            await _Context.AddAsync(message);
             return await SaveAsync();
         }
 

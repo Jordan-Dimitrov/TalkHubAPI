@@ -17,7 +17,7 @@ namespace TalkHubAPI.Repository
 
         public async Task<bool> CreateUserAsync(User user)
         {
-            _Context.Add(user);
+            await _Context.AddAsync(user);
             return await SaveAsync();
         }
 
