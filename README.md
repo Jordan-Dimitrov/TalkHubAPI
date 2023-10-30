@@ -10,20 +10,29 @@ Before you begin, ensure you have the following installed:
 
 2. SQL Server
 
+3. FFmpeg
+
 ### Installation
-1. Navigate to the project directory
+1. Change the FFmpegConfig in the appsettings.json
+```bash
+    "FFmpegConfig": {
+    "FFmpegBinaryDirectory": "path",
+    "TemporaryFilesDirectory": "path"
+  },
+```
+2. Navigate to the project directory
 ```bash
 cd TalkHubAPI
 ```
-2. Execute the following command to apply the initial migration and create the database:
+3. Execute the following command to apply the initial migration and create the database:
 ```bash
 dotnet ef database update
 ```
-3. Run the following command to seed the database:
+4. Run the following command to seed the database:
 ```bash
 dotnet run seeddata
 ```
-4. Run the project
+5. Run the project
 ```bash
 dotnet run
 ```
