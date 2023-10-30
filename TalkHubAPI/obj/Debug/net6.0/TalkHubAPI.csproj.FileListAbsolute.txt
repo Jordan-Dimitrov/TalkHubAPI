@@ -199,8 +199,6 @@ C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\AutoMappe
 C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\Azure.Core.dll
 C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\Azure.Identity.dll
 C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\Humanizer.dll
-C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\ImageProcessor.dll
-C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\ImageProcessor.Plugins.WebP.dll
 C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\Microsoft.Data.SqlClient.dll
@@ -285,3 +283,5 @@ C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\obj\Debug\net6.0\refint\Ta
 C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\obj\Debug\net6.0\TalkHubAPI.pdb
 C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\obj\Debug\net6.0\TalkHubAPI.genruntimeconfig.cache
 C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\obj\Debug\net6.0\ref\TalkHubAPI.dll
+C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\FFMpegCore.dll
+C:\Users\danid\Desktop\Projects\TalkHubAPI\TalkHubAPI\bin\Debug\net6.0\Instances.dll

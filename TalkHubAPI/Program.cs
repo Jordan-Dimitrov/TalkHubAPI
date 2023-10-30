@@ -20,6 +20,8 @@ using TalkHubAPI.Repository.PhotosManagerRepositories;
 using TalkHubAPI.Repository.VideoPlayerRepositories;
 using TalkHubAPI.Hubs;
 using Microsoft.AspNetCore.Http.Features;
+using FFMpegCore;
+using TalkHubAPI.BackgroundTasks;
 
 namespace TalkHubAPI
 {
@@ -55,6 +57,8 @@ namespace TalkHubAPI
             builder.Services.AddScoped<IVideoRepository, VideoRepository>();
             builder.Services.AddScoped<IVideoTagRepository, VideoTagRepository>();
             builder.Services.AddScoped<IVideoUserLikeRepository, VideoUserLikeRepository>();
+            builder.Services.AddHostedService<QueueService>();
+            builder.Services.AddSingleton<IBackgroundQueue, BackgroundQueue>();
 
             builder.Services.AddSignalR();
             builder.Services.AddHttpContextAccessor();
@@ -112,6 +116,14 @@ namespace TalkHubAPI
             builder.Services.AddDbContext<TalkHubContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("SDR"));
+            });
+
+            GlobalFFOptions.Configure(new FFOptions
+            {
+                BinaryFolder = builder.Configuration
+                .GetSection("AppSettings:FFmpegBinaryFolder").Value,
+                TemporaryFilesFolder = builder.Configuration
+                .GetSection("AppSettings:TemporaryFilesFolder").Value
             });
 
             var app = builder.Build();

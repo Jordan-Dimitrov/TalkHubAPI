@@ -1,18 +1,23 @@
-﻿using ImageProcessor.Plugins.WebP.Imaging.Formats;
-using ImageProcessor;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TalkHubAPI.Interfaces;
-
+using System.Diagnostics;
+using FFMpegCore;
+using FFMpegCore.Enums;
 namespace TalkHubAPI.Helper
 {
     public class FileProcessingService : IFileProcessingService
     {
         private readonly string _UploadsDirectory;
-        private readonly int _ImageQuality;
-        public FileProcessingService()
+        private readonly IBackgroundQueue _BackgroundQueue;
+        public FileProcessingService(IBackgroundQueue backgroundQueue)
         {
+            _BackgroundQueue = backgroundQueue;
+
             _UploadsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Media");
-            _ImageQuality = 75;
+            if (!Directory.Exists(_UploadsDirectory))
+            {
+                Directory.CreateDirectory(_UploadsDirectory);
+            }
         }
         public async Task<FileContentResult> GetImageAsync(string fileName)
         {
@@ -32,6 +37,10 @@ namespace TalkHubAPI.Helper
             if (fileName.EndsWith(".webp", StringComparison.OrdinalIgnoreCase))
             {
                 return "image/webp";
+            }
+            else if (fileName.EndsWith(".webm", StringComparison.OrdinalIgnoreCase))
+            {
+                return "video/webm";
             }
             else if (fileName.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
             {
@@ -53,6 +62,9 @@ namespace TalkHubAPI.Helper
 
         public async Task<string> UploadImageAsync(IFormFile file)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             if (file == null || file.Length == 0)
             {
                 return "Empty";
@@ -61,7 +73,7 @@ namespace TalkHubAPI.Helper
             string fileName = Path.GetFileName(file.FileName);
             string fileExtension = Path.GetExtension(fileName).ToLowerInvariant();
 
-            if (fileExtension != ".jpg" && fileExtension != ".png")
+            if (fileExtension != ".jpg" && fileExtension != ".png" && fileExtension != ".webp")
             {
                 return "Invalid file format";
             }
@@ -80,18 +92,15 @@ namespace TalkHubAPI.Helper
                 await file.CopyToAsync(stream);
             }
 
-            using (FileStream webPFileStream = new FileStream(webPImagePath, FileMode.Create))
+            if (fileExtension == ".webp")
             {
-                using (ImageFactory imageFactory = new ImageFactory(preserveExifData: false))
-                {
-                    imageFactory.Load(file.OpenReadStream())
-                                .Format(new WebPFormat())
-                                .Quality(_ImageQuality)
-                                .Save(webPFileStream);
-                }
+                return webPFileName;
             }
 
-            File.Delete(filePath);
+            _BackgroundQueue.QueueTask(async token =>
+            {
+                await ConvertToWebp(filePath);
+            });
 
             return webPFileName;
         }
@@ -108,6 +117,41 @@ namespace TalkHubAPI.Helper
 
             return Task.FromResult(false);
         }
+        private async Task<bool> ConvertToWebm(string inputPath)
+        {
+            string outputPath = Path.Combine(_UploadsDirectory, Path.GetFileNameWithoutExtension(inputPath) + ".webm");
+
+            await FFMpegArguments
+               .FromFileInput(inputPath)
+               .OutputToFile(outputPath, false, options =>
+               options.WithVideoCodec(VideoCodec.LibVpx)
+               .ForceFormat("webm")
+               .WithConstantRateFactor(21)
+               .WithAudioCodec(AudioCodec.LibVorbis)
+               .WithVariableBitrate(4)
+               .WithVideoFilters(filterOptions => filterOptions.Scale(VideoSize.Ld))
+               .WithFastStart())
+               .ProcessAsynchronously();
+
+            await RemoveMediaAsync(inputPath);
+
+            return true;
+        }
+        private async Task<bool> ConvertToWebp(string inputPath)
+        {
+            string outputPath = Path.Combine(_UploadsDirectory, Path.GetFileNameWithoutExtension(inputPath) + ".webp");
+
+            await FFMpegArguments
+               .FromFileInput(inputPath)
+               .OutputToFile(outputPath, false, options =>
+               options.ForceFormat("webp")
+               .WithFastStart())
+               .ProcessAsynchronously();
+
+            await RemoveMediaAsync(inputPath);
+
+            return true;
+        }
 
         public async Task<string> UploadVideoAsync(IFormFile file)
         {
@@ -118,15 +162,17 @@ namespace TalkHubAPI.Helper
 
             string fileName = Path.GetFileName(file.FileName);
             string fileExtension = Path.GetExtension(fileName).ToLowerInvariant();
+            string webmFileName = Path.GetFileNameWithoutExtension(fileName) + ".webm";
+            string webmVideoPath = Path.Combine(_UploadsDirectory, webmFileName);
 
-            if (fileExtension != ".mp4")
+            if (fileExtension != ".mp4" && fileExtension != ".webm")
             {
-                return "Invalid file format. Only .mp4 files are supported.";
+                return "Invalid file format";
             }
 
             string filePath = Path.Combine(_UploadsDirectory, fileName);
 
-            if (File.Exists(filePath))
+            if (File.Exists(filePath) || File.Exists(webmVideoPath))
             {
                 return "File already exists";
             }
@@ -136,7 +182,17 @@ namespace TalkHubAPI.Helper
                 await file.CopyToAsync(stream);
             }
 
-            return fileName;
+            if(fileExtension == ".webm")
+            {
+                return webmFileName;
+            }
+
+            _BackgroundQueue.QueueTask(async token =>
+            {
+                await ConvertToWebm(filePath);
+            });
+
+            return webmFileName;
         }
 
         public FileStreamResult GetVideo(string fileName)

@@ -111,8 +111,9 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest(ModelState);
             }
 
-            if (_FileProcessingService.GetContentType(file.FileName) == "unsupported" 
-                || _FileProcessingService.GetContentType(file.FileName) == "video/mp4")
+            if (_FileProcessingService.GetContentType(file.FileName) == "unsupported"
+                || _FileProcessingService.GetContentType(file.FileName) == "video/mp4"
+                || _FileProcessingService.GetContentType(file.FileName) == "video/webm")
             {
                 return BadRequest(ModelState);
             }
@@ -208,7 +209,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetMedia(string fileName)
         {
-            if (_FileProcessingService.GetContentType(fileName) == "video/mp4")
+            if (_FileProcessingService.GetContentType(fileName) != "image/webp")
             {
                 return BadRequest(ModelState);
             }

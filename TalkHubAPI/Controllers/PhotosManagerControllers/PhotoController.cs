@@ -14,6 +14,7 @@ using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
 using TalkHubAPI.Models.PhotosManagerModels;
 using Microsoft.Extensions.Caching.Memory;
 using System.Threading;
+using System.Diagnostics;
 
 namespace TalkHubAPI.Controllers.PhotosManagerControllers
 {
@@ -59,7 +60,8 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             }
 
             if (_FileProcessingService.GetContentType(file.FileName) == "unsupported"
-                || _FileProcessingService.GetContentType(file.FileName) == "video/mp4")
+                || _FileProcessingService.GetContentType(file.FileName) == "video/mp4"
+                || _FileProcessingService.GetContentType(file.FileName) == "video/webm")
             {
                 return BadRequest(ModelState);
             }

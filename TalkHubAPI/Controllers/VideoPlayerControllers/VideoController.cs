@@ -84,7 +84,13 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            if (_FileProcessingService.GetContentType(video.FileName) != "video/mp4" || 
+            if (_FileProcessingService.GetContentType(video.FileName) != "video/mp4" 
+                && _FileProcessingService.GetContentType(video.FileName) != "video/webm")
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (_FileProcessingService.GetContentType(thumbnail.FileName) == "video/webm" ||
                 _FileProcessingService.GetContentType(thumbnail.FileName) == "video/mp4" ||
                 _FileProcessingService.GetContentType(thumbnail.FileName) == "unsupported")
             {
@@ -297,7 +303,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetVideo(string fileName)
         {
-            if (_FileProcessingService.GetContentType(fileName) != "video/mp4")
+            if (_FileProcessingService.GetContentType(fileName) != "video/webm")
             {
                 return BadRequest(ModelState);
             }
@@ -358,8 +364,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             string cacheKey = _VideosCacheKey + $"_{videoToHide.TagId}";
 
-            videoToHide.Mp4name = "hidden_video.mp4";
-            videoToHide.ThumbnailName = "hidden.png";
+            videoToHide.Mp4name = "hidden_video.webm";
+            videoToHide.ThumbnailName = "hidden.webp";
             videoToHide.VideoDescription = "video was hidden";
 
             if (!await _VideoRepository.UpdateVideoAsync(videoToHide))
