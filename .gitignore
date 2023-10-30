@@ -399,3 +399,5 @@ FodyWeavers.xsd
 
 # Ignore appsettings.json
 appsettings.json
+/TalkHubAPI/appsettings.json
+/TalkHubAPI/appsettings.json

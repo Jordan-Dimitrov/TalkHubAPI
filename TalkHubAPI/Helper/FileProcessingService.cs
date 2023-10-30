@@ -23,14 +23,21 @@ namespace TalkHubAPI.Helper
         {
             string filePath = Path.Combine(_UploadsDirectory, fileName);
 
-            if (File.Exists(filePath))
+            try
             {
-                string contentType = GetContentType(fileName);
-                byte[] fileBytes = await File.ReadAllBytesAsync(filePath);
-                return new FileContentResult(fileBytes, contentType);
-            }
+                if (File.Exists(filePath))
+                {
+                    string contentType = GetContentType(fileName);
+                    byte[] fileBytes = await File.ReadAllBytesAsync(filePath);
+                    return new FileContentResult(fileBytes, contentType);
+                }
 
-            return null;
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
         }
         public string GetContentType(string fileName)
         {
@@ -199,16 +206,23 @@ namespace TalkHubAPI.Helper
         {
             string filePath = Path.Combine(_UploadsDirectory, fileName);
 
-            if (!File.Exists(filePath))
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+
+                    string contentType = GetContentType(fileName);
+
+                    return new FileStreamResult(stream, contentType);
+                }
+
+                return null;
+            }
+            catch
             {
                 return null;
             }
-
-            FileStream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-
-            string contentType = GetContentType(fileName);
-
-            return new FileStreamResult(stream, contentType);
         }
     }
 }
