@@ -65,6 +65,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
             return Ok(category);
         }
+
         [HttpPost, Authorize(Roles = "Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
@@ -98,6 +99,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
             return Ok("Successfully created");
         }
+
         [HttpPut("{categoryId}"), Authorize(Roles = "Admin")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
@@ -131,6 +133,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
             return NoContent();
         }
+
         [HttpDelete("{categoryId}"), Authorize(Roles = "Admin")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
