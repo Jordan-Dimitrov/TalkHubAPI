@@ -94,6 +94,7 @@ namespace TalkHubAPI.Controllers
 
             return Ok("Successfully created");
         }
+
         [HttpGet("role"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
@@ -115,6 +116,7 @@ namespace TalkHubAPI.Controllers
 
             return Ok(role);
         }
+
         [HttpPost("login")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
