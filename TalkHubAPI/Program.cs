@@ -121,9 +121,9 @@ namespace TalkHubAPI
             GlobalFFOptions.Configure(new FFOptions
             {
                 BinaryFolder = builder.Configuration
-                .GetSection("AppSettings:FFmpegBinaryFolder").Value,
+                .GetSection("FFmpegConfig:FFmpegBinaryDirectory").Value,
                 TemporaryFilesFolder = builder.Configuration
-                .GetSection("AppSettings:TemporaryFilesFolder").Value
+                .GetSection("FFmpegConfig:TemporaryFilesDirectory").Value
             });
 
             var app = builder.Build();
