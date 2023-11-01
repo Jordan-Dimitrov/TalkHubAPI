@@ -50,7 +50,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [HttpPost("forum-message"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        [Authorize]
         public async Task<IActionResult> CreateMessage(CreateForumMessageDto messageDto)
         {
             if (messageDto == null)
@@ -103,17 +102,9 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [HttpPost("forum-message-with-file"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        [Authorize]
         public async Task<IActionResult> CreateMessageWithFile(IFormFile file, [FromForm] CreateForumMessageDto messageDto)
         {
-            if (file == null || file.Length == 0 || messageDto == null)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (_FileProcessingService.GetContentType(file.FileName) == "unsupported"
-                || _FileProcessingService.GetContentType(file.FileName) == "video/mp4"
-                || _FileProcessingService.GetContentType(file.FileName) == "video/webm")
+            if (messageDto == null || !_FileProcessingService.ImageMimeTypeValid(file))
             {
                 return BadRequest(ModelState);
             }
@@ -291,7 +282,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [HttpPut("upvote/{forumMessageId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        [Authorize]
         public async Task<IActionResult> UpvoteMessage([FromQuery] int upvoteValue, int forumMessageId)
         {
             if (upvoteValue != 1 && upvoteValue != -1)

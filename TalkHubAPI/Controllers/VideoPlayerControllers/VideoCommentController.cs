@@ -50,7 +50,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        [Authorize]
         public async Task<IActionResult> CreateVideoComment(CreateVideoCommentDto commentDto)
         {
             if (commentDto == null)
@@ -214,7 +213,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [HttpPut("upvote/{videoCommentId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        [Authorize]
         public async Task<IActionResult> UpvoteVideoComment([FromQuery] int upvoteValue, int videoCommentId)
         {
             if (upvoteValue != 1 && upvoteValue != -1)

@@ -117,6 +117,11 @@ namespace TalkHubAPI
                 options.UseSqlServer(builder.Configuration.GetConnectionString("SDR"));
             });
 
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 2147483648;
+            });
+
             GlobalFFOptions.Configure(new FFOptions
             {
                 BinaryFolder = builder.Configuration

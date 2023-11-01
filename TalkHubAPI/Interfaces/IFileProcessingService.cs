@@ -11,5 +11,7 @@ namespace TalkHubAPI.Interfaces
         FileStreamResult GetVideo(string fileName);
         string GetContentType(string fileName);
         Task<bool> RemoveMediaAsync(string fileName);
+        bool ImageMimeTypeValid(IFormFile file);
+        bool VideoMimeTypeValid(IFormFile file);
     }
 }

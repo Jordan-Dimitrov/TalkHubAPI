@@ -51,17 +51,9 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        [Authorize]
         public async Task<IActionResult> UploadMedia(IFormFile file, [FromForm] CreatePhotoDto photoDto)
         {
-            if (file == null || file.Length == 0 || photoDto == null)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (_FileProcessingService.GetContentType(file.FileName) == "unsupported"
-                || _FileProcessingService.GetContentType(file.FileName) == "video/mp4"
-                || _FileProcessingService.GetContentType(file.FileName) == "video/webm")
+            if(photoDto == null || !_FileProcessingService.ImageMimeTypeValid(file))
             {
                 return BadRequest(ModelState);
             }

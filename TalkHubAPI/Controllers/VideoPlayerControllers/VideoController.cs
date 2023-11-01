@@ -73,26 +73,13 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         }
 
         [HttpPost, Authorize(Roles = "User,Admin")]
-        [RequestSizeLimit(100_000_000)]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        [Authorize]
         public async Task<IActionResult> CreateVideo(IFormFile video, IFormFile thumbnail, [FromForm] CreateVideoDto videoDto)
         {
-            if (video == null || video.Length == 0 || thumbnail == null || thumbnail.Length == 0 || videoDto == null)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (_FileProcessingService.GetContentType(video.FileName) != "video/mp4" 
-                && _FileProcessingService.GetContentType(video.FileName) != "video/webm")
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (_FileProcessingService.GetContentType(thumbnail.FileName) == "video/webm" ||
-                _FileProcessingService.GetContentType(thumbnail.FileName) == "video/mp4" ||
-                _FileProcessingService.GetContentType(thumbnail.FileName) == "unsupported")
+            if (videoDto == null 
+                || !_FileProcessingService.VideoMimeTypeValid(video) 
+                || !_FileProcessingService.ImageMimeTypeValid(thumbnail))
             {
                 return BadRequest(ModelState);
             }
@@ -382,7 +369,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [HttpPut("upvote/{videoId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        [Authorize]
         public async Task<IActionResult> UpvoteVideo([FromQuery] int upvoteValue, int videoId)
         {
             if (upvoteValue != 1 && upvoteValue != -1)

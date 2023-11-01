@@ -9,16 +9,23 @@ namespace TalkHubAPI.Helper
     {
         private readonly string _UploadsDirectory;
         private readonly IBackgroundQueue _BackgroundQueue;
+        private readonly IList<string> _SupportedImageMimeTypes;
+        private readonly IList<string> _SupportedVideoMimeTypes;
         public FileProcessingService(IBackgroundQueue backgroundQueue)
         {
             _BackgroundQueue = backgroundQueue;
 
+            _SupportedImageMimeTypes = new List<string>() {"image/webp", "image/png", "image/jpg", "image/jpeg" };
+            _SupportedVideoMimeTypes = new List<string>() { "video/webm", "video/mp4"};
+
             _UploadsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Media");
+
             if (!Directory.Exists(_UploadsDirectory))
             {
                 Directory.CreateDirectory(_UploadsDirectory);
             }
         }
+
         public async Task<FileContentResult> GetImageAsync(string fileName)
         {
             string filePath = Path.Combine(_UploadsDirectory, fileName);
@@ -69,21 +76,9 @@ namespace TalkHubAPI.Helper
 
         public async Task<string> UploadImageAsync(IFormFile file)
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            if (file == null || file.Length == 0)
-            {
-                return "Empty";
-            }
 
             string fileName = Path.GetFileName(file.FileName);
             string fileExtension = Path.GetExtension(fileName).ToLowerInvariant();
-
-            if (fileExtension != ".jpg" && fileExtension != ".png" && fileExtension != ".webp")
-            {
-                return "Invalid file format";
-            }
 
             string webPFileName = Path.GetFileNameWithoutExtension(file.FileName) + ".webp";
             string filePath = Path.Combine(_UploadsDirectory, fileName);
@@ -112,18 +107,19 @@ namespace TalkHubAPI.Helper
             return webPFileName;
         }
 
-        public Task<bool> RemoveMediaAsync(string fileName)
+        public async Task<bool> RemoveMediaAsync(string fileName)
         {
             string filePath = Path.Combine(_UploadsDirectory, fileName);
 
             if (File.Exists(filePath))
             {
-                File.Delete(filePath);
-                return Task.FromResult(true);
+                await Task.Run(() => File.Delete(filePath));
+                return true;
             }
 
-            return Task.FromResult(false);
+            return false;
         }
+
         private async Task<bool> ConvertToWebm(string inputPath)
         {
             string outputPath = Path.Combine(_UploadsDirectory, Path.GetFileNameWithoutExtension(inputPath) + ".webm");
@@ -162,21 +158,12 @@ namespace TalkHubAPI.Helper
 
         public async Task<string> UploadVideoAsync(IFormFile file)
         {
-            if (file == null || file.Length == 0)
-            {
-                return "Empty";
-            }
 
             string fileName = Path.GetFileName(file.FileName);
             string fileExtension = Path.GetExtension(fileName).ToLowerInvariant();
+
             string webmFileName = Path.GetFileNameWithoutExtension(fileName) + ".webm";
             string webmVideoPath = Path.Combine(_UploadsDirectory, webmFileName);
-
-            if (fileExtension != ".mp4" && fileExtension != ".webm")
-            {
-                return "Invalid file format";
-            }
-
             string filePath = Path.Combine(_UploadsDirectory, fileName);
 
             if (File.Exists(filePath) || File.Exists(webmVideoPath))
@@ -223,6 +210,36 @@ namespace TalkHubAPI.Helper
             {
                 return null;
             }
+        }
+
+        public bool ImageMimeTypeValid(IFormFile file)
+        {
+            if(file == null || file.Length == 0)
+            {
+                return false;
+            }
+
+            if (!_SupportedImageMimeTypes.Contains(file.ContentType))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool VideoMimeTypeValid(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return false;
+            }
+
+            if (!_SupportedVideoMimeTypes.Contains(file.ContentType))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
