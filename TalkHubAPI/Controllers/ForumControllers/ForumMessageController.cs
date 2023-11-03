@@ -23,8 +23,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
         private readonly IFileProcessingService _FileProcessingService;
         private readonly IUserRepository _UserRepository;
         private readonly IAuthService _AuthService;
-        private readonly string _ForumMessagesCacheKey;
-        private readonly IMemoryCache _MemoryCache;
         private readonly IForumThreadRepository _ForumThreadRepository;
         private readonly IUserUpvoteRepository _UserUpvoteRepository;
         public ForumMessageController(IForumMessageRepository forumMessageRepository,
@@ -33,8 +31,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             IUserRepository userRepository,
             IAuthService authService,
             IForumThreadRepository forumThreadRepository,
-            IUserUpvoteRepository userUpvoteRepository,
-            IMemoryCache memoryCache)
+            IUserUpvoteRepository userUpvoteRepository)
         {
             _ForumMessageRepository = forumMessageRepository;
             _Mapper = mapper;
@@ -43,8 +40,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
             _AuthService = authService;
             _ForumThreadRepository = forumThreadRepository;
             _UserUpvoteRepository = userUpvoteRepository;
-            _MemoryCache = memoryCache;
-            _ForumMessagesCacheKey = "forumMessages";
         }
 
         [HttpPost("forum-message"), Authorize(Roles = "User,Admin")]
@@ -93,9 +88,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
             }
-
-            string cacheKey = _ForumMessagesCacheKey + $"_{message.ForumThreadId}";
-            _MemoryCache.Remove(cacheKey);
 
             return Ok("Successfully created");
         }
@@ -155,9 +147,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return StatusCode(500, ModelState);
             }
 
-            string cacheKey = _ForumMessagesCacheKey + $"_{message.ForumThreadId}";
-            _MemoryCache.Remove(cacheKey);
-
             return Ok("Successfully created");
         }
 
@@ -171,21 +160,13 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest("This thread does not exist");
             }
 
-            string cacheKey = _ForumMessagesCacheKey + $"_{threadId}";
-            List<ForumMessageDto> messageDtos = _MemoryCache.Get<List<ForumMessageDto>>(cacheKey);
-
-            if (messageDtos == null)
+            List<ForumMessage> messages = (await _ForumMessageRepository.GetForumMessagesByForumThreadIdAsync(threadId)).ToList();
+            List<ForumMessageDto> messageDtos = _Mapper.Map<List<ForumMessageDto>>(messages);
+            
+            for (int i = 0; i < messages.Count; i++)
             {
-                List<ForumMessage> messages = (await _ForumMessageRepository.GetForumMessagesByForumThreadIdAsync(threadId)).ToList();
-                messageDtos = _Mapper.Map<List<ForumMessageDto>>(messages);
-
-                for (int i = 0; i < messages.Count; i++)
-                {
-                    messageDtos[i].ForumThread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository.GetForumThreadAsync(messages[i].ForumThreadId));
-                    messageDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(messages[i].UserId));
-                }
-
-                _MemoryCache.Set(cacheKey, messageDtos, TimeSpan.FromMinutes(1));
+                messageDtos[i].ForumThread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository.GetForumThreadAsync(messages[i].ForumThreadId));
+                messageDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(messages[i].UserId));
             }
 
             return Ok(messageDtos);
@@ -240,9 +221,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return NotFound();
             }
 
-            string cacheKey = _ForumMessagesCacheKey + $"_{forumMessageId}";
             ForumMessage messageToHide = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
-
 
             if (messageToHide.FileName!=null)
             {
@@ -260,8 +239,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 ModelState.AddModelError("", "Something went wrong updating message");
                 return StatusCode(500, ModelState);
             }
-
-            _MemoryCache.Remove(cacheKey);
 
             return NoContent();
         }
@@ -294,7 +271,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest("This message does not exist");
             }
 
-            string cacheKey = _ForumMessagesCacheKey + $"_{forumMessageId}";
             ForumMessage message = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
             User user = await _UserRepository.GetUserByNameAsync(username);
 
@@ -334,8 +310,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 ModelState.AddModelError("", "Something went wrong while updating");
                 return StatusCode(500, ModelState);
             }
-
-            _MemoryCache.Remove(cacheKey);
 
             return NoContent();
         }

@@ -22,8 +22,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         private readonly IMapper _Mapper;
         private readonly IUserRepository _UserRepository;
         private readonly IAuthService _AuthService;
-        private readonly string _VideoCommentsCacheKey;
-        private readonly IMemoryCache _MemoryCache;
         private readonly IVideoRepository _VideoRepository;
         private readonly IVideoCommentsLikeRepository _VideoCommentsLikeRepository;
         private readonly IVideoTagRepository _VideoTagRepository;
@@ -33,8 +31,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             IAuthService authService,
             IVideoRepository videoRepository,
             IVideoCommentsLikeRepository videoCommentsLikeRepository,
-            IVideoTagRepository videoTagRepository,
-            IMemoryCache memoryCache)
+            IVideoTagRepository videoTagRepository)
         {
             _VideoCommentRepository = videoCommentRepository;
             _Mapper = mapper;
@@ -43,8 +40,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             _VideoRepository = videoRepository;
             _VideoCommentsLikeRepository = videoCommentsLikeRepository;
             _VideoTagRepository = videoTagRepository;
-            _MemoryCache = memoryCache;
-            _VideoCommentsCacheKey = "videoComments";
         }
         
         [HttpPost, Authorize(Roles = "User,Admin")]
@@ -80,8 +75,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            string cacheKey = _VideoCommentsCacheKey + $"_{commentDto.VideoId}";
-
             VideoComment comment = _Mapper.Map<VideoComment>(commentDto);
             comment.Video = _Mapper.Map<Video>(await _VideoRepository.GetVideoAsync(commentDto.VideoId));
             comment.User = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
@@ -93,8 +86,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
             }
-
-            _MemoryCache.Remove(cacheKey);
 
             return Ok("Successfully created");
         }
@@ -137,32 +128,22 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("This video does not exist");
             }
 
-            string cacheKey = _VideoCommentsCacheKey + $"_{videoId}";
-
-            List<VideoCommentDto> commentDtos = _MemoryCache.Get<List<VideoCommentDto>>(cacheKey);
-
-            if (commentDtos == null)
-            {
-
-                List<VideoComment> comments = (await _VideoCommentRepository
+            List<VideoComment> comments = (await _VideoCommentRepository
                 .GetVideoCommentsByVideoIdAsync(videoId)).ToList();
 
-                commentDtos = _Mapper.Map<List<VideoCommentDto>>(comments);
+            List<VideoCommentDto> commentDtos = _Mapper.Map<List<VideoCommentDto>>(comments);
 
-                for (int i = 0; i < comments.Count; i++)
-                {
-                    Video video = await _VideoRepository.GetVideoAsync(comments[i].VideoId);
+            for (int i = 0; i < comments.Count; i++)
+            {
+                Video video = await _VideoRepository.GetVideoAsync(comments[i].VideoId);
 
-                    commentDtos[i].Video = _Mapper.Map<VideoDto>(await _VideoRepository.GetVideoAsync(comments[i].VideoId));
-                    commentDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(comments[i].UserId));
+                commentDtos[i].Video = _Mapper.Map<VideoDto>(await _VideoRepository.GetVideoAsync(comments[i].VideoId));
+                commentDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(comments[i].UserId));
 
-                    commentDtos[i].Video.Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository
-                        .GetVideoTagAsync(comments[i].Video.TagId));
+                commentDtos[i].Video.Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository
+                    .GetVideoTagAsync(comments[i].Video.TagId));
 
-                    commentDtos[i].Video.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(video.UserId));
-                }
-
-                _MemoryCache.Set(cacheKey, commentDtos, TimeSpan.FromMinutes(1));
+                commentDtos[i].Video.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(video.UserId));
             }
 
             return Ok(commentDtos);
@@ -179,7 +160,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return NotFound();
             }
 
-            string cacheKey = _VideoCommentsCacheKey + $"_{videoCommentId}";
             VideoComment commentToHide = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
 
             commentToHide.MessageContent = "message was hidden";
@@ -189,8 +169,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 ModelState.AddModelError("", "Something went wrong updating comment");
                 return StatusCode(500, ModelState);
             }
-
-            _MemoryCache.Remove(cacheKey);
 
             return NoContent();
         }
@@ -223,7 +201,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("This video does not exist");
             }
 
-            string cacheKey = _VideoCommentsCacheKey + $"_{videoCommentId}";
             VideoComment comment = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
             User user = await _UserRepository.GetUserByNameAsync(username);
 
@@ -265,8 +242,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 ModelState.AddModelError("", "Something went wrong while updating");
                 return StatusCode(500, ModelState);
             }
-
-            _MemoryCache.Remove(cacheKey);
 
             return NoContent();
         }

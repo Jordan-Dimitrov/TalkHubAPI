@@ -31,11 +31,6 @@ namespace TalkHubAPI.Controllers
         {
             ICollection<UserDto> users = _Mapper.Map<List<UserDto>>(await _UserRepository.GetUsersAsync());
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             return Ok(users);
         }
 
@@ -50,11 +45,6 @@ namespace TalkHubAPI.Controllers
             }
 
             UserDto user = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(userId));
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             return Ok(user);
         }
