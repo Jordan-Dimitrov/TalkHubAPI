@@ -56,11 +56,6 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 _MemoryCache.Set(_MessageRoomsCacheKey, rooms, TimeSpan.FromMinutes(1));
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             return Ok(rooms);
         }
 
@@ -87,11 +82,6 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             ICollection<MessageRoomDto> rooms = _Mapper.Map<List<MessageRoomDto>>(await _MessageRoomRepository
                 .GetMessageRoomsForUserAsync(user.Id));
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             return Ok(rooms);
         }
 
@@ -106,11 +96,6 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             }
 
             MessageRoomDto room = _Mapper.Map<MessageRoomDto>(await _MessageRoomRepository.GetMessageRoomAsync(roomId));
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             return Ok(room);
         }
@@ -181,16 +166,9 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return StatusCode(422, ModelState);
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            UserMessageRoom userMessageRoom = new UserMessageRoom()
-            {
-                User = user,
-                Room = room
-            };
+            UserMessageRoom userMessageRoom = new UserMessageRoom();
+            userMessageRoom.User = user;
+            userMessageRoom.Room = room;
 
             if (!await _UserMessageRoomRepository.AddUserMessageRoomAsync(userMessageRoom))
             {
@@ -247,11 +225,6 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             }
 
             MessageRoom roomToDelete = await _MessageRoomRepository.GetMessageRoomAsync(roomId);
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             if (!await _UserMessageRoomRepository.RemoveUserMessageRoomForRoomId(roomId) 
                 || !await _MessageRoomRepository.RemoveMessageRoomAsync(roomToDelete))

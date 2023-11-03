@@ -59,15 +59,11 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             {
                 return NotFound();
             }
+
             Video video = await _VideoRepository.GetVideoAsync(videoId);
             VideoDto videoDto = _Mapper.Map<VideoDto>(await _VideoRepository.GetVideoAsync(videoId));
             videoDto.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(video.UserId));
             videoDto.Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository.GetVideoTagAsync(video.TagId));
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             return Ok(videoDto);
         }
@@ -127,11 +123,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(response1);
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             string cacheKey = _VideosCacheKey + $"_{videoDto.TagId}";
 
             Video videoToUpload = _Mapper.Map<Video>(videoDto);
@@ -183,11 +174,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 _MemoryCache.Set(cacheKey, videoDtos, TimeSpan.FromMinutes(1));
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             return Ok(videoDtos);
         }
 
@@ -204,11 +190,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             List<Video> videos = (await _VideoRepository.GetVideosByUserIdAsync(userId)).ToList();
 
             List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(videos);
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             for (int i = 0; i < videos.Count; i++)
             {
@@ -243,11 +224,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(videos);
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             for (int i = 0; i < videos.Count; i++)
             {
                 videoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(videos[i].UserId));
@@ -270,11 +246,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             List<Video> videos = (await _VideoRepository.GetVideosByPlaylistIdAsync(playlistId)).ToList();
 
             List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(videos);
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             for (int i = 0; i < videos.Count; i++)
             {
@@ -338,11 +309,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             Video videoToHide = await _VideoRepository.GetVideoAsync(videoId);
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             if (!await _FileProcessingService.RemoveMediaAsync(videoToHide.Mp4name) ||
                 !await _FileProcessingService.RemoveMediaAsync(videoToHide.ThumbnailName))
             {
@@ -393,12 +359,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             {
                 return BadRequest("This video does not exist");
             }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
 
             Video video = await _VideoRepository.GetVideoAsync(videoId);
             User user = await _UserRepository.GetUserByNameAsync(username);

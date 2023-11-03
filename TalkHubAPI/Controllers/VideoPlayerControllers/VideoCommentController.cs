@@ -124,11 +124,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             commentDto.Video.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(video.UserId));
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             return Ok(commentDto);
         }
 
@@ -170,11 +165,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 _MemoryCache.Set(cacheKey, commentDtos, TimeSpan.FromMinutes(1));
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             return Ok(commentDtos);
         }
 
@@ -191,11 +181,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             string cacheKey = _VideoCommentsCacheKey + $"_{videoCommentId}";
             VideoComment commentToHide = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             commentToHide.MessageContent = "message was hidden";
 
@@ -236,11 +221,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             if (!await _VideoCommentRepository.VideoCommentExistsAsync(videoCommentId))
             {
                 return BadRequest("This video does not exist");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
             }
 
             string cacheKey = _VideoCommentsCacheKey + $"_{videoCommentId}";

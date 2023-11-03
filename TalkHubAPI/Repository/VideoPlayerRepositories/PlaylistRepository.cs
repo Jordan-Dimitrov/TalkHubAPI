@@ -50,6 +50,11 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
             return await _Context.Playlists.AnyAsync(x => x.PlaylistName == name);
         }
 
+        public async Task<bool> PlaylistExistsForUserAsync(int userId)
+        {
+            return await _Context.Playlists.AnyAsync(x => x.UserId == userId);
+        }
+
         public async Task<bool> RemovePlaylistAsync(Playlist playlist)
         {
             _Context.Remove(playlist);

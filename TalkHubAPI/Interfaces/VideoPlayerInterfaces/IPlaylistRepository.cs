@@ -12,6 +12,7 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
         Task<ICollection<Playlist>> GetPlaylistsAsync();
         Task<ICollection<Playlist>> GetPlaylistsByUserIdAsync(int userId);
         Task<bool> PlaylistExistsAsync(string name);
+        Task<bool> PlaylistExistsForUserAsync(int userId);
         Task<Playlist> GetPlaylistByNameAsync(string name);
     }
 }

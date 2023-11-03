@@ -40,11 +40,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 _MemoryCache.Set(_VideoTagsCacheKey, tags, TimeSpan.FromMinutes(1));
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             return Ok(tags);
         }
 
@@ -59,11 +54,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             }
 
             VideoTagDto tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository.GetVideoTagAsync(tagId));
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             return Ok(tag);
         }
@@ -148,11 +138,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             }
 
             VideoTag tagToDelete = await _VideoTagRepository.GetVideoTagAsync(tagId);
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             if (!await _VideoTagRepository.RemoveVideoTagAsync(tagToDelete))
             {

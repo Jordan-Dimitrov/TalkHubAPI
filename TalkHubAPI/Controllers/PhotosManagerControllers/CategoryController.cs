@@ -37,11 +37,6 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 _MemoryCache.Set(_CategoriesCacheKey, categories, TimeSpan.FromMinutes(1));
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             return Ok(categories);
         }
 
@@ -57,11 +52,6 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
             PhotoCategoryDto category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
                 .GetCategoryAsync(categoryId));
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             return Ok(category);
         }
@@ -146,11 +136,6 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             }
 
             PhotoCategory categoryToDelete = await _PhotoCategoryRepository.GetCategoryAsync(categoryId);
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             if (!await _PhotoCategoryRepository.RemoveCategoryAsync(categoryToDelete))
             {

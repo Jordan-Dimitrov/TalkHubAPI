@@ -37,11 +37,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
 
                 _MemoryCache.Set(_ThreadsCacheKey, threads, TimeSpan.FromMinutes(1));
             }
-            
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             return Ok(threads);
         }
@@ -57,11 +52,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
             }
 
             ForumThreadDto thread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository.GetForumThreadAsync(threadId));
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             return Ok(thread);
         }

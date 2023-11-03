@@ -93,6 +93,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
             }
+
             string cacheKey = _ForumMessagesCacheKey + $"_{message.ForumThreadId}";
             _MemoryCache.Remove(cacheKey);
 
@@ -127,16 +128,16 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest("This thread does not exist");
             }
 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             string response = await _FileProcessingService.UploadImageAsync(file);
 
             if (response == "Empty" || response == "Invalid file format" || response == "File already exists")
             {
                 return BadRequest(response);
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
             }
 
             ForumMessage message = _Mapper.Map<ForumMessage>(messageDto);
@@ -187,11 +188,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 _MemoryCache.Set(cacheKey, messageDtos, TimeSpan.FromMinutes(1));
             }
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             return Ok(messageDtos);
         }
 
@@ -230,11 +226,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
             messageDto.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(message.UserId));
             messageDto.ForumThread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository.GetForumThreadAsync(message.ForumThreadId));
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             return Ok(messageDto);
         }
 
@@ -252,10 +243,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
             string cacheKey = _ForumMessagesCacheKey + $"_{forumMessageId}";
             ForumMessage messageToHide = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             if (messageToHide.FileName!=null)
             {
@@ -305,11 +292,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
             if (!await _ForumMessageRepository.ForumMessageExistsAsync(forumMessageId))
             {
                 return BadRequest("This message does not exist");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
             }
 
             string cacheKey = _ForumMessagesCacheKey + $"_{forumMessageId}";

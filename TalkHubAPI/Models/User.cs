@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;
 using TalkHubAPI.Models.PhotosManagerModels;
@@ -11,14 +12,17 @@ public partial class User
 {
     public int Id { get; set; }
 
+    [Required]
+    [StringLength(30, MinimumLength = 3, ErrorMessage = "Username must be between 3 and 30 characters")]
     public string Username { get; set; } = null!;
-
+    [Required]
     public byte[] PasswordHash { get; set; } = null!;
-
+    [Required]
     public byte[] PasswordSalt { get; set; } = null!;
 
     public int? RefreshTokenId { get; set; }
-
+    [Required]
+    [Range(0,1)]
     public int PermissionType { get; set; }
 
     public virtual ICollection<ForumMessage> ForumMessages { get; set; } = new List<ForumMessage>();

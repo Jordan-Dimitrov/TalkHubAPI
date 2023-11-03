@@ -77,11 +77,6 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             ICollection<MessengerMessageDto> messages = _Mapper.Map<List<MessengerMessageDto>>(await _MessengerMessageRepository
                 .GetMessengerMessagesByRoomIdAsync(roomId));
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             return Ok(messages);
         }
 
@@ -125,11 +120,6 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             ICollection<MessengerMessageDto> messages = _Mapper.Map<List<MessengerMessageDto>>(await _MessengerMessageRepository
                 .GetLastTenMessengerMessagesFromLastMessageIdAsync(messageId, roomId));
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             return Ok(messages);
         }
 
@@ -145,11 +135,6 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             }
 
             MessengerMessage messageToHide = await _MessengerMessageRepository.GetMessengerMessageAsync(messageId);
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
             if (messageToHide.FileName != null)
             {
