@@ -47,7 +47,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateMessage(CreateForumMessageDto messageDto)
         {
-            if (messageDto == null)
+            if (messageDto is null)
             {
                 return BadRequest(ModelState);
             }
@@ -55,7 +55,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }
@@ -97,7 +97,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateMessageWithFile(IFormFile file, [FromForm] CreateForumMessageDto messageDto)
         {
-            if (messageDto == null || !_FileProcessingService.ImageMimeTypeValid(file))
+            if (messageDto is null || !_FileProcessingService.ImageMimeTypeValid(file))
             {
                 return BadRequest(ModelState);
             }
@@ -105,7 +105,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }
@@ -184,7 +184,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
 
             FileContentResult file = await _FileProcessingService.GetImageAsync(fileName);
 
-            if (file == null)
+            if (file is null)
             {
                 return NotFound();
             }
@@ -223,7 +223,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
 
             ForumMessage messageToHide = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
 
-            if (messageToHide.FileName!=null)
+            if (messageToHide.FileName is not null)
             {
                 if (!await _FileProcessingService.RemoveMediaAsync(messageToHide.FileName))
                 {
@@ -256,7 +256,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }

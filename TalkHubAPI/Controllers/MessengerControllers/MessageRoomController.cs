@@ -49,7 +49,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         {
             ICollection<MessageRoomDto> rooms = _MemoryCache.Get<List<MessageRoomDto>>(_MessageRoomsCacheKey);
 
-            if (rooms == null)
+            if (rooms is null)
             {
                 rooms = _Mapper.Map<List<MessageRoomDto>>(await _MessageRoomRepository.GetMessageRoomsAsync());
 
@@ -67,7 +67,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }
@@ -105,7 +105,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateRoom([FromBody] MessageRoomDto roomCreate)
         {
-            if (roomCreate == null)
+            if (roomCreate is null)
             {
                 return BadRequest(ModelState);
             }
@@ -147,7 +147,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }
@@ -185,7 +185,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateRoom(int roomId, [FromBody] MessageRoomDto updateRoom)
         {
-            if (updateRoom == null || roomId != updateRoom.Id)
+            if (updateRoom is null || roomId != updateRoom.Id)
             {
                 return BadRequest(ModelState);
             }

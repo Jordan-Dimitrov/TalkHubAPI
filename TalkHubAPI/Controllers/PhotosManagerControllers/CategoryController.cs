@@ -31,7 +31,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         {
             ICollection<PhotoCategoryDto> categories = _MemoryCache.Get<List<PhotoCategoryDto>>(_CategoriesCacheKey);
 
-            if (categories == null)
+            if (categories is null)
             {
                 categories = _Mapper.Map<List<PhotoCategoryDto>>(await _PhotoCategoryRepository.GetCategoriesAsync());
                 _MemoryCache.Set(_CategoriesCacheKey, categories, TimeSpan.FromMinutes(1));
@@ -61,7 +61,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateCategory([FromBody] PhotoCategoryDto categoryCreate)
         {
-            if (categoryCreate == null)
+            if (categoryCreate is null)
             {
                 return BadRequest(ModelState);
             }
@@ -96,7 +96,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] PhotoCategoryDto updatedCategory)
         {
-            if (updatedCategory == null || categoryId != updatedCategory.Id)
+            if (updatedCategory is null || categoryId != updatedCategory.Id)
             {
                 return BadRequest(ModelState);
             }

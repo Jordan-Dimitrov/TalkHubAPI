@@ -33,7 +33,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         {
             ICollection<VideoTagDto> tags = _MemoryCache.Get<List<VideoTagDto>>(_VideoTagsCacheKey);
 
-            if (tags == null)
+            if (tags is null)
             {
                 tags = _Mapper.Map<List<VideoTagDto>>(await _VideoTagRepository.GetVideoTagsAsync());
 
@@ -63,7 +63,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateTag([FromBody] VideoTagDto tagCreate)
         {
-            if (tagCreate == null)
+            if (tagCreate is null)
             {
                 return BadRequest(ModelState);
             }
@@ -98,7 +98,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateTag(int tagId, [FromBody] VideoTagDto updatedTag)
         {
-            if (updatedTag == null || tagId != updatedTag.Id)
+            if (updatedTag is null || tagId != updatedTag.Id)
             {
                 return BadRequest(ModelState);
             }

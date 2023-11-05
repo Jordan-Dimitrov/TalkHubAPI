@@ -47,7 +47,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateVideoComment(CreateVideoCommentDto commentDto)
         {
-            if (commentDto == null)
+            if (commentDto is null)
             {
                 return BadRequest(ModelState);
             }
@@ -55,7 +55,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }
@@ -186,7 +186,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }

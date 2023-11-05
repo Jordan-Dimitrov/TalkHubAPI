@@ -9,12 +9,16 @@ namespace TalkHubAPI.BackgroundTasks
 
         private SemaphoreSlim _Signal;
 
+        private ConcurrentDictionary<Guid, string> _ConversionStatuses;
+
         public BackgroundQueue()
         {
             _Tasks = new ConcurrentQueue<Func<CancellationToken, Task>>();
             _Signal = new SemaphoreSlim(0);
+            _ConversionStatuses= new ConcurrentDictionary<Guid, string>();
         }
 
+        
         public void QueueTask(Func<CancellationToken, Task> task)
         {
             _Tasks.Enqueue(task);
@@ -27,6 +31,21 @@ namespace TalkHubAPI.BackgroundTasks
             _Tasks.TryDequeue(out var task);
 
             return task;
+        }
+
+        public void AddStatus(Guid taskId, string status)
+        {
+            _ConversionStatuses[taskId] = status;
+        }
+
+        public string GetStatus(Guid taskId)
+        {
+            if (_ConversionStatuses.ContainsKey(taskId))
+            {
+                return _ConversionStatuses[taskId];
+            }
+
+            return "Task not found";
         }
     }
 }

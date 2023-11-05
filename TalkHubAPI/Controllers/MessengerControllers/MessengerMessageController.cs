@@ -55,7 +55,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }
@@ -93,7 +93,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }
@@ -136,7 +136,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
 
             MessengerMessage messageToHide = await _MessengerMessageRepository.GetMessengerMessageAsync(messageId);
 
-            if (messageToHide.FileName != null)
+            if (messageToHide.FileName is not null)
             {
                 if (!await _FileProcessingService.RemoveMediaAsync(messageToHide.FileName))
                 {

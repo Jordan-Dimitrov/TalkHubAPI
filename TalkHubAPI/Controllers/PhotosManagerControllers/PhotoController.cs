@@ -53,7 +53,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> UploadMedia(IFormFile file, [FromForm] CreatePhotoDto photoDto)
         {
-            if(photoDto == null || !_FileProcessingService.ImageMimeTypeValid(file))
+            if(photoDto is null || !_FileProcessingService.ImageMimeTypeValid(file))
             {
                 return BadRequest(ModelState);
             }
@@ -61,7 +61,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }
@@ -104,7 +104,6 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 return StatusCode(500, ModelState);
             }
 
-            _MemoryCache.Remove(_PhotosCacheKey);
             _MemoryCache.Remove(cacheKey);
 
             return Ok("Successfully created");
@@ -140,7 +139,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
             FileContentResult file = await _FileProcessingService.GetImageAsync(fileName);
 
-            if (file == null)
+            if (file is null)
             {
                 return NotFound();
             }
@@ -153,21 +152,14 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllMedia()
         {
-            List<PhotoDto> photoDtos = _MemoryCache.Get<List<PhotoDto>>(_PhotosCacheKey);
+            List<Photo> photos = (await _PhotoRepository.GetPhotosAsync()).ToList();
+            List<PhotoDto> photoDtos = _Mapper.Map<List<PhotoDto>>(photos);
 
-            if (photoDtos == null)
+            for (int i = 0; i < photos.Count; i++)
             {
-                List<Photo> photos = (await _PhotoRepository.GetPhotosAsync()).ToList();
-                photoDtos = _Mapper.Map<List<PhotoDto>>(photos);
-
-                for (int i = 0; i < photos.Count; i++)
-                {
-                    photoDtos[i].Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
-                        .GetCategoryAsync(photos[i].CategoryId));
-                    photoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(photos[i].UserId));
-                }
-
-                _MemoryCache.Set(_PhotosCacheKey, photoDtos, TimeSpan.FromMinutes(1));
+                photoDtos[i].Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
+                    .GetCategoryAsync(photos[i].CategoryId));
+                photoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(photos[i].UserId));
             }
 
             return Ok(photoDtos);
@@ -183,10 +175,11 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             {
                 return BadRequest("This category does not exist");
             }
+
             string cacheKey = _PhotosCacheKey + $"_{categoryId}";
             List<PhotoDto> photoDtos = _MemoryCache.Get<List<PhotoDto>>(cacheKey);
 
-            if (photoDtos == null)
+            if (photoDtos is null)
             {
                 List<Photo> photos = (await _PhotoRepository.GetPhotosByCategoryIdAsync(categoryId)).ToList();
                 photoDtos = _Mapper.Map<List<PhotoDto>>(photos);
@@ -253,7 +246,6 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 ModelState.AddModelError("", "Something went wrong deleting category");
             }
 
-            _MemoryCache.Remove(_PhotosCacheKey);
             _MemoryCache.Remove(cacheKey);
 
             return NoContent();

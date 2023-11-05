@@ -3,6 +3,9 @@ using TalkHubAPI.Interfaces;
 using System.Diagnostics;
 using FFMpegCore;
 using FFMpegCore.Enums;
+using System.Collections.Concurrent;
+using TalkHubAPI.Models;
+
 namespace TalkHubAPI.Helper
 {
     public class FileProcessingService : IFileProcessingService
@@ -99,10 +102,7 @@ namespace TalkHubAPI.Helper
                 return webPFileName;
             }
 
-            _BackgroundQueue.QueueTask(async token =>
-            {
-                await ConvertToWebp(filePath);
-            });
+            await ConvertToWebp(filePath);
 
             return webPFileName;
         }
@@ -120,9 +120,11 @@ namespace TalkHubAPI.Helper
             return false;
         }
 
-        private async Task<bool> ConvertToWebm(string inputPath)
+        private async Task<bool> ConvertToWebm(string inputPath, Guid taskId)
         {
             string outputPath = Path.Combine(_UploadsDirectory, Path.GetFileNameWithoutExtension(inputPath) + ".webm");
+
+            _BackgroundQueue.AddStatus(taskId, "In progress");
 
             await FFMpegArguments
                .FromFileInput(inputPath)
@@ -138,8 +140,11 @@ namespace TalkHubAPI.Helper
 
             await RemoveMediaAsync(inputPath);
 
+            _BackgroundQueue.AddStatus(taskId, "Finished");
+
             return true;
         }
+
         private async Task<bool> ConvertToWebp(string inputPath)
         {
             string outputPath = Path.Combine(_UploadsDirectory, Path.GetFileNameWithoutExtension(inputPath) + ".webp");
@@ -156,7 +161,7 @@ namespace TalkHubAPI.Helper
             return true;
         }
 
-        public async Task<string> UploadVideoAsync(IFormFile file)
+        public async Task<VideoUploadResponse> UploadVideoAsync(IFormFile file)
         {
 
             string fileName = Path.GetFileName(file.FileName);
@@ -166,9 +171,12 @@ namespace TalkHubAPI.Helper
             string webmVideoPath = Path.Combine(_UploadsDirectory, webmFileName);
             string filePath = Path.Combine(_UploadsDirectory, fileName);
 
+            VideoUploadResponse videoUploadResponse = new VideoUploadResponse();
+
             if (File.Exists(filePath) || File.Exists(webmVideoPath))
             {
-                return "File already exists";
+                videoUploadResponse.Error = "File already exists";
+                return videoUploadResponse;
             }
 
             using (FileStream stream = new FileStream(filePath, FileMode.Create))
@@ -176,17 +184,23 @@ namespace TalkHubAPI.Helper
                 await file.CopyToAsync(stream);
             }
 
-            if(fileExtension == ".webm")
+            videoUploadResponse.WebmFileName = webmFileName;
+
+            if (fileExtension == ".webm")
             {
-                return webmFileName;
+                return videoUploadResponse;
             }
+
+            Guid taskId = Guid.NewGuid();
 
             _BackgroundQueue.QueueTask(async token =>
             {
-                await ConvertToWebm(filePath);
+                await ConvertToWebm(filePath, taskId);
             });
 
-            return webmFileName;
+            videoUploadResponse.TaskId = taskId;
+
+            return videoUploadResponse;
         }
 
         public FileStreamResult GetVideo(string fileName)
@@ -214,7 +228,7 @@ namespace TalkHubAPI.Helper
 
         public bool ImageMimeTypeValid(IFormFile file)
         {
-            if(file == null || file.Length == 0)
+            if(file is null || file.Length == 0)
             {
                 return false;
             }
@@ -229,7 +243,7 @@ namespace TalkHubAPI.Helper
 
         public bool VideoMimeTypeValid(IFormFile file)
         {
-            if (file == null || file.Length == 0)
+            if (file is null || file.Length == 0)
             {
                 return false;
             }

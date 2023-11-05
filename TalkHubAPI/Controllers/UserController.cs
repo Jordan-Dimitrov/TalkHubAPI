@@ -3,6 +3,7 @@ using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using System.Diagnostics.Metrics;
 using System.IdentityModel.Tokens.Jwt;
 using TalkHubAPI.Dto.UserDtos;
@@ -17,20 +18,34 @@ namespace TalkHubAPI.Controllers
     {
         private readonly IUserRepository _UserRepository;
         private readonly IMapper _Mapper;
+        private readonly string _UserCacheKey;
+        private readonly IMemoryCache _MemoryCache;
         private readonly IAuthService _AuthService;
-        public UserController(IUserRepository userRepository, IMapper mapper, IAuthService authService)
+        public UserController(IUserRepository userRepository,
+            IMapper mapper,
+            IAuthService authService,
+            IMemoryCache memoryCache)
         {
             _UserRepository = userRepository;
             _Mapper = mapper;
             _AuthService = authService;
+            _MemoryCache = memoryCache;
+            _UserCacheKey = "users";
         }
 
         [HttpGet, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserDto>))]
         public async Task<IActionResult> GetUsers()
         {
-            ICollection<UserDto> users = _Mapper.Map<List<UserDto>>(await _UserRepository.GetUsersAsync());
+            ICollection<UserDto> users = _MemoryCache.Get<List<UserDto>>(_UserCacheKey);
 
+            if(users is null)
+            {
+                users = _Mapper.Map<List<UserDto>>(await _UserRepository.GetUsersAsync());
+
+                _MemoryCache.Set(_UserCacheKey, users, TimeSpan.FromMinutes(1));
+            }
+ 
             return Ok(users);
         }
 
@@ -54,7 +69,7 @@ namespace TalkHubAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> Register([FromBody] CreateUserDto request)
         {
-            if (request == null)
+            if (request is null)
             {
                 return BadRequest(ModelState);
             }
@@ -82,6 +97,8 @@ namespace TalkHubAPI.Controllers
                 return StatusCode(500, ModelState);
             }
 
+            _MemoryCache.Remove(_UserCacheKey);
+
             return Ok("Successfully created");
         }
 
@@ -94,7 +111,7 @@ namespace TalkHubAPI.Controllers
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
             string role = _AuthService.GetRoleFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }
@@ -112,7 +129,7 @@ namespace TalkHubAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> Login(CreateUserDto request)
         {
-            if (request == null)
+            if (request is null)
             {
                 return BadRequest(ModelState);
             }

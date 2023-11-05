@@ -31,7 +31,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
         {
             ICollection<ForumThreadDto> threads = _MemoryCache.Get<List<ForumThreadDto>>(_ThreadsCacheKey);
             
-            if (threads == null)
+            if (threads is null)
             {
                 threads = _Mapper.Map<List<ForumThreadDto>>(await _ForumThreadRepository.GetForumThreadsAsync());
 
@@ -61,7 +61,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateThread([FromBody] ForumThreadDto threadCreate)
         {
-            if (threadCreate == null)
+            if (threadCreate is null)
             {
                 return BadRequest(ModelState);
             }
@@ -96,7 +96,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateThread(int threadId, [FromBody] ForumThreadDto updatedThread)
         {
-            if (updatedThread == null || threadId != updatedThread.Id)
+            if (updatedThread is null || threadId != updatedThread.Id)
             {
                 return BadRequest(ModelState);
             }

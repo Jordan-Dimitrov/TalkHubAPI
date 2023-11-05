@@ -48,7 +48,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         {
             ICollection<PlaylistDto> playlists = _MemoryCache.Get<List<PlaylistDto>>(_PlaylistsCacheKey);
 
-            if (playlists == null)
+            if (playlists is null)
             {
                 playlists = _Mapper.Map<List<PlaylistDto>>(await _PlaylistRepository.GetPlaylistsAsync());
 
@@ -99,7 +99,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreatePlaylist([FromBody] PlaylistDto playlistCreate)
         {
-            if (playlistCreate == null)
+            if (playlistCreate is null)
             {
                 return BadRequest(ModelState);
             }
@@ -113,7 +113,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }
@@ -149,7 +149,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> UpdatePlaylist(int playlistId, [FromBody] PlaylistDto updatedPlaylist)
         {
-            if (updatedPlaylist == null || playlistId != updatedPlaylist.Id)
+            if (updatedPlaylist is null || playlistId != updatedPlaylist.Id)
             {
                 return BadRequest(ModelState);
             }
@@ -162,7 +162,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }
@@ -198,7 +198,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         public async Task<IActionResult> AddVideoToPlaylist([FromBody] VideoPlaylistDto videoPlaylistDto)
         {
 
-            if (videoPlaylistDto == null)
+            if (videoPlaylistDto is null)
             {
                 return BadRequest(ModelState);
             }
@@ -216,7 +216,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }
@@ -253,7 +253,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> DeleteVideoFromPlaylist([FromBody] VideoPlaylistDto videoPlaylistDto)
         {
-            if (videoPlaylistDto == null)
+            if (videoPlaylistDto is null)
             {
                 return BadRequest(ModelState);
             }
@@ -271,7 +271,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
-            if (username == null)
+            if (username is null)
             {
                 return BadRequest(ModelState);
             }

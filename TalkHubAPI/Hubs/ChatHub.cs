@@ -49,6 +49,11 @@ namespace TalkHubAPI.Hubs
         [Authorize(Roles = "User,Admin")]
         public async Task JoinRoom(MessageRoomDto request)
         {
+            if(request is null)
+            {
+                Context.Abort();
+                return;
+            }
 
             if (!await _MessageRoomRepository.MessageRoomExistsAsync(request.RoomName))
             {
@@ -85,6 +90,12 @@ namespace TalkHubAPI.Hubs
         [Authorize(Roles = "User,Admin")]
         public async Task SendMessageAsync(SendMessengerMessageDto request)
         {
+            if (request is null)
+            {
+                Context.Abort();
+                return;
+            }
+
             if (!await _MessageRoomRepository.MessageRoomExistsAsync(request.RoomId))
             {
                 Context.Abort();
