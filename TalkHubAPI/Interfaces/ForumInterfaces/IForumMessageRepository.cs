@@ -9,9 +9,9 @@ namespace TalkHubAPI.Interfaces.ForumInterfaces
         Task<bool> UpdateForumMessageAsync(ForumMessage message);
         Task<bool> ForumMessageExistsAsync(int id);
         Task<bool> SaveAsync();
-        Task<ForumMessage> GetForumMessageAsync(int id);
+        Task<ForumMessage?> GetForumMessageAsync(int id);
         Task<bool> ForumMessageExistsAsync(string name);
-        Task<ForumMessage> GetForumMessageByNameAsync(string name);
+        Task<ForumMessage?> GetForumMessageByNameAsync(string name);
         Task<ICollection<ForumMessage>> GetForumMessagesAsync();
         Task<ICollection<ForumMessage>> GetForumMessagesByForumThreadIdAsync(int forumThreadId);
         Task<ICollection<ForumMessage>> GetForumMessagesByUserIdAsync(int userId);

@@ -19,22 +19,22 @@ namespace TalkHubAPI.Repository.MessengerRepositories
             return await SaveAsync();
         }
 
-        public async Task<MessageRoom> GetMessageRoomAsync(int id)
+        public async Task<MessageRoom?> GetMessageRoomAsync(int id)
         {
             return await _Context.MessageRooms.FindAsync(id);
         }
 
-        public async Task<MessageRoom> GetMessageRoomByNameAsync(string name)
+        public async Task<MessageRoom?> GetMessageRoomByNameAsync(string name)
         {
             return await _Context.MessageRooms.FirstOrDefaultAsync(x => x.RoomName == name);
         }
 
-        public async Task<List<MessageRoom>> GetMessageRoomsAsync()
+        public async Task<ICollection<MessageRoom>> GetMessageRoomsAsync()
         {
             return await _Context.MessageRooms.ToListAsync();
         }
 
-        public async Task<List<MessageRoom>> GetMessageRoomsForUserAsync(int userId)
+        public async Task<ICollection<MessageRoom>> GetMessageRoomsForUserAsync(int userId)
         {
             return await _Context.MessageRooms
                 .Where(x => x.UserMessageRooms.Any(a => a.UserId == userId))

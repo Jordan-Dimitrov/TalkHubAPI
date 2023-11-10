@@ -20,12 +20,12 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
             return await SaveAsync();
         }
 
-        public async Task<VideoTag> GetVideoTagAsync(int id)
+        public async Task<VideoTag?> GetVideoTagAsync(int id)
         {
             return await _Context.VideoTags.FindAsync(id);
         }
 
-        public async Task<VideoTag> GetVideoTagByNameAsync(string name)
+        public async Task<VideoTag?> GetVideoTagByNameAsync(string name)
         {
             return await _Context.VideoTags.FirstOrDefaultAsync(x => x.TagName == name);
         }

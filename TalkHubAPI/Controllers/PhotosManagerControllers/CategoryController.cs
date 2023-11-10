@@ -29,7 +29,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<PhotoCategoryDto>))]
         public async Task<IActionResult> GetCategories()
         {
-            ICollection<PhotoCategoryDto> categories = _MemoryCache.Get<List<PhotoCategoryDto>>(_CategoriesCacheKey);
+            ICollection<PhotoCategoryDto>? categories = _MemoryCache.Get<List<PhotoCategoryDto>>(_CategoriesCacheKey);
 
             if (categories is null)
             {
@@ -45,13 +45,13 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetCategory(int categoryId)
         {
-            if (!await _PhotoCategoryRepository.CategoryExistsAsync(categoryId))
+            PhotoCategoryDto category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
+                .GetCategoryAsync(categoryId));
+
+            if (category is null)
             {
                 return NotFound();
             }
-
-            PhotoCategoryDto category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
-                .GetCategoryAsync(categoryId));
 
             return Ok(category);
         }
@@ -130,12 +130,12 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteCategory(int categoryId)
         {
-            if (!await _PhotoCategoryRepository.CategoryExistsAsync(categoryId))
+            PhotoCategory? categoryToDelete = await _PhotoCategoryRepository.GetCategoryAsync(categoryId);
+
+            if (categoryToDelete is null)
             {
                 return NotFound();
             }
-
-            PhotoCategory categoryToDelete = await _PhotoCategoryRepository.GetCategoryAsync(categoryId);
 
             if (!await _PhotoCategoryRepository.RemoveCategoryAsync(categoryToDelete))
             {

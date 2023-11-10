@@ -47,7 +47,9 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<MessengerMessageDto>))]
         public async Task<IActionResult> GetMessagesFromRoom(int roomId)
         {
-            if (!await _MessageRoomRepository.MessageRoomExistsAsync(roomId))
+            MessageRoom? room = await _MessageRoomRepository.GetMessageRoomAsync(roomId);
+
+            if (room is null)
             {
                 return NotFound();
             }
@@ -60,13 +62,12 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _UserRepository.UsernameExistsAsync(username))
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
             }
-
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
-            MessageRoom room = _Mapper.Map<MessageRoom>(await _MessageRoomRepository.GetMessageRoomAsync(roomId));
 
             if (!await _UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id))
             {
@@ -85,7 +86,9 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetLastTenMessengerMessages([FromQuery] int roomId, int messageId)
         {
-            if (!await _MessageRoomRepository.MessageRoomExistsAsync(roomId))
+            MessageRoom? room = await _MessageRoomRepository.GetMessageRoomAsync(roomId);
+
+            if (room is null)
             {
                 return NotFound();
             }
@@ -98,13 +101,12 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _UserRepository.UsernameExistsAsync(username))
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
             }
-
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
-            MessageRoom room = _Mapper.Map<MessageRoom>(await _MessageRoomRepository.GetMessageRoomAsync(roomId));
 
             if (!await _UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id))
             {
@@ -129,12 +131,13 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> HideMessage(int messageId)
         {
-            if (!await _MessengerMessageRepository.MessengerMessageExistsAsync(messageId))
+            MessengerMessage? messageToHide = await _MessengerMessageRepository
+                .GetMessengerMessageAsync(messageId);
+
+            if (messageToHide is null)
             {
                 return NotFound();
             }
-
-            MessengerMessage messageToHide = await _MessengerMessageRepository.GetMessengerMessageAsync(messageId);
 
             if (messageToHide.FileName is not null)
             {

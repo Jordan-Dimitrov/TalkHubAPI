@@ -20,7 +20,7 @@ namespace TalkHubAPI.Repository.MessengerRepositories
             return await SaveAsync();
         }
 
-        public async Task<UserMessageRoom> GetUserMessageRoomAsync(int id)
+        public async Task<UserMessageRoom?> GetUserMessageRoomAsync(int id)
         {
             return await _Context.UserMessageRooms.FindAsync(id);
         }

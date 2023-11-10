@@ -66,12 +66,16 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _UserRepository.UsernameExistsAsync(username))
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (!await _PhotoCategoryRepository.CategoryExistsAsync(photoDto.CategoryId))
+            PhotoCategory? category = await _PhotoCategoryRepository.GetCategoryAsync(photoDto.CategoryId);
+
+            if (category is null)
             {
                 return BadRequest("This category does not exist");
             }
@@ -83,7 +87,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
             string response = await _FileProcessingService.UploadImageAsync(file);
 
-            if (response == "Empty" || response == "Invalid file format" || response == "File already exists")
+            if (response == "File already exists")
             {
                 return BadRequest(response);
             }
@@ -91,9 +95,8 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             string cacheKey = _PhotosCacheKey + $"_{photoDto.CategoryId}";
 
             Photo photo = _Mapper.Map<Photo>(photoDto);
-            photo.Category = _Mapper.Map<PhotoCategory>(await _PhotoCategoryRepository.GetCategoryAsync(photo.CategoryId));
+            photo.Category = category;
 
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
             photo.FileName = response;
             photo.Timestamp = DateTime.Now;
             photo.User = user;
@@ -114,14 +117,17 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetPhoto(int photoId)
         {
-            if (!await _PhotoRepository.PhotoExistsAsync(photoId))
+            Photo? photo = await _PhotoRepository.GetPhotoAsync(photoId);
+
+            if (photo is null)
             {
                 return NotFound();
             }
 
-            Photo photo = await _PhotoRepository.GetPhotoAsync(photoId);
-            PhotoDto photoDto = _Mapper.Map<PhotoDto>(await _PhotoRepository.GetPhotoAsync(photoId));
-            photoDto.Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository.GetCategoryAsync(photo.CategoryId));
+            PhotoDto photoDto = _Mapper.Map<PhotoDto>(photo);
+            photoDto.Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
+                .GetCategoryAsync(photo.CategoryId));
+
             photoDto.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(photo.UserId));
 
             return Ok(photoDto);
@@ -159,6 +165,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             {
                 photoDtos[i].Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
                     .GetCategoryAsync(photos[i].CategoryId));
+
                 photoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(photos[i].UserId));
             }
 
@@ -170,14 +177,15 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllMediaByCategory(int categoryId)
         {
+            PhotoCategory? category = await _PhotoCategoryRepository.GetCategoryAsync(categoryId);
 
-            if (!await _PhotoCategoryRepository.CategoryExistsAsync(categoryId))
+            if (category is null)
             {
                 return BadRequest("This category does not exist");
             }
 
             string cacheKey = _PhotosCacheKey + $"_{categoryId}";
-            List<PhotoDto> photoDtos = _MemoryCache.Get<List<PhotoDto>>(cacheKey);
+            List<PhotoDto>? photoDtos = _MemoryCache.Get<List<PhotoDto>>(cacheKey);
 
             if (photoDtos is null)
             {
@@ -186,10 +194,10 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
 
                 for (int i = 0; i < photos.Count; i++)
                 {
-                    photoDtos[i].Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
-                        .GetCategoryAsync(photos[i].CategoryId));
+                    photoDtos[i].Category = _Mapper.Map<PhotoCategoryDto>(category);
 
-                    photoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(photos[i].UserId));
+                    photoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository
+                        .GetUserAsync(photos[i].UserId));
                 }
 
                 _MemoryCache.Set(cacheKey, photoDtos, TimeSpan.FromMinutes(1));
@@ -203,8 +211,9 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllMediaByUser(int userId)
         {
+            User? user = await _UserRepository.GetUserAsync(userId);
 
-            if (!await _UserRepository.UserExistsAsync(userId))
+            if (user is null)
             {
                 return BadRequest("This user does not exist");
             }
@@ -216,7 +225,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             {
                 photosDto[i].Category = _Mapper.Map<PhotoCategoryDto>(await _PhotoCategoryRepository
                     .GetCategoryAsync(photos[i].CategoryId));
-                photosDto[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(photos[i].UserId));
+                photosDto[i].User = _Mapper.Map<UserDto>(user);
             }
 
             return Ok(photosDto);
@@ -228,12 +237,13 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeletePhoto(int photoId)
         {
-            if (!await _PhotoRepository.PhotoExistsAsync(photoId))
+            Photo? photoToDelete = await _PhotoRepository.GetPhotoAsync(photoId);
+
+            if (photoToDelete is null)
             {
                 return NotFound();
             }
 
-            Photo photoToDelete = await _PhotoRepository.GetPhotoAsync(photoId);
             string cacheKey = _PhotosCacheKey + $"_{photoToDelete.CategoryId}";
 
             if (!await _FileProcessingService.RemoveMediaAsync(photoToDelete.FileName))

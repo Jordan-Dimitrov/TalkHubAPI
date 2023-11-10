@@ -10,8 +10,8 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
         Task<bool> VideoUserLikeExistsAsync(int id);
         Task<bool> SaveAsync();
         Task<bool> VideoUserLikeExistsForVideoAndUserAsync(int videoId, int userId);
-        Task<VideoUserLike> GetVideoUserLikeByVideoAndUserAsync(int videoId, int userId);
-        Task<VideoUserLike> GetVideoUserLikeAsync(int id);
+        Task<VideoUserLike?> GetVideoUserLikeByVideoAndUserAsync(int videoId, int userId);
+        Task<VideoUserLike?> GetVideoUserLikeAsync(int id);
         Task<ICollection<VideoUserLike>> GetVideoUserLikesAsync();
     }
 }

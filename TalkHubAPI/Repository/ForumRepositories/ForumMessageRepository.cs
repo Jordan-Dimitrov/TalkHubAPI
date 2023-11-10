@@ -30,12 +30,12 @@ namespace TalkHubAPI.Repository.ForumRepositories
             return await _Context.ForumMessages.AnyAsync(x => x.MessageContent == name);
         }
 
-        public async Task<ForumMessage> GetForumMessageAsync(int id)
+        public async Task<ForumMessage?> GetForumMessageAsync(int id)
         {
             return await _Context.ForumMessages.FindAsync(id);
         }
 
-        public async Task<ForumMessage> GetForumMessageByNameAsync(string name)
+        public async Task<ForumMessage?> GetForumMessageByNameAsync(string name)
         {
             return await _Context.ForumMessages.FirstOrDefaultAsync(x => x.MessageContent == name);
         }

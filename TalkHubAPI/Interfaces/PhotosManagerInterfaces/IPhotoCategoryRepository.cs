@@ -10,9 +10,9 @@ namespace TalkHubAPI.Interfaces.PhotosManagerInterfaces
         Task<bool> UpdateCategoryAsync(PhotoCategory category);
         Task<bool> CategoryExistsAsync(int id);
         Task<bool> SaveAsync();
-        Task<PhotoCategory> GetCategoryAsync(int id);
+        Task<PhotoCategory?> GetCategoryAsync(int id);
         Task<ICollection<PhotoCategory>> GetCategoriesAsync();
         Task<bool> PhotoCategoryExistsAsync(string name);
-        Task<PhotoCategory> GetCategoryByNameAsync(string categoryName);
+        Task<PhotoCategory?> GetCategoryByNameAsync(string categoryName);
     }
 }

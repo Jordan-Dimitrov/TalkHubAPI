@@ -27,7 +27,7 @@ namespace TalkHubAPI.Repository
             return await SaveAsync();
         }
 
-        public async Task<User> GetUserAsync(int id)
+        public async Task<User?> GetUserAsync(int id)
         {
             return await _Context.Users.FindAsync(id);
         }
@@ -59,10 +59,10 @@ namespace TalkHubAPI.Repository
             return await _Context.Users.AnyAsync(x => x.Username == name);
         }
 
-        public async Task<User> GetUserByNameAsync(string username)
+        public async Task<User?> GetUserByNameAsync(string username)
         {
-            User user = await _Context.Users.Where(x => x.Username == username).FirstOrDefaultAsync();
-            if (user != null)
+            User? user = await _Context.Users.Where(x => x.Username == username).FirstOrDefaultAsync();
+            if (user is not null)
             {
                 await _Context.Entry(user).Reference(u => u.RefreshToken).LoadAsync();
             }
@@ -75,10 +75,19 @@ namespace TalkHubAPI.Repository
             return await UpdateUserAsync(user);
         }
 
-        public async Task<User> GetUserByRefreshTokenAsync(string refreshToken)
+        public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken)
         {
-            User user = await _Context.Users.Where(x => x.RefreshToken.Token == refreshToken).FirstOrDefaultAsync();
-            await _Context.Entry(user).Reference(u => u.RefreshToken).LoadAsync();
+            if(refreshToken is null)
+            {
+                return null;
+            }
+
+            User? user = await _Context.Users.Where(x => x.RefreshToken.Token == refreshToken).FirstOrDefaultAsync();
+
+            if (user is not null)
+            {
+                await _Context.Entry(user).Reference(u => u.RefreshToken).LoadAsync();
+            }
 
             return user;
         }

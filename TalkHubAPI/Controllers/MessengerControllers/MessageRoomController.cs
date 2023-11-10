@@ -47,11 +47,12 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<MessageRoomDto>))]
         public async Task<IActionResult> GetRooms()
         {
-            ICollection<MessageRoomDto> rooms = _MemoryCache.Get<List<MessageRoomDto>>(_MessageRoomsCacheKey);
+            ICollection<MessageRoomDto>? rooms = _MemoryCache.Get<List<MessageRoomDto>>(_MessageRoomsCacheKey);
 
             if (rooms is null)
             {
-                rooms = _Mapper.Map<List<MessageRoomDto>>(await _MessageRoomRepository.GetMessageRoomsAsync());
+                rooms = _Mapper.Map<List<MessageRoomDto>>(await _MessageRoomRepository
+                    .GetMessageRoomsAsync());
 
                 _MemoryCache.Set(_MessageRoomsCacheKey, rooms, TimeSpan.FromMinutes(1));
             }
@@ -72,12 +73,12 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _UserRepository.UsernameExistsAsync(username))
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
             }
-
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
 
             ICollection<MessageRoomDto> rooms = _Mapper.Map<List<MessageRoomDto>>(await _MessageRoomRepository
                 .GetMessageRoomsForUserAsync(user.Id));
@@ -90,12 +91,13 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetRoom(int roomId)
         {
-            if (!await _MessageRoomRepository.MessageRoomExistsAsync(roomId))
+            MessageRoomDto room = _Mapper.Map<MessageRoomDto>(await _MessageRoomRepository
+                .GetMessageRoomAsync(roomId));
+
+            if (room is null)
             {
                 return NotFound();
             }
-
-            MessageRoomDto room = _Mapper.Map<MessageRoomDto>(await _MessageRoomRepository.GetMessageRoomAsync(roomId));
 
             return Ok(room);
         }
@@ -139,7 +141,9 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> JoinRoom([FromBody]int roomId)
         {
-            if (!await _MessageRoomRepository.MessageRoomExistsAsync(roomId))
+            MessageRoom? room = await _MessageRoomRepository.GetMessageRoomAsync(roomId);
+
+            if (room is null)
             {
                 return NotFound();
             }
@@ -152,13 +156,12 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _UserRepository.UsernameExistsAsync(username))
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
             }
-
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
-            MessageRoom room = _Mapper.Map<MessageRoom>(await _MessageRoomRepository.GetMessageRoomAsync(roomId));
 
             if (await _UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id))
             {
@@ -219,12 +222,12 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteRoom(int roomId)
         {
-            if (!await _MessageRoomRepository.MessageRoomExistsAsync(roomId))
+            MessageRoom? roomToDelete = await _MessageRoomRepository.GetMessageRoomAsync(roomId);
+
+            if (roomToDelete is null)
             {
                 return NotFound();
             }
-
-            MessageRoom roomToDelete = await _MessageRoomRepository.GetMessageRoomAsync(roomId);
 
             if (!await _UserMessageRoomRepository.RemoveUserMessageRoomForRoomId(roomId) 
                 || !await _MessageRoomRepository.RemoveMessageRoomAsync(roomToDelete))

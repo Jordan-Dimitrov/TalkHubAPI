@@ -31,7 +31,7 @@ namespace TalkHubAPI.Repository.PhotosManagerRepositories
             return await _Context.PhotoCategories.ToListAsync();
         }
 
-        public async Task<PhotoCategory> GetCategoryAsync(int id)
+        public async Task<PhotoCategory?> GetCategoryAsync(int id)
         {
             return await _Context.PhotoCategories.FindAsync(id);
         }
@@ -57,7 +57,7 @@ namespace TalkHubAPI.Repository.PhotosManagerRepositories
             return await _Context.PhotoCategories.AnyAsync(x => x.CategoryName == name);
         }
 
-        public async Task<PhotoCategory> GetCategoryByNameAsync(string categoryName)
+        public async Task<PhotoCategory?> GetCategoryByNameAsync(string categoryName)
         {
             return await _Context.PhotoCategories.FirstOrDefaultAsync(x => x.CategoryName == categoryName);
         }

@@ -9,11 +9,11 @@ namespace TalkHubAPI.Interfaces.MessengerInterfaces
         Task<bool> UpdateMessengerMessageAsync(MessengerMessage message);
         Task<bool> MessengerMessageExistsAsync(int id);
         Task<bool> SaveAsync();
-        Task<MessengerMessage> GetMessengerMessageAsync(int id);
+        Task<MessengerMessage?> GetMessengerMessageAsync(int id);
         Task<ICollection<MessengerMessage>> GetMessengerMessagesAsync();
         Task<ICollection<MessengerMessage>> GetLastTenMessengerMessagesFromLastMessageIdAsync(int messageId, int roomId);
         Task<ICollection<MessengerMessage>> GetMessengerMessagesByRoomIdAsync(int roomId);
         Task<ICollection<MessengerMessage>> GetMessengerMessagesByUserIdAsync(int userId);
-        Task<MessengerMessage> GetLastMessageAsync();
+        Task<MessengerMessage?> GetLastMessageAsync();
     }
 }

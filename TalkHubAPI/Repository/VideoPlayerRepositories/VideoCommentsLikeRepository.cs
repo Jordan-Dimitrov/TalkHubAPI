@@ -20,12 +20,12 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
             return await SaveAsync();
         }
 
-        public async Task<VideoCommentsLike> GetVideoCommentsLikeAsync(int id)
+        public async Task<VideoCommentsLike?> GetVideoCommentsLikeAsync(int id)
         {
             return await _Context.VideoCommentsLikes.FindAsync(id);
         }
 
-        public async Task<VideoCommentsLike> GetVideoCommentsLikeByCommentAndUserAsync(int commentId, int userId)
+        public async Task<VideoCommentsLike?> GetVideoCommentsLikeByCommentAndUserAsync(int commentId, int userId)
         {
             return await _Context.VideoCommentsLikes
                 .Where(x => x.VideoCommentId == commentId && x.UserId == userId)

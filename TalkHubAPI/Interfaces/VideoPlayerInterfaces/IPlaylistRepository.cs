@@ -8,11 +8,11 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
         Task<bool> UpdatePlaylistAsync(Playlist playlist);
         Task<bool> PlaylistExistsAsync(int id);
         Task<bool> SaveAsync();
-        Task<Playlist> GetPlaylistAsync(int id);
+        Task<Playlist?> GetPlaylistAsync(int id);
         Task<ICollection<Playlist>> GetPlaylistsAsync();
         Task<ICollection<Playlist>> GetPlaylistsByUserIdAsync(int userId);
         Task<bool> PlaylistExistsAsync(string name);
         Task<bool> PlaylistExistsForUserAsync(int userId);
-        Task<Playlist> GetPlaylistByNameAsync(string name);
+        Task<Playlist?> GetPlaylistByNameAsync(string name);
     }
 }

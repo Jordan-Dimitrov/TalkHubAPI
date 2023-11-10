@@ -29,11 +29,12 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<ForumThreadDto>))]
         public async Task<IActionResult> GetThreads()
         {
-            ICollection<ForumThreadDto> threads = _MemoryCache.Get<List<ForumThreadDto>>(_ThreadsCacheKey);
+            ICollection<ForumThreadDto>? threads = _MemoryCache.Get<List<ForumThreadDto>>(_ThreadsCacheKey);
             
             if (threads is null)
             {
-                threads = _Mapper.Map<List<ForumThreadDto>>(await _ForumThreadRepository.GetForumThreadsAsync());
+                threads = _Mapper.Map<List<ForumThreadDto>>(await _ForumThreadRepository
+                    .GetForumThreadsAsync());
 
                 _MemoryCache.Set(_ThreadsCacheKey, threads, TimeSpan.FromMinutes(1));
             }
@@ -46,12 +47,13 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetThread(int threadId)
         {
-            if (!await _ForumThreadRepository.ForumThreadExistsAsync(threadId))
+            ForumThreadDto thread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository
+                .GetForumThreadAsync(threadId));
+
+            if (thread is null)
             {
                 return NotFound();
             }
-
-            ForumThreadDto thread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository.GetForumThreadAsync(threadId));
 
             return Ok(thread);
         }
@@ -128,12 +130,12 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteThread(int threadId)
         {
-            if (!await _ForumThreadRepository.ForumThreadExistsAsync(threadId))
+            ForumThread? threadToDelete = await _ForumThreadRepository.GetForumThreadAsync(threadId);
+
+            if (threadToDelete is null)
             {
                 return NotFound();
             }
-
-            ForumThread threadToDelete = await _ForumThreadRepository.GetForumThreadAsync(threadId);
 
             if (!ModelState.IsValid)
             {

@@ -9,7 +9,7 @@ namespace TalkHubAPI.Interfaces.PhotosManagerInterfaces
         Task<bool> UpdatePhotoAsync(Photo photo);
         Task<bool> PhotoExistsAsync(int id);
         Task<bool> SaveAsync();
-        Task<Photo> GetPhotoAsync(int id);
+        Task<Photo?> GetPhotoAsync(int id);
         Task<ICollection<Photo>> GetPhotosAsync();
         Task<ICollection<Photo>> GetPhotosByCategoryIdAsync(int categoryId);
         Task<ICollection<Photo>> GetPhotosByUserIdAsync(int userId);

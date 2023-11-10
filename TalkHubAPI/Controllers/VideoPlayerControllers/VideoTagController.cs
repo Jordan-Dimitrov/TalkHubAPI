@@ -31,7 +31,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<VideoTagDto>))]
         public async Task<IActionResult> GetTags()
         {
-            ICollection<VideoTagDto> tags = _MemoryCache.Get<List<VideoTagDto>>(_VideoTagsCacheKey);
+            ICollection<VideoTagDto>? tags = _MemoryCache.Get<List<VideoTagDto>>(_VideoTagsCacheKey);
 
             if (tags is null)
             {
@@ -48,12 +48,12 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetTag(int tagId)
         {
-            if (!await _VideoTagRepository.VideoTagExistsAsync(tagId))
+            VideoTagDto tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository.GetVideoTagAsync(tagId));
+
+            if (tag is null)
             {
                 return NotFound();
             }
-
-            VideoTagDto tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository.GetVideoTagAsync(tagId));
 
             return Ok(tag);
         }
@@ -132,12 +132,12 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteTag(int tagId)
         {
-            if (!await _VideoTagRepository.VideoTagExistsAsync(tagId))
+            VideoTag? tagToDelete = await _VideoTagRepository.GetVideoTagAsync(tagId);
+
+            if (tagToDelete is null)
             {
                 return NotFound();
             }
-
-            VideoTag tagToDelete = await _VideoTagRepository.GetVideoTagAsync(tagId);
 
             if (!await _VideoTagRepository.RemoveVideoTagAsync(tagToDelete))
             {

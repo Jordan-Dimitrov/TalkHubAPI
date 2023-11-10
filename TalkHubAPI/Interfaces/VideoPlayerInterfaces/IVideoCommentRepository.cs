@@ -9,8 +9,8 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
         Task<bool> VideoCommentExistsAsync(int id);
         Task<bool> VideoCommentExistsAsync(string name);
         Task<bool> SaveAsync();
-        Task<VideoComment> GetVideoCommentAsync(int id);
-        Task<VideoComment> GetVideoCommentByNameAsync(string name);
+        Task<VideoComment?> GetVideoCommentAsync(int id);
+        Task<VideoComment?> GetVideoCommentByNameAsync(string name);
         Task<ICollection<VideoComment>> GetVideoCommentsAsync();
         Task<ICollection<VideoComment>> GetVideoCommentsByVideoIdAsync(int videoId);
         Task<ICollection<VideoComment>> GetVideoCommentsByUserIdAsync(int userId);

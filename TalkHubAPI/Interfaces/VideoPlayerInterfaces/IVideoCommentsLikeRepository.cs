@@ -9,8 +9,8 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
         Task<bool> VideoCommentsLikeExistsAsync(int id);
         Task<bool> SaveAsync();
         Task<bool> VideoCommentsLikeExistsForCommentAndUserAsync(int commentId, int userId);
-        Task<VideoCommentsLike> GetVideoCommentsLikeByCommentAndUserAsync(int commentId, int userId);
-        Task<VideoCommentsLike> GetVideoCommentsLikeAsync(int id);
+        Task<VideoCommentsLike?> GetVideoCommentsLikeByCommentAndUserAsync(int commentId, int userId);
+        Task<VideoCommentsLike?> GetVideoCommentsLikeAsync(int id);
         Task<ICollection<VideoCommentsLike>> GetVideoCommentsLikesAsync();
     }
 }

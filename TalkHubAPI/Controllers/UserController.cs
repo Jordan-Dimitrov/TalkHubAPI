@@ -37,7 +37,7 @@ namespace TalkHubAPI.Controllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserDto>))]
         public async Task<IActionResult> GetUsers()
         {
-            ICollection<UserDto> users = _MemoryCache.Get<List<UserDto>>(_UserCacheKey);
+            ICollection<UserDto>? users = _MemoryCache.Get<List<UserDto>>(_UserCacheKey);
 
             if(users is null)
             {
@@ -51,15 +51,15 @@ namespace TalkHubAPI.Controllers
 
         [HttpGet("{userId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(UserDto))]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> GetUser(int userId)
         {
-            if (!await _UserRepository.UserExistsAsync(userId))
+            UserDto user = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(userId));
+
+            if (user is null)
             {
                 return NotFound();
             }
-
-            UserDto user = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(userId));
 
             return Ok(user);
         }
@@ -134,7 +134,9 @@ namespace TalkHubAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _UserRepository.UsernameExistsAsync(request.Username))
+            User? user = await _UserRepository.GetUserByNameAsync(request.Username);
+
+            if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
             }
@@ -143,8 +145,6 @@ namespace TalkHubAPI.Controllers
             {
                 return BadRequest(ModelState);
             }
-
-            User user = await _UserRepository.GetUserByNameAsync(request.Username);
 
             if (!_AuthService.VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
             {
@@ -174,7 +174,9 @@ namespace TalkHubAPI.Controllers
 
             string refreshToken = Request.Cookies["refreshToken"];
 
-            if (!await _UserRepository.RefreshTokenExistsForUserAsync(refreshToken))
+            User? user = await _UserRepository.GetUserByRefreshTokenAsync(refreshToken);
+
+            if (user is null)
             {
                 return Unauthorized("Invalid Refresh Token.");
             }
@@ -183,8 +185,6 @@ namespace TalkHubAPI.Controllers
             {
                 return BadRequest(ModelState);
             }
-
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByRefreshTokenAsync(refreshToken));
 
             if (user.RefreshToken.TokenExpires < DateTime.Now)
             {

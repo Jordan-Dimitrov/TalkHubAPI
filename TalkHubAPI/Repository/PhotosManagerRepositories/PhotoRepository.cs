@@ -19,7 +19,7 @@ namespace TalkHubAPI.Repository.PhotosManagerRepositories
             return await SaveAsync();
         }
 
-        public async Task<Photo> GetPhotoAsync(int id)
+        public async Task<Photo?> GetPhotoAsync(int id)
         {
             return await _Context.Photos.FindAsync(id);
         }

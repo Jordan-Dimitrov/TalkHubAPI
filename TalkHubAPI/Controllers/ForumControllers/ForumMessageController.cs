@@ -60,12 +60,16 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _UserRepository.UsernameExistsAsync(username))
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (!await _ForumThreadRepository.ForumThreadExistsAsync(messageDto.ForumThreadId))
+            ForumThread? thread = await _ForumThreadRepository.GetForumThreadAsync(messageDto.ForumThreadId);
+
+            if (thread is null)
             {
                 return BadRequest("This thread does not exist");
             }
@@ -76,9 +80,8 @@ namespace TalkHubAPI.Controllers.ForumControllers
             }
 
             ForumMessage message = _Mapper.Map<ForumMessage>(messageDto);
-            message.ForumThread = _Mapper.Map<ForumThread>(await _ForumThreadRepository.GetForumThreadAsync(message.ForumThreadId));
 
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
+            message.ForumThread = thread;
             message.DateCreated = DateTime.Now;
             message.User = user;
             message.UpvoteCount = 0;
@@ -110,12 +113,16 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _UserRepository.UsernameExistsAsync(username))
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (!await _ForumThreadRepository.ForumThreadExistsAsync(messageDto.ForumThreadId))
+            ForumThread? thread = await _ForumThreadRepository.GetForumThreadAsync(messageDto.ForumThreadId);
+
+            if (thread is null)
             {
                 return BadRequest("This thread does not exist");
             }
@@ -127,15 +134,14 @@ namespace TalkHubAPI.Controllers.ForumControllers
 
             string response = await _FileProcessingService.UploadImageAsync(file);
 
-            if (response == "Empty" || response == "Invalid file format" || response == "File already exists")
+            if (response == "File already exists")
             {
                 return BadRequest(response);
             }
 
             ForumMessage message = _Mapper.Map<ForumMessage>(messageDto);
-            message.ForumThread = _Mapper.Map<ForumThread>(await _ForumThreadRepository.GetForumThreadAsync(message.ForumThreadId));
 
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
+            message.ForumThread = thread;
             message.FileName = response;
             message.DateCreated = DateTime.Now;
             message.User = user;
@@ -155,18 +161,24 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllMessagesByForumThread(int threadId)
         {
-            if (!await _ForumThreadRepository.ForumThreadExistsAsync(threadId))
+            ForumThread? thread = await _ForumThreadRepository.GetForumThreadAsync(threadId);
+
+            if (thread is null)
             {
                 return BadRequest("This thread does not exist");
             }
 
-            List<ForumMessage> messages = (await _ForumMessageRepository.GetForumMessagesByForumThreadIdAsync(threadId)).ToList();
+            List<ForumMessage> messages = (await _ForumMessageRepository
+                .GetForumMessagesByForumThreadIdAsync(threadId)).ToList();
+
             List<ForumMessageDto> messageDtos = _Mapper.Map<List<ForumMessageDto>>(messages);
             
             for (int i = 0; i < messages.Count; i++)
             {
-                messageDtos[i].ForumThread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository.GetForumThreadAsync(messages[i].ForumThreadId));
-                messageDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(messages[i].UserId));
+                messageDtos[i].ForumThread = _Mapper.Map<ForumThreadDto>(thread);
+
+                messageDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository
+                    .GetUserAsync(messages[i].UserId));
             }
 
             return Ok(messageDtos);
@@ -197,15 +209,18 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetForumMessage(int forumMessageId)
         {
-            if (!await _ForumMessageRepository.ForumMessageExistsAsync(forumMessageId))
+            ForumMessage? message = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
+
+            if (message is null)
             {
                 return NotFound();
             }
 
-            ForumMessage message = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
-            ForumMessageDto messageDto = _Mapper.Map<ForumMessageDto>(await _ForumMessageRepository.GetForumMessageAsync(forumMessageId));
+            ForumMessageDto messageDto = _Mapper.Map<ForumMessageDto>(message);
+
             messageDto.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(message.UserId));
-            messageDto.ForumThread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository.GetForumThreadAsync(message.ForumThreadId));
+            messageDto.ForumThread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository
+                .GetForumThreadAsync(message.ForumThreadId));
 
             return Ok(messageDto);
         }
@@ -216,12 +231,13 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> HideMessage(int forumMessageId)
         {
-            if (!await _ForumMessageRepository.ForumMessageExistsAsync(forumMessageId))
+            
+            ForumMessage? messageToHide = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
+
+            if (messageToHide is null)
             {
                 return NotFound();
             }
-
-            ForumMessage messageToHide = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
 
             if (messageToHide.FileName is not null)
             {
@@ -261,20 +277,24 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _UserRepository.UsernameExistsAsync(username))
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (username is null)
             {
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (!await _ForumMessageRepository.ForumMessageExistsAsync(forumMessageId))
+            ForumMessage? message = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
+
+            if (message is null)
             {
                 return BadRequest("This message does not exist");
             }
 
-            ForumMessage message = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
-            User user = await _UserRepository.GetUserByNameAsync(username);
+            UserUpvote? upvote = await _UserUpvoteRepository
+                .GetUserUpvoteByMessageAndUserAsync(message.Id, user.Id);
 
-            if (!await _UserUpvoteRepository.UserUpvoteExistsForMessageAndUserAsync(message.Id, user.Id))
+            if (upvote is null)
             {
                 UserUpvote upvoteToAdd = new UserUpvote();
                 upvoteToAdd.Rating = upvoteValue;
@@ -291,8 +311,6 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return NoContent();
             }
 
-            UserUpvote upvote = await _UserUpvoteRepository.GetUserUpvoteByMessageAndUserAsync(message.Id, user.Id);
-
             if (upvoteValue == upvote.Rating)
             {
                 upvote.Rating = 0;
@@ -305,7 +323,8 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 message.UpvoteCount += upvoteValue - temp;
             }
 
-            if (!await _UserUpvoteRepository.UpdateUserUpvoteAsync(upvote) || !await _ForumMessageRepository.UpdateForumMessageAsync(message))
+            if (!await _UserUpvoteRepository.UpdateUserUpvoteAsync(upvote) 
+                || !await _ForumMessageRepository.UpdateForumMessageAsync(message))
             {
                 ModelState.AddModelError("", "Something went wrong while updating");
                 return StatusCode(500, ModelState);

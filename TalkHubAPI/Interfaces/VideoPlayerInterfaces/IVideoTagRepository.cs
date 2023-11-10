@@ -8,9 +8,9 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
         Task<bool> UpdateVideoTagAsync(VideoTag tag);
         Task<bool> VideoTagExistsAsync(int id);
         Task<bool> SaveAsync();
-        Task<VideoTag> GetVideoTagAsync(int id);
+        Task<VideoTag?> GetVideoTagAsync(int id);
         Task<ICollection<VideoTag>> GetVideoTagsAsync();
         Task<bool> VideoTagExistsAsync(string name);
-        Task<VideoTag> GetVideoTagByNameAsync(string name);
+        Task<VideoTag?> GetVideoTagByNameAsync(string name);
     }
 }

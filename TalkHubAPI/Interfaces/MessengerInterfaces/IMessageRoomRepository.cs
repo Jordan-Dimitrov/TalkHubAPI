@@ -10,10 +10,10 @@ namespace TalkHubAPI.Interfaces.MessengerInterfaces
         Task<bool> UpdateMessageRoomAsync(MessageRoom room);
         Task<bool> MessageRoomExistsAsync(int id);
         Task<bool> SaveAsync();
-        Task<MessageRoom> GetMessageRoomAsync(int id);
+        Task<MessageRoom?> GetMessageRoomAsync(int id);
         Task<bool> MessageRoomExistsAsync(string name);
-        Task<MessageRoom> GetMessageRoomByNameAsync(string name);
-        Task<List<MessageRoom>> GetMessageRoomsAsync();
-        Task<List<MessageRoom>> GetMessageRoomsForUserAsync(int userId);
+        Task<MessageRoom?> GetMessageRoomByNameAsync(string name);
+        Task<ICollection<MessageRoom>> GetMessageRoomsAsync();
+        Task<ICollection<MessageRoom>> GetMessageRoomsForUserAsync(int userId);
     }
 }

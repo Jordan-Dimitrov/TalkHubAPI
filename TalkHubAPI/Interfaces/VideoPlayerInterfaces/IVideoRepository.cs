@@ -9,10 +9,10 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
         Task<bool> UpdateVideoAsync(Video video);
         Task<bool> VideoExistsAsync(int id);
         Task<bool> SaveAsync();
-        Task<Video> GetVideoAsync(int id);
+        Task<Video?> GetVideoAsync(int id);
         Task<ICollection<Video>> GetVideosAsync();
         Task<bool> VideoExistsAsync(string name);
-        Task<Video> GetVideoByNameAsync(string name);
+        Task<Video?> GetVideoByNameAsync(string name);
         Task<ICollection<Video>> GetVideosByTagIdAsync(int tagId);
         Task<ICollection<Video>> GetVideosByUserIdAsync(int userId);
         Task<ICollection<Video>> GetVideosByPlaylistIdAsync(int playlistId);

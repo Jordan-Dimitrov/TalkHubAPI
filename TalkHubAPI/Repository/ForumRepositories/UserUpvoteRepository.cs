@@ -21,12 +21,12 @@ namespace TalkHubAPI.Repository.ForumRepositories
             return await SaveAsync();
         }
 
-        public async Task<UserUpvote> GetUserUpvoteAsync(int id)
+        public async Task<UserUpvote?> GetUserUpvoteAsync(int id)
         {
             return await _Context.UserUpvotes.FindAsync(id);
         }
 
-        public async Task<UserUpvote> GetUserUpvoteByMessageAndUserAsync(int messageId, int userId)
+        public async Task<UserUpvote?> GetUserUpvoteByMessageAndUserAsync(int messageId, int userId)
         {
             return await _Context.UserUpvotes.FirstOrDefaultAsync(x => x.MessageId == messageId && x.UserId == userId);
         }

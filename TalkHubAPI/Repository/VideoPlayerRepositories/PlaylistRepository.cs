@@ -20,12 +20,12 @@ namespace TalkHubAPI.Repository.VideoPlayerRepositories
             return await SaveAsync();
         }
 
-        public async Task<Playlist> GetPlaylistAsync(int id)
+        public async Task<Playlist?> GetPlaylistAsync(int id)
         {
             return await _Context.Playlists.FindAsync(id);
         }
 
-        public async Task<Playlist> GetPlaylistByNameAsync(string name)
+        public async Task<Playlist?> GetPlaylistByNameAsync(string name)
         {
             return await _Context.Playlists.FirstOrDefaultAsync(x => x.PlaylistName == name);
         }

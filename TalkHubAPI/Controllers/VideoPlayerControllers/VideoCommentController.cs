@@ -60,12 +60,16 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _UserRepository.UsernameExistsAsync(username))
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (!await _VideoRepository.VideoExistsAsync(commentDto.VideoId))
+            Video? video = await _VideoRepository.GetVideoAsync(commentDto.VideoId);
+
+            if (video is null)
             {
                 return BadRequest("This video does not exist");
             }
@@ -76,8 +80,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             }
 
             VideoComment comment = _Mapper.Map<VideoComment>(commentDto);
-            comment.Video = _Mapper.Map<Video>(await _VideoRepository.GetVideoAsync(commentDto.VideoId));
-            comment.User = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
+            comment.Video = video;
+            comment.User = user;
             comment.DateCreated = DateTime.Now;
             comment.LikeCount = 0;
 
@@ -95,17 +99,17 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetVideoComment(int videoCommentId)
         {
-            if (!await _VideoCommentRepository.VideoCommentExistsAsync(videoCommentId))
+
+            VideoComment? comment = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
+
+            if (comment is null)
             {
                 return NotFound();
             }
 
-            VideoComment comment = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
+            VideoCommentDto commentDto = _Mapper.Map<VideoCommentDto>(comment);
 
-            VideoCommentDto commentDto = _Mapper.Map<VideoCommentDto>(await _VideoCommentRepository
-                .GetVideoCommentAsync(videoCommentId));
-
-            Video video = await _VideoRepository.GetVideoAsync(comment.VideoId);
+            Video? video = await _VideoRepository.GetVideoAsync(comment.VideoId);
 
             commentDto.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(comment.UserId));
             commentDto.Video = _Mapper.Map<VideoDto>(await _VideoRepository.GetVideoAsync(comment.VideoId));
@@ -123,7 +127,9 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllCommentsByVideo(int videoId)
         {
-            if (!await _VideoRepository.VideoExistsAsync(videoId))
+            Video? video = await _VideoRepository.GetVideoAsync(videoId);
+
+            if (video is null)
             {
                 return BadRequest("This video does not exist");
             }
@@ -135,15 +141,13 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             for (int i = 0; i < comments.Count; i++)
             {
-                Video video = await _VideoRepository.GetVideoAsync(comments[i].VideoId);
 
-                commentDtos[i].Video = _Mapper.Map<VideoDto>(await _VideoRepository.GetVideoAsync(comments[i].VideoId));
+                commentDtos[i].Video = _Mapper.Map<VideoDto>(video);
                 commentDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(comments[i].UserId));
 
-                commentDtos[i].Video.Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository
-                    .GetVideoTagAsync(comments[i].Video.TagId));
+                commentDtos[i].Video.Tag = _Mapper.Map<VideoTagDto>(video.Tag);
 
-                commentDtos[i].Video.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(video.UserId));
+                commentDtos[i].Video.User = _Mapper.Map<UserDto>(video.User);
             }
 
             return Ok(commentDtos);
@@ -155,12 +159,13 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> HideMessage(int videoCommentId)
         {
-            if (!await _VideoRepository.VideoExistsAsync(videoCommentId))
+
+            VideoComment? commentToHide = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
+
+            if (commentToHide is null)
             {
                 return NotFound();
             }
-
-            VideoComment commentToHide = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
 
             commentToHide.MessageContent = "message was hidden";
 
@@ -191,20 +196,24 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _UserRepository.UsernameExistsAsync(username))
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (!await _VideoCommentRepository.VideoCommentExistsAsync(videoCommentId))
+            VideoComment? comment = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
+
+            if (comment is null)
             {
                 return BadRequest("This video does not exist");
             }
 
-            VideoComment comment = await _VideoCommentRepository.GetVideoCommentAsync(videoCommentId);
-            User user = await _UserRepository.GetUserByNameAsync(username);
+            VideoCommentsLike? videoCommentsLike = await _VideoCommentsLikeRepository
+                .GetVideoCommentsLikeByCommentAndUserAsync(comment.Id, user.Id);
 
-            if (!await _VideoCommentsLikeRepository.VideoCommentsLikeExistsForCommentAndUserAsync(comment.Id,user.Id))
+            if (videoCommentsLike is null)
             {
                 VideoCommentsLike videoCommentsLikeToAdd = new VideoCommentsLike();
                 videoCommentsLikeToAdd.Rating = upvoteValue;
@@ -220,9 +229,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
                 return NoContent();
             }
-
-            VideoCommentsLike videoCommentsLike = await _VideoCommentsLikeRepository
-                .GetVideoCommentsLikeByCommentAndUserAsync(comment.Id, user.Id);
 
             if (upvoteValue == videoCommentsLike.Rating)
             {

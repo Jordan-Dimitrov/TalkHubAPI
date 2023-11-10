@@ -21,7 +21,7 @@ namespace TalkHubAPI.Repository.MessengerRepositories
             return await SaveAsync();
         }
 
-        public async Task<MessengerMessage> GetMessengerMessageAsync(int id)
+        public async Task<MessengerMessage?> GetMessengerMessageAsync(int id)
         {
             return await _Context.MessengerMessages.FindAsync(id);
         }
@@ -71,7 +71,7 @@ namespace TalkHubAPI.Repository.MessengerRepositories
             return await _Context.MessengerMessages.AnyAsync(x => x.Id == id);
         }
 
-        public async Task<MessengerMessage> GetLastMessageAsync()
+        public async Task<MessengerMessage?> GetLastMessageAsync()
         {
             return await _Context.MessengerMessages
                 .OrderByDescending(x => x.Id)

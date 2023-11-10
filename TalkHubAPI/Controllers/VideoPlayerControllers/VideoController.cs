@@ -53,15 +53,16 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetVideo(int videoId)
         {
-            if (!await _VideoRepository.VideoExistsAsync(videoId))
+            Video? video = await _VideoRepository.GetVideoAsync(videoId);
+
+            if (video is null)
             {
                 return NotFound();
             }
 
-            Video video = await _VideoRepository.GetVideoAsync(videoId);
-            VideoDto videoDto = _Mapper.Map<VideoDto>(await _VideoRepository.GetVideoAsync(videoId));
-            videoDto.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(video.UserId));
-            videoDto.Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository.GetVideoTagAsync(video.TagId));
+            VideoDto videoDto = _Mapper.Map<VideoDto>(video);
+            videoDto.User = _Mapper.Map<UserDto>(video.User);
+            videoDto.Tag = _Mapper.Map<VideoTagDto>(video.Tag);
 
             return Ok(videoDto);
         }
@@ -92,12 +93,16 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _UserRepository.UsernameExistsAsync(username))
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (!await _VideoTagRepository.VideoTagExistsAsync(videoDto.TagId))
+            VideoTag? tag = await _VideoTagRepository.GetVideoTagAsync(videoDto.TagId);
+
+            if (tag is null)
             {
                 return BadRequest("This tag does not exist");
             }
@@ -109,22 +114,20 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             string response2 = await _FileProcessingService.UploadImageAsync(thumbnail);
 
-            if (response2 == "Empty" || response2 == "Invalid file format" || response2 == "File already exists")
+            if (response2 == "File already exists")
             {
                 return BadRequest(response2);
             }
 
             VideoUploadResponse response1 = await _FileProcessingService.UploadVideoAsync(video);
 
-            if (response1.Error == "Empty" || response1.Error == "Invalid file format" || response1.Error == "File already exists")
+            if (response1.Error == "File already exists")
             {
                 return BadRequest(response1);
             }
 
             Video videoToUpload = _Mapper.Map<Video>(videoDto);
-            videoToUpload.Tag = _Mapper.Map<VideoTag>(await _VideoTagRepository.GetVideoTagAsync(videoToUpload.TagId));
-
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
+            videoToUpload.Tag = _Mapper.Map<VideoTag>(tag);
 
             videoToUpload.ThumbnailName = response2;
             videoToUpload.Mp4name = response1.WebmFileName;
@@ -153,7 +156,9 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllVideosByTag(int tagId)
         {
-            if (!await _VideoTagRepository.VideoTagExistsAsync(tagId))
+            VideoTag? tag = await _VideoTagRepository.GetVideoTagAsync(tagId);
+
+            if (tag is null)
             {
                 return BadRequest("This tag does not exist");
             }
@@ -164,7 +169,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             for (int i = 0; i < videos.Count; i++)
             {
                 videoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(videos[i].UserId));
-                videoDtos[i].Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository.GetVideoTagAsync(videos[i].TagId));
+                videoDtos[i].Tag = _Mapper.Map<VideoTagDto>(tag);
             }
 
             return Ok(videoDtos);
@@ -175,7 +180,9 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllVideosByUser(int userId)
         {
-            if (!await _UserRepository.UserExistsAsync(userId))
+            User? user = await _UserRepository.GetUserAsync(userId);
+
+            if (user is null)
             {
                 return BadRequest("This user does not exist");
             }
@@ -186,8 +193,9 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
 
             for (int i = 0; i < videos.Count; i++)
             {
-                videoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(videos[i].UserId));
-                videoDtos[i].Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository.GetVideoTagAsync(videos[i].TagId));
+                videoDtos[i].User = _Mapper.Map<UserDto>(user);
+                videoDtos[i].Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository
+                    .GetVideoTagAsync(videos[i].TagId));
             }
 
             return Ok(videoDtos);
@@ -206,12 +214,12 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _UserRepository.UsernameExistsAsync(username))
+            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
+
+            if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
             }
-
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
 
             List<Video> videos = (await _VideoRepository.GetRecommendedVideosByUserId(user.Id)).ToList();
 
@@ -295,12 +303,12 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> HideVideo(int videoId)
         {
-            if (!await _VideoRepository.VideoExistsAsync(videoId))
+            Video? videoToHide = await _VideoRepository.GetVideoAsync(videoId);
+
+            if (videoToHide is null)
             {
                 return NotFound();
             }
-
-            Video videoToHide = await _VideoRepository.GetVideoAsync(videoId);
 
             if (!await _FileProcessingService.RemoveMediaAsync(videoToHide.Mp4name) ||
                 !await _FileProcessingService.RemoveMediaAsync(videoToHide.ThumbnailName))
@@ -339,20 +347,24 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            if (!await _UserRepository.UsernameExistsAsync(username))
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (!await _VideoRepository.VideoExistsAsync(videoId))
+            Video? video = await _VideoRepository.GetVideoAsync(videoId);
+
+            if (video is null)
             {
                 return BadRequest("This video does not exist");
             }
 
-            Video video = await _VideoRepository.GetVideoAsync(videoId);
-            User user = await _UserRepository.GetUserByNameAsync(username);
+            VideoUserLike? videoUserLike = await _VideoUserLikeRepository
+                .GetVideoUserLikeByVideoAndUserAsync(video.Id, user.Id);
 
-            if (!await _VideoUserLikeRepository.VideoUserLikeExistsForVideoAndUserAsync(video.Id, user.Id))
+            if (videoUserLike is null)
             {
                 VideoUserLike videoUserLikeToAdd = new VideoUserLike();
                 videoUserLikeToAdd.Rating = upvoteValue;
@@ -367,9 +379,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 }
                 return NoContent();
             }
-
-            VideoUserLike videoUserLike = await _VideoUserLikeRepository
-                .GetVideoUserLikeByVideoAndUserAsync(video.Id, user.Id);
 
             if (upvoteValue == videoUserLike.Rating)
             {

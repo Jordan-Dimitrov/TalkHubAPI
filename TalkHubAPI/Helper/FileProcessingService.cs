@@ -14,12 +14,14 @@ namespace TalkHubAPI.Helper
         private readonly IBackgroundQueue _BackgroundQueue;
         private readonly IList<string> _SupportedImageMimeTypes;
         private readonly IList<string> _SupportedVideoMimeTypes;
-        public FileProcessingService(IBackgroundQueue backgroundQueue)
+        private readonly IConfiguration _Configuration;
+        public FileProcessingService(IBackgroundQueue backgroundQueue, IConfiguration configuration)
         {
             _BackgroundQueue = backgroundQueue;
+            _Configuration = configuration;
 
-            _SupportedImageMimeTypes = new List<string>() {"image/webp", "image/png", "image/jpg", "image/jpeg" };
-            _SupportedVideoMimeTypes = new List<string>() { "video/webm", "video/mp4"};
+            _SupportedImageMimeTypes = new List<string>() { "image/webp", "image/png", "image/jpg", "image/jpeg" };
+            _SupportedVideoMimeTypes = new List<string>() { "video/webm", "video/mp4" };
 
             _UploadsDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Media");
 
@@ -135,7 +137,8 @@ namespace TalkHubAPI.Helper
                .WithAudioCodec(AudioCodec.LibVorbis)
                .WithVariableBitrate(4)
                .WithVideoFilters(filterOptions => filterOptions.Scale(VideoSize.Ld))
-               .WithFastStart())
+               .WithFastStart()
+               .UsingThreads(int.Parse(_Configuration.GetSection("FFmpegConfig:VideoConversionThreads").Value)))
                .ProcessAsynchronously();
 
             await RemoveMediaAsync(inputPath);
@@ -153,7 +156,8 @@ namespace TalkHubAPI.Helper
                .FromFileInput(inputPath)
                .OutputToFile(outputPath, false, options =>
                options.ForceFormat("webp")
-               .WithFastStart())
+               .WithFastStart()
+               .UsingThreads(int.Parse(_Configuration.GetSection("FFmpegConfig:PhotoConversionThreads").Value)))
                .ProcessAsynchronously();
 
             await RemoveMediaAsync(inputPath);

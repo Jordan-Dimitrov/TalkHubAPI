@@ -10,8 +10,8 @@ namespace TalkHubAPI.Interfaces.ForumInterfaces
         Task<bool> UserUpvoteExistsAsync(int id);
         Task<bool> SaveAsync();
         Task<bool> UserUpvoteExistsForMessageAndUserAsync(int messageId, int userId);
-        Task<UserUpvote> GetUserUpvoteByMessageAndUserAsync(int messageId, int userId);
-        Task<UserUpvote> GetUserUpvoteAsync(int id);
+        Task<UserUpvote?> GetUserUpvoteByMessageAndUserAsync(int messageId, int userId);
+        Task<UserUpvote?> GetUserUpvoteAsync(int id);
         Task<ICollection<UserUpvote>> GetUserUpvotesAsync();
     }
 }
