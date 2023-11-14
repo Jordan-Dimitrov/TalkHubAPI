@@ -62,45 +62,48 @@ namespace TalkHubAPI
             builder.Services.AddSignalR();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(options =>
-            {
-                options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-                {
-                    Description = "Standard Authorization header using the Bearer scheme (\"bearer {token}\")",
-                    In = ParameterLocation.Header,
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey
-                });
+            builder.Services.AddSwaggerGen();
 
-                options.OperationFilter<SecurityRequirementsOperationFilter>();
-            });
-
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
+            builder.Services.AddAuthentication(x =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddCookie(x =>
+            {
+                x.Cookie.Name = "token";
+
+            }).AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
-                        .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
-
-                options.Events = new JwtBearerEvents
+                x.Events = new JwtBearerEvents
                 {
-                    OnMessageReceived = context => {
+                    OnMessageReceived = context =>
+                    {
                         var accessToken = context.Request.Query["access_token"];
-                        var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken)
-                            && path.StartsWithSegments("/chatHub"))
+
+                        if (!string.IsNullOrEmpty(accessToken))
                         {
                             context.Token = accessToken;
                         }
+                        else
+                        {
+                            context.Token = context.Request.Cookies["jwtToken"];
+                        }
+
                         return Task.CompletedTask;
                     }
                 };
+
             });
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowOrigin", builder =>

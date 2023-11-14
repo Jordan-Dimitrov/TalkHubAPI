@@ -71,6 +71,11 @@ namespace TalkHubAPI.Repository
 
         public async Task<bool> UpdateRefreshTokenToUserAsync(User user, RefreshToken newRefreshToken)
         {
+            if(user.RefreshToken is not null)
+            {
+                _Context.Remove(user.RefreshToken);
+            }
+
             user.RefreshToken = newRefreshToken;
             return await UpdateUserAsync(user);
         }

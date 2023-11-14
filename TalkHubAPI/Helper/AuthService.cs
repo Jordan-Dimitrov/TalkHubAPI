@@ -114,15 +114,36 @@ namespace TalkHubAPI.Helper
 
         public void SetRefreshToken(RefreshToken newRefreshToken)
         {
-            HttpResponse? response = _HttpContextAccessor?.HttpContext?.Response;
+            HttpResponse? response = _HttpContextAccessor.HttpContext?.Response;
 
             CookieOptions cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Expires = newRefreshToken.TokenExpires
+                Expires = newRefreshToken.TokenExpires,
             };
 
             response?.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
         }
+        public void SetJwtToken(string jwtToken)
+        {
+            HttpResponse? response = _HttpContextAccessor.HttpContext?.Response;
+
+            CookieOptions cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.Now.AddMinutes(15),
+                HttpOnly = true,
+            };
+
+            response?.Cookies.Append("jwtToken", jwtToken, cookieOptions);
+        }
+        public void ClearTokens()
+        {
+            HttpResponse? response = _HttpContextAccessor.HttpContext?.Response;
+
+            response?.Cookies.Delete("jwtToken");
+
+            response?.Cookies.Delete("refreshToken");
+        }
+
     }
 }

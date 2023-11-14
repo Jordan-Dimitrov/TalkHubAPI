@@ -85,7 +85,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return StatusCode(422, ModelState);
             }
 
-            string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
+            string? jwtToken = Request.Cookies["jwtToken"];
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
             if (username is null)
@@ -206,7 +206,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetRecommendedVideosByUser()
         {
-            string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
+            string? jwtToken = Request.Cookies["jwtToken"];
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
             if (username is null)
@@ -339,7 +339,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
+            string? jwtToken = Request.Cookies["jwtToken"];
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
             if (username is null)

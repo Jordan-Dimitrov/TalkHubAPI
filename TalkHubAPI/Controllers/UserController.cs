@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics.Metrics;
 using System.IdentityModel.Tokens.Jwt;
 using TalkHubAPI.Dto.UserDtos;
@@ -162,9 +163,27 @@ namespace TalkHubAPI.Controllers
             } 
 
             _AuthService.SetRefreshToken(refreshToken);
+            _AuthService.SetJwtToken(token);
 
-            return Ok(token);
+            return Ok("Logged in successfully");
         }
+        [HttpPost("logout")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public IActionResult Logout()
+        {
+            string? refreshToken = Request.Cookies["refreshToken"];
+            string? jwtToken = Request.Cookies["jwtToken"];
+
+            if (refreshToken.IsNullOrEmpty() && jwtToken.IsNullOrEmpty())
+            {
+                return BadRequest("No tokens to log out");
+            }
+
+            _AuthService.ClearTokens();
+            return Ok("Logged out successfully");
+        }
+
 
         [HttpPost("refresh-token")]
         [ProducesResponseType(200)]
@@ -202,8 +221,9 @@ namespace TalkHubAPI.Controllers
             }
 
             _AuthService.SetRefreshToken(newRefreshToken);
+            _AuthService.SetJwtToken(token);
 
-            return Ok(token);
+            return Ok();
         }
     }
 }

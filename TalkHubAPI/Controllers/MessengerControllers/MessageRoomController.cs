@@ -65,7 +65,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         public async Task<IActionResult> GetUserRooms()
         {
 
-            string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
+            string? jwtToken = Request.Cookies["jwtToken"];
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
             if (username is null)
@@ -148,7 +148,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return NotFound();
             }
 
-            string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
+            string? jwtToken = Request.Cookies["jwtToken"];
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
 
             if (username is null)
