@@ -161,7 +161,7 @@ namespace TalkHubAPI.Controllers
                 return StatusCode(500, ModelState);
             } 
 
-            SetRefreshToken(refreshToken);
+            _AuthService.SetRefreshToken(refreshToken);
 
             return Ok(token);
         }
@@ -186,7 +186,7 @@ namespace TalkHubAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (user.RefreshToken.TokenExpires < DateTime.Now)
+            if (user.RefreshToken.TokenExpires < DateTime.UtcNow)
             {
                 return Unauthorized("Token expired.");
             }
@@ -201,20 +201,9 @@ namespace TalkHubAPI.Controllers
                 return StatusCode(500, ModelState);
             }
 
-            SetRefreshToken(newRefreshToken);
+            _AuthService.SetRefreshToken(newRefreshToken);
 
             return Ok(token);
-        }
-
-        private void SetRefreshToken(RefreshToken newRefreshToken)
-        {
-            CookieOptions cookieOptions = new CookieOptions
-            {
-                HttpOnly = true,
-                Expires = newRefreshToken.TokenExpires
-            };
-
-            Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
         }
     }
 }

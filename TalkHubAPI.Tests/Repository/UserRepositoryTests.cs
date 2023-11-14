@@ -31,6 +31,7 @@ namespace TalkHubAPI.Tests.Repository
                 .Options;
 
             TalkHubContext context = new TalkHubContext(options);
+
             context.Database.EnsureCreated();
 
             if (!context.Users.Any())
@@ -38,6 +39,11 @@ namespace TalkHubAPI.Tests.Repository
                 UserPassword userPassword = A.Fake<UserPassword>();
                 userPassword.PasswordHash = Encoding.UTF8.GetBytes("fakeHash");
                 userPassword.PasswordSalt = Encoding.UTF8.GetBytes("fakeSalt");
+                RefreshToken token = A.Fake<RefreshToken>();
+                token.Id = 1;
+                token.TokenCreated = DateTime.UtcNow;
+                token.TokenExpires = DateTime.UtcNow.AddDays(1);
+                token.Token = "fakeToken";
 
                 A.CallTo(() => _AuthService.CreatePasswordHash("prototype")).Returns(userPassword);
                 List<User> users = new List<User>()
@@ -47,12 +53,14 @@ namespace TalkHubAPI.Tests.Repository
                         Username = "TOMAAAA",
                         PasswordHash = userPassword.PasswordHash,
                         PasswordSalt = userPassword.PasswordSalt,
+                        RefreshToken = token
                     },
                     new User()
                     {
                         Username = "KristiQn Enchev",
                         PasswordHash = userPassword.PasswordHash,
                         PasswordSalt = userPassword.PasswordSalt,
+                        RefreshToken = token
                     }
                 };
 
@@ -71,6 +79,19 @@ namespace TalkHubAPI.Tests.Repository
             UserRepository userRepository= new UserRepository(context);
 
             User result = await userRepository.GetUserByNameAsync(name);
+
+            result.Should().NotBeNull();
+            result.Should().BeOfType<User>();
+        }
+
+        [Fact]
+        public async Task UserRepository_GetUserByRefreshTokenAsync_ReturnsUser()
+        {
+            string refreshToken = "fakeToken";
+            TalkHubContext context = GetDatabaseContext();
+            UserRepository userRepository = new UserRepository(context);
+
+            User result = await userRepository.GetUserByRefreshTokenAsync(refreshToken);
 
             result.Should().NotBeNull();
             result.Should().BeOfType<User>();
@@ -102,7 +123,7 @@ namespace TalkHubAPI.Tests.Repository
         }
 
         [Fact]
-        public async Task UserRepository_SaveAsync_ReturnsTrueWhenChangesSaved()
+        public async Task UserRepository_SaveAsync_ReturnsTrue()
         {
             TalkHubContext context = GetDatabaseContext();
             UserRepository userRepository = new UserRepository(context);

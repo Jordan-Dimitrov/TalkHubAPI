@@ -11,5 +11,6 @@ namespace TalkHubAPI.Interfaces
         string GetUsernameFromJwtToken(string token);
         string GetRoleFromJwtToken(string token);
         DateTime GetDateFromJwtToken(string token);
+        public void SetRefreshToken(RefreshToken newRefreshToken);
     }
 }

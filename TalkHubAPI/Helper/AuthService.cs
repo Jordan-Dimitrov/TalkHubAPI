@@ -12,10 +12,12 @@ namespace TalkHubAPI.Helper
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _Configuration;
+        private readonly IHttpContextAccessor _HttpContextAccessor;
 
-        public AuthService(IConfiguration configuration)
+        public AuthService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _Configuration = configuration;
+            _HttpContextAccessor = httpContextAccessor;
         }
         public string GenerateJwtToken(User user)
         {
@@ -108,6 +110,19 @@ namespace TalkHubAPI.Helper
             DateTime date = jwtToken.ValidTo;
 
             return date;
+        }
+
+        public void SetRefreshToken(RefreshToken newRefreshToken)
+        {
+            HttpResponse? response = _HttpContextAccessor?.HttpContext?.Response;
+
+            CookieOptions cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = newRefreshToken.TokenExpires
+            };
+
+            response?.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
         }
     }
 }
