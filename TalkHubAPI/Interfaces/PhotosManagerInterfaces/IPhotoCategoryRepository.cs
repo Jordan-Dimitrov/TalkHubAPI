@@ -1,4 +1,4 @@
-﻿using TalkHubAPI.Dto;
+﻿using TalkHubAPI.Dtos;
 using TalkHubAPI.Models.PhotosManagerModels;
 
 namespace TalkHubAPI.Interfaces.PhotosManagerInterfaces

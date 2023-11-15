@@ -4,13 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using System.Data;
 using System.Threading;
-using TalkHubAPI.Dto.ForumDtos;
-using TalkHubAPI.Dto.UserDtos;
+using TalkHubAPI.Dtos.ForumDtos;
+using TalkHubAPI.Dtos.UserDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.ForumInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
-using TalkHubAPI.Repository;
 
 namespace TalkHubAPI.Controllers.ForumControllers
 {

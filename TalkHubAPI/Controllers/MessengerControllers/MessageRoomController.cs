@@ -4,14 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using System.Data;
 using System.Threading;
-using TalkHubAPI.Dto.ForumDtos;
-using TalkHubAPI.Dto.MessengerDtos;
+using TalkHubAPI.Dtos.ForumDtos;
+using TalkHubAPI.Dtos.MessengerDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.MessengerInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;
-using TalkHubAPI.Repository;
 
 namespace TalkHubAPI.Controllers.MessengerControllers
 {

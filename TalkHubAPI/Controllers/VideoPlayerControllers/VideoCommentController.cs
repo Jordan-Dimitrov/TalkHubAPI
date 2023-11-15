@@ -3,14 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using System.Data;
-using TalkHubAPI.Dto.UserDtos;
-using TalkHubAPI.Dto.VideoPlayerDtos;
+using TalkHubAPI.Dtos.UserDtos;
+using TalkHubAPI.Dtos.VideoPlayerDtos;
 using TalkHubAPI.Helper;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.VideoPlayerModels;
-using TalkHubAPI.Repository.VideoPlayerRepositories;
 
 namespace TalkHubAPI.Controllers.VideoPlayerControllers
 {

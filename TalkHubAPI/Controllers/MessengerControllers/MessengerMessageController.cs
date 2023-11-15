@@ -2,15 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
-using TalkHubAPI.Dto.MessengerDtos;
+using TalkHubAPI.Dtos.MessengerDtos;
 using TalkHubAPI.Helper;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.MessengerInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;
-using TalkHubAPI.Repository;
-using TalkHubAPI.Repository.MessengerRepositories;
 
 namespace TalkHubAPI.Controllers.MessengerControllers
 {

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using System.Data;
-using TalkHubAPI.Dto.PhotosDtos;
+using TalkHubAPI.Dtos.PhotosDtos;
 using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
 using TalkHubAPI.Models.PhotosManagerModels;
 

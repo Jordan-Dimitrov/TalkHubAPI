@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using System.Threading;
-using TalkHubAPI.Dto.ForumDtos;
+using TalkHubAPI.Dtos.ForumDtos;
 using TalkHubAPI.Interfaces.ForumInterfaces;
 using TalkHubAPI.Models.ForumModels;
 

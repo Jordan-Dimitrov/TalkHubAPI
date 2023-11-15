@@ -245,7 +245,7 @@ namespace TalkHubAPI
                         MessageContent = "nice video",
                         DateCreated = DateTime.Now,
                         LikeCount = 0,
-                        UserId = _Context.Users.First().Id + 1,
+                        UserId = _Context.Users.First().Id,
                         VideoId = _Context.Videos.First().Id,
                     },
                     new VideoComment()
@@ -253,7 +253,6 @@ namespace TalkHubAPI
                         MessageContent = "wow",
                         DateCreated = DateTime.Now,
                         LikeCount = 0,
-                        ReplyId = _Context.VideoComments.First().Id,
                         UserId = _Context.Users.First().Id,
                         VideoId = _Context.Videos.First().Id,
                     }

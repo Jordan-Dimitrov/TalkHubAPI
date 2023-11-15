@@ -7,7 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics.Metrics;
 using System.IdentityModel.Tokens.Jwt;
-using TalkHubAPI.Dto.UserDtos;
+using TalkHubAPI.Dtos.UserDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Models;
 
@@ -108,7 +108,7 @@ namespace TalkHubAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetUserRole()
         {
-            string jwtToken = Request.Headers["Authorization"].ToString().Replace("bearer ", "");
+            string? jwtToken = Request.Cookies["jwtToken"];
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
             string role = _AuthService.GetRoleFromJwtToken(jwtToken);
 
@@ -167,6 +167,7 @@ namespace TalkHubAPI.Controllers
 
             return Ok("Logged in successfully");
         }
+
         [HttpPost("logout")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]

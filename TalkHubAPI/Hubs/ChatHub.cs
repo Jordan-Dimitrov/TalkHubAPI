@@ -6,12 +6,11 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Data;
 using System.Security.Claims;
-using TalkHubAPI.Dto.MessengerDtos;
+using TalkHubAPI.Dtos.MessengerDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.MessengerInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.MessengerModels;
-using TalkHubAPI.Repository;
 
 namespace TalkHubAPI.Hubs
 {

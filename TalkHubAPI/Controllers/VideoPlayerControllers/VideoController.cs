@@ -2,13 +2,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
-using TalkHubAPI.Dto.UserDtos;
+using TalkHubAPI.Dtos.UserDtos;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Models;
-using TalkHubAPI.Dto.VideoPlayerDtos;
+using TalkHubAPI.Dtos.VideoPlayerDtos;
 using TalkHubAPI.Models.VideoPlayerModels;
-using TalkHubAPI.Repository.VideoPlayerRepositories;
 using Azure;
 using Microsoft.Extensions.Caching.Memory;
 
