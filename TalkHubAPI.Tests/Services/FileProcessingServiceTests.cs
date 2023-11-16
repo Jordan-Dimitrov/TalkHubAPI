@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FakeItEasy;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -34,11 +35,10 @@ namespace TalkHubAPI.Tests.Services
 
             FileContentResult result = await _FileProcessingService.GetImageAsync(fileName);
 
-            Assert.NotNull(result);
-            Assert.IsType<FileContentResult>(result);
-            Assert.Equal("image/webp", result.ContentType);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<FileContentResult>();
+            result.ContentType.Should().Be("image/webp");
         }
-        //TODO: Add a test for every method
         
     }
 }

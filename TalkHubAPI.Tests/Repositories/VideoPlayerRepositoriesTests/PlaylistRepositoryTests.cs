@@ -10,25 +10,25 @@ using TalkHubAPI.Repositories.VideoPlayerRepositories;
 
 namespace TalkHubAPI.Tests.Repositories.VideoPlayerRepositoriesTests
 {
-    public class VideoPlaylistRepositoryTests
+    public class PlaylistRepositoryTests
     {
         private readonly Seeder _Seeder;
-        public VideoPlaylistRepositoryTests()
+        public PlaylistRepositoryTests()
         {
             _Seeder = new Seeder();
         }
 
         [Fact]
-        public async Task VideoPlaylistRepository_GetVideoPlaylistAsync_ReturnsVideoPlaylist()
+        public async Task PlaylistRepository_GetPlaylistAsync_ReturnsPlaylist()
         {
-            int videoPlaylistId = 1;
+            int playlistId = 1;
             TalkHubContext context = _Seeder.GetDatabaseContext();
-            VideoPlaylistRepository videoPlaylistRepository = new VideoPlaylistRepository(context);
+            PlaylistRepository playlistRepository = new PlaylistRepository(context);
 
-            VideoPlaylist result = await videoPlaylistRepository.GetVideoPlaylistAsync(videoPlaylistId);
+            Playlist result = await playlistRepository.GetPlaylistAsync(playlistId);
 
             result.Should().NotBeNull();
-            result.Should().BeOfType<VideoPlaylist>();
+            result.Should().BeOfType<Playlist>();
         }
     }
 }

@@ -131,6 +131,7 @@ namespace TalkHubAPI.Helper
             CookieOptions cookieOptions = new CookieOptions
             {
                 Expires = DateTime.Now.AddMinutes(15),
+
                 HttpOnly = true,
             };
 
