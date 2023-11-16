@@ -132,6 +132,7 @@ namespace TalkHubAPI.Helper
             CookieOptions cookieOptions = new CookieOptions
             {
                 Expires = GetDateFromJwtToken(jwtToken),
+
                 HttpOnly = true,
             };
 
