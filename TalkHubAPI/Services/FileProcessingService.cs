@@ -128,6 +128,9 @@ namespace TalkHubAPI.Helper
 
             _BackgroundQueue.AddStatus(taskId, "In progress");
 
+            var mediaInfo = await FFProbe.AnalyseAsync(inputPath);
+            int bitRate = (int) mediaInfo.Format.BitRate / 2048;
+
             await FFMpegArguments
                .FromFileInput(inputPath)
                .OutputToFile(outputPath, false, options =>
@@ -136,8 +139,9 @@ namespace TalkHubAPI.Helper
                .WithConstantRateFactor(21)
                .WithAudioCodec(AudioCodec.LibVorbis)
                .WithVariableBitrate(4)
-               .WithVideoFilters(filterOptions => filterOptions.Scale(VideoSize.Ld))
                .WithFastStart()
+               .WithoutMetadata()
+               .WithVideoBitrate(bitRate)
                .UsingThreads(int.Parse(_Configuration.GetSection("FFmpegConfig:VideoConversionThreads").Value)))
                .ProcessAsynchronously();
 
