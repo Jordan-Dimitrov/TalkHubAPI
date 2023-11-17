@@ -3,6 +3,8 @@ using System.Security.Cryptography;
 using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Models;
+using TalkHubAPI.Models.MessengerModels;
+using TalkHubAPI.Models.PhotosManagerModels;
 
 namespace TalkHubAPI.Repositories
 {

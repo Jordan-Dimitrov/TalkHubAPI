@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Data;
 using TalkHubAPI.Dtos.MessengerDtos;
 using TalkHubAPI.Helper;
+using TalkHubAPI.Hubs;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.MessengerInterfaces;
 using TalkHubAPI.Models;
@@ -23,6 +26,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         private readonly IUserMessageRoomRepository _UserMessageRoomRepository;
         private readonly IAuthService _AuthService;
         private readonly IUserRepository _UserRepository;
+        private readonly IHubContext<ChatHub> _HubContext;
 
         public MessengerMessageController(IMessengerMessageRepository messengerMessageRepository,
             IMapper mapper,
@@ -30,7 +34,8 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             IMessageRoomRepository messageRoomRepository,
             IUserMessageRoomRepository userMessageRoomRepository,
             IAuthService authService,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            IHubContext<ChatHub> hubContext)
         {
             _MessengerMessageRepository = messengerMessageRepository;
             _Mapper = mapper;
@@ -39,6 +44,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             _UserMessageRoomRepository = userMessageRoomRepository;
             _AuthService = authService;
             _UserRepository = userRepository;
+            _HubContext = hubContext;
         }
 
         [HttpGet("{roomId}"), Authorize(Roles = "User,Admin")]
@@ -121,6 +127,133 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 .GetLastTenMessengerMessagesFromLastMessageIdAsync(messageId, roomId));
 
             return Ok(messages);
+        }
+
+        [HttpPost("message"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> SendMessengerMessage([FromForm] SendMessengerMessageDto messageDto)
+        {
+            if (messageDto is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!await _MessageRoomRepository.MessageRoomExistsAsync(messageDto.RoomId))
+            {
+                return BadRequest("MessageRoom does not exist");
+            }
+
+            string? jwtToken = Request.Cookies["jwtToken"];
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            MessageRoom room = _Mapper.Map<MessageRoom>(await _MessageRoomRepository
+                .GetMessageRoomAsync(messageDto.RoomId));
+
+            MessengerMessage message = _Mapper.Map<MessengerMessage>(messageDto);
+            message.User = user;
+            message.Room = room;
+            message.DateCreated = DateTime.Now;
+
+            if (!await _MessengerMessageRepository.AddMessengerMessageAsync(message))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            await _HubContext.Clients.Group(message.Room.RoomName)
+                .SendAsync("RecieveMessage", message.MessageContent);
+
+            return Ok();
+        }
+
+        [HttpPost("message-with-file"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> SendMessengerMessageWithFile(IFormFile file, [FromForm] SendMessengerMessageDto messageDto)
+        {
+
+            if (messageDto is null || !_FileProcessingService.ImageMimeTypeValid(file))
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!await _MessageRoomRepository.MessageRoomExistsAsync(messageDto.RoomId))
+            {
+                return BadRequest("MessageRoom does not exist");
+            }
+
+            string? jwtToken = Request.Cookies["jwtToken"];
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            MessageRoom room = _Mapper.Map<MessageRoom>(await _MessageRoomRepository
+                .GetMessageRoomAsync(messageDto.RoomId));
+
+            MessengerMessage message = _Mapper.Map<MessengerMessage>(messageDto);
+            message.User = user;
+            message.Room = room;
+            message.DateCreated = DateTime.Now;
+
+            string response = await _FileProcessingService.UploadImageAsync(file);
+
+            if (response == "File already exists")
+            {
+                return BadRequest(response);
+            }
+
+            message.FileName = response;
+
+            if (!await _MessengerMessageRepository.AddMessengerMessageAsync(message))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            using MemoryStream memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
+
+            ImageMessage image = new ImageMessage();
+            image.ImageHeaders = "data: " + file.ContentType + ";base64,";
+            image.ImageBinary = memoryStream.ToArray();
+
+            await _HubContext.Clients.Group(message.Room.RoomName)
+                .SendAsync("ReceiveFile", image);
+
+            return Ok();
         }
 
         [HttpPut("hide/{messageId}"), Authorize(Roles = "Admin")]

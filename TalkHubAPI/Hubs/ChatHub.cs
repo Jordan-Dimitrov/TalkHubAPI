@@ -85,39 +85,5 @@ namespace TalkHubAPI.Hubs
         {
             return Groups.RemoveFromGroupAsync(Context.ConnectionId, request.RoomName);
         }
-
-        [Authorize(Roles = "User,Admin")]
-        public async Task SendMessageAsync(SendMessengerMessageDto request)
-        {
-            if (request is null)
-            {
-                Context.Abort();
-                return;
-            }
-
-            if (!await _MessageRoomRepository.MessageRoomExistsAsync(request.RoomId))
-            {
-                Context.Abort();
-                return;
-            }
-
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(this.Context.User.Identity.Name));
-            MessageRoom room = _Mapper.Map<MessageRoom>(await _MessageRoomRepository.GetMessageRoomAsync(request.RoomId));
-
-            Console.WriteLine(user.Username + " " + room.RoomName + "--------------");
-
-            MessengerMessage message = _Mapper.Map<MessengerMessage>(request);
-            message.User = user;
-            message.Room = room;
-            message.DateCreated = DateTime.Now;
-
-            Console.WriteLine(message.MessageContent);
-
-            await _MessengerMessageRepository.AddMessengerMessageAsync(message);
-
-            await Clients.GroupExcept(message.Room.RoomName, new[] { Context.ConnectionId })
-                .SendAsync(message.MessageContent);
-        }
-
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.Diagnostics.Metrics;
 using System.IdentityModel.Tokens.Jwt;
 using TalkHubAPI.Dtos.UserDtos;
@@ -63,6 +64,35 @@ namespace TalkHubAPI.Controllers
             }
 
             return Ok(user);
+        }
+
+        [HttpPut("{userId}"), Authorize(Roles = "Admin")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> DeleteUser(int userId)
+        {
+            User? user = await _UserRepository.GetUserAsync(userId);
+
+            if(user is null)
+            {
+                return NotFound();
+            }
+
+            user.PermissionType = -1;
+            user.Username = "removed user";
+            user.PasswordHash = new byte[2];
+            user.PasswordSalt = new byte[2];
+
+            if (!await _UserRepository.UpdateUserAsync(user))
+            {
+                ModelState.AddModelError("", "Something went wrong updating the user");
+                return StatusCode(500, ModelState);
+            }
+
+            _MemoryCache.Remove(_UserCacheKey);
+
+            return NoContent();
         }
 
         [HttpPost("register")]

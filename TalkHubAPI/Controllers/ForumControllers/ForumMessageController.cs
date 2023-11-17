@@ -41,7 +41,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             _UserUpvoteRepository = userUpvoteRepository;
         }
 
-        [HttpPost("forum-message"), Authorize(Roles = "User,Admin")]
+        [HttpPost("message"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateMessage(CreateForumMessageDto messageDto)
@@ -94,7 +94,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             return Ok("Successfully created");
         }
 
-        [HttpPost("forum-message-with-file"), Authorize(Roles = "User,Admin")]
+        [HttpPost("message-with-file"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateMessageWithFile(IFormFile file, [FromForm] CreateForumMessageDto messageDto)
