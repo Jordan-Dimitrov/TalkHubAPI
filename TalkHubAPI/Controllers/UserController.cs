@@ -83,6 +83,7 @@ namespace TalkHubAPI.Controllers
             user.Username = "removed user";
             user.PasswordHash = new byte[2];
             user.PasswordSalt = new byte[2];
+            user.RefreshToken = null;
 
             if (!await _UserRepository.UpdateUserAsync(user))
             {
