@@ -67,6 +67,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         }
 
         [HttpPost, Authorize(Roles = "User,Admin")]
+        [RequestSizeLimit(2_147_483_648)]
         [ProducesResponseType(201, Type = typeof(VideoUploadResponse))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateVideo(IFormFile video, IFormFile thumbnail, [FromForm] CreateVideoDto videoDto)

@@ -1,6 +1,7 @@
 ﻿using Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -43,7 +44,7 @@ namespace TalkHubAPI.Helper
 
             JwtSecurityToken token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.Now.AddMinutes(15),
                 signingCredentials: creds);
 
             string jwt = new JwtSecurityTokenHandler().WriteToken(token);
@@ -130,7 +131,7 @@ namespace TalkHubAPI.Helper
 
             CookieOptions cookieOptions = new CookieOptions
             {
-                Expires = DateTime.Now.AddMinutes(15),
+                Expires = GetDateFromJwtToken(jwtToken),
 
                 HttpOnly = true,
             };
