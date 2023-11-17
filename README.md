@@ -6,21 +6,15 @@ This is an ASP.NET Web API project that provides various features, including a v
 ### Prerequisites
 Before you begin, ensure you have the following installed:
 
-1. ASP.NET Core
+1. [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
 
-2. SQL Server
+2. [SQL Server](https://www.microsoft.com/en-us/sql-server/sql-server-downloads)
 
-3. FFmpeg
+3. [FFmpeg](https://www.ffmpeg.org/download.html)
 
 ### Installation
-1. Change the FFmpegConfig in the appsettings.json
-```bash
-    "FFmpegConfig": {
-    "FFmpegBinaryDirectory": "path",
-    "TemporaryFilesDirectory": "path"
-  },
-```
-2. Navigate to the project directory
+1. Configure `appsettings.json` according to your preferences
+2. Navigate to the project directory:
 ```bash
 cd TalkHubAPI
 ```
@@ -32,7 +26,7 @@ dotnet ef database update
 ```bash
 dotnet run seeddata
 ```
-5. Run the project
+5. Run the project:
 ```bash
 dotnet run
 ```
