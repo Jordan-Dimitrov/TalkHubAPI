@@ -13,14 +13,8 @@ Before you begin, ensure you have the following installed:
 3. FFmpeg
 
 ### Installation
-1. Change the FFmpegConfig in the appsettings.json
-```bash
-    "FFmpegConfig": {
-    "FFmpegBinaryDirectory": "path",
-    "TemporaryFilesDirectory": "path"
-  },
-```
-2. Navigate to the project directory
+1. Configure `appsettings.json` according to your preferences
+2. Navigate to the project directory:
 ```bash
 cd TalkHubAPI
 ```
@@ -32,7 +26,7 @@ dotnet ef database update
 ```bash
 dotnet run seeddata
 ```
-5. Run the project
+5. Run the project:
 ```bash
 dotnet run
 ```
