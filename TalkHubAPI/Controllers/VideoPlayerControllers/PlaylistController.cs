@@ -67,7 +67,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("This user does not exist");
             }
 
-            if(!await _PlaylistRepository.PlaylistExistsForUserAsync(userId))
+            if (!await _PlaylistRepository.PlaylistExistsForUserAsync(userId))
             {
                 return BadRequest("Playlist does not exist for user");
             }
@@ -97,7 +97,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> CreatePlaylist([FromBody] PlaylistDto playlistCreate)
+        public async Task<IActionResult> CreatePlaylist([FromBody] CreatePlaylistDto playlistCreate)
         {
             if (playlistCreate is null)
             {
@@ -144,7 +144,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return Ok("Successfully created");
         }
 
-        [HttpPut("{playlistId}"), Authorize(Roles = "Admin")]
+        [HttpPut("{playlistId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -173,6 +173,11 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
+            }
+
+            if (updatedPlaylist.UserId != user.Id && user.PermissionType != 1)
+            {
+                return BadRequest("Playlist does not belong to user");
             }
 
             if (!ModelState.IsValid)
@@ -234,7 +239,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            if(playlist.User != user)
+            if (playlist.User != user)
             {
                 return BadRequest("Playlist does not belong to user");
             }
@@ -323,7 +328,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return NoContent();
         }
 
-        [HttpDelete("{playlistId}"), Authorize(Roles = "Admin")]
+        [HttpDelete("{playlistId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -336,12 +341,33 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return NotFound();
             }
 
+            string? jwtToken = Request.Cookies["jwtToken"];
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            if (playlistToDelete.User != user && user.PermissionType != 1)
+            {
+                return BadRequest("Playlist does not belong to user");
+            }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (!await _PlaylistRepository.RemovePlaylistAsync(playlistToDelete))
+            if (!await _PlaylistRepository.RemovePlaylistAsync(playlistToDelete)
+                || !await _VideoPlaylistRepository.RemoveVideoPlaylistsForPlaylistIdAsync(playlistId))
             {
                 ModelState.AddModelError("", "Something went wrong deleting the playlist");
             }

@@ -48,6 +48,8 @@ namespace TalkHubAPI.Helper
             CreateMap<VideoTagDto, VideoTag>();
             CreateMap<Playlist, PlaylistDto>();
             CreateMap<PlaylistDto, Playlist>();
+            CreateMap<Playlist, CreatePlaylistDto>();
+            CreateMap<CreatePlaylistDto, Playlist>();
 
             CreateMap<Video, VideoDto>();
             CreateMap<VideoDto, Video>();

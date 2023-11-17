@@ -39,9 +39,20 @@ namespace TalkHubAPI.Repositories.VideoPlayerRepositories
             return await _Context.VideoPlaylists.ToListAsync();
         }
 
+        public async Task<ICollection<VideoPlaylist>> GetVideoPlaylistsForPlaylistAsync(int playlistId)
+        {
+            return await _Context.VideoPlaylists.Where(x => x.PlaylistId == playlistId).ToListAsync();
+        }
+
         public async Task<bool> RemoveVideoPlaylistAsync(VideoPlaylist videoPlaylist)
         {
             _Context.Remove(videoPlaylist);
+            return await SaveAsync();
+        }
+
+        public async Task<bool> RemoveVideoPlaylistsForPlaylistIdAsync(int playlistId)
+        {
+            _Context.RemoveRange(await GetVideoPlaylistsForPlaylistAsync(playlistId));
             return await SaveAsync();
         }
 

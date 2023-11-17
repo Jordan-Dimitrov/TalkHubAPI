@@ -181,6 +181,51 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             return Ok("Successfully created");
         }
 
+        [HttpDelete("leaveRoom"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> LeaveRoom([FromBody] int roomId)
+        {
+            MessageRoom? room = await _MessageRoomRepository.GetMessageRoomAsync(roomId);
+
+            if (room is null)
+            {
+                return NotFound();
+            }
+
+            string? jwtToken = Request.Cookies["jwtToken"];
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            UserMessageRoom? userMessageRoom = await _UserMessageRoomRepository
+                .GetUserMessageRoomForRoomAndUserAsync(room.Id, user.Id);
+
+            if (userMessageRoom is null)
+            {
+                ModelState.AddModelError("", "User has not joined this room");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!await _UserMessageRoomRepository.RemoveUserMessageRoomAsync(userMessageRoom))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+
         [HttpPut("{roomId}"), Authorize(Roles = "Admin")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]

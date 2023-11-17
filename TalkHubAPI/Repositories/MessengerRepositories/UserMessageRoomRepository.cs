@@ -68,5 +68,12 @@ namespace TalkHubAPI.Repositories.MessengerRepositories
             _Context.RemoveRange(await GetUserMessageRoomsAsyncForRoom(roomId));
             return await SaveAsync();
         }
+
+        public async Task<UserMessageRoom?> GetUserMessageRoomForRoomAndUserAsync(int roomId, int userId)
+        {
+            return await _Context.UserMessageRooms
+                .Where(x => x.RoomId == roomId && x.UserId == userId)
+                .FirstOrDefaultAsync();
+        }
     }
 }

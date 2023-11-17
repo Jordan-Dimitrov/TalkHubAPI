@@ -15,6 +15,7 @@ using TalkHubAPI.Models.PhotosManagerModels;
 using Microsoft.Extensions.Caching.Memory;
 using System.Threading;
 using System.Diagnostics;
+using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Controllers.PhotosManagerControllers
 {
@@ -231,7 +232,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             return Ok(photosDto);
         }
 
-        [HttpDelete("{photoId}"), Authorize(Roles = "Admin")]
+        [HttpDelete("{photoId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -242,6 +243,26 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             if (photoToDelete is null)
             {
                 return NotFound();
+            }
+
+            string? jwtToken = Request.Cookies["jwtToken"];
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            if (photoToDelete.User != user && user.PermissionType != 1)
+            {
+                return BadRequest("Photo does not belong to user");
             }
 
             string cacheKey = _PhotosCacheKey + $"_{photoToDelete.CategoryId}";
