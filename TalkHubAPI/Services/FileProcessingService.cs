@@ -134,16 +134,16 @@ namespace TalkHubAPI.Helper
             _BackgroundQueue.AddStatus(taskId, "In progress");
 
             var mediaInfo = await FFProbe.AnalyseAsync(inputPath);
-            int bitRate = (int) mediaInfo.Format.BitRate / 2048;
+            int bitRate = (int) (mediaInfo.Format.BitRate * 0.75) / 1024;
 
             await FFMpegArguments
                .FromFileInput(inputPath)
                .OutputToFile(outputPath, false, options =>
                options.WithVideoCodec(VideoCodec.LibVpx)
                .ForceFormat("webm")
-               .WithConstantRateFactor(18)
+               .WithConstantRateFactor(30)
                .WithAudioCodec(AudioCodec.LibVorbis)
-               .WithVariableBitrate(5)
+               .WithVariableBitrate(3)
                .WithFastStart()
                .WithoutMetadata()
                .WithVideoBitrate(bitRate)
