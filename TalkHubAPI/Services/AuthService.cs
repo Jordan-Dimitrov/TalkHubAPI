@@ -1,44 +1,37 @@
 ﻿using Azure;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
-using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
+using TalkHubAPI.Models.ConfigurationModels;
 
 namespace TalkHubAPI.Helper
 {
     public class AuthService : IAuthService
     {
-        private readonly IConfiguration _Configuration;
+        private readonly JwtTokenSettings _JwtTokenSettings;
         private readonly IHttpContextAccessor _HttpContextAccessor;
 
-        public AuthService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        public AuthService(IOptions<JwtTokenSettings> jwtTokenSettings, IHttpContextAccessor httpContextAccessor)
         {
-            _Configuration = configuration;
+            _JwtTokenSettings = jwtTokenSettings.Value;
             _HttpContextAccessor = httpContextAccessor;
         }
         public string GenerateJwtToken(User user)
         {
-            string role = "";
-            if (user.PermissionType == 1)
-            {
-                role = "Admin";
-            }
-            else if (user.PermissionType == 0)
-            {
-                role = "User";
-            }
             List<Claim> claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, role)
+                new Claim(ClaimTypes.Role, user.PermissionType.ToString())
             };
 
-            SymmetricSecurityKey key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
-                _Configuration.GetSection("AppSettings:Token").Value));
+            SymmetricSecurityKey key = new SymmetricSecurityKey(System.Text.Encoding.UTF8
+                .GetBytes(_JwtTokenSettings.Token));
 
             SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
@@ -50,6 +43,11 @@ namespace TalkHubAPI.Helper
             string jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
             return jwt;
+        }
+
+        public string CreateRandomToken()
+        {
+            return Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
         }
 
         public RefreshToken GenerateRefreshToken()

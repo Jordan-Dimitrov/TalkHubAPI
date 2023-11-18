@@ -175,7 +175,9 @@ public partial class TalkHubContext : DbContext
 
             entity.HasIndex(e => e.RefreshTokenId, "IX_Users_RefreshTokenId");
 
+            entity.Property(e => e.ResetTokenExpires).HasColumnType("datetime");
             entity.Property(e => e.Username).HasMaxLength(30);
+            entity.Property(e => e.VerifiedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.RefreshToken).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RefreshTokenId)

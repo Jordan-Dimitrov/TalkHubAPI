@@ -16,10 +16,14 @@ namespace TalkHubAPI.Helper
     {
         public MappingProfiles()
         {
-            CreateMap<User, CreateUserDto>();
-            CreateMap<CreateUserDto, User>();
+            CreateMap<User, RegisterUserDto>();
+            CreateMap<RegisterUserDto, User>();
             CreateMap<User, UserDto>();
             CreateMap<UserDto, User>();
+            CreateMap<User, LoginUserDto>();
+            CreateMap<LoginUserDto, User>();
+            CreateMap<User, UserResetPasswordDto>();
+            CreateMap<UserResetPasswordDto, User>();
 
             CreateMap<PhotoCategory, PhotoCategoryDto>();
             CreateMap<PhotoCategoryDto, PhotoCategory>();

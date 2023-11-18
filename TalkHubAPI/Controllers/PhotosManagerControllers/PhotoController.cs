@@ -16,6 +16,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System.Threading;
 using System.Diagnostics;
 using TalkHubAPI.Models.VideoPlayerModels;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 
 namespace TalkHubAPI.Controllers.PhotosManagerControllers
 {
@@ -260,7 +261,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (photoToDelete.User != user && user.PermissionType != 1)
+            if (photoToDelete.User != user && user.PermissionType != UserRole.Admin)
             {
                 return BadRequest("Photo does not belong to user");
             }

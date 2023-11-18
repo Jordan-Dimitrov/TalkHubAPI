@@ -103,5 +103,25 @@ namespace TalkHubAPI.Repositories
         {
             return await _Context.Users.AnyAsync(x => x.RefreshToken.Token == refreshToken);
         }
+
+        public async Task<bool> EmailExistsAsync(string email)
+        {
+            return await _Context.Users.AnyAsync(x => x.Email == email);
+        }
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await _Context.Users.Where(x => x.Email == email).FirstOrDefaultAsync();
+        }
+        public async Task<User?> GetUserByVerificationTokenAsync(string verificationToken)
+        {
+            return await _Context.Users.Where(x => x.VerificationToken == verificationToken)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<User?> GetUserByPasswordResetTokenAsync(string passwordResetToken)
+        {
+            return await _Context.Users.Where(x => x.PasswordResetToken == passwordResetToken)
+                .FirstOrDefaultAsync();
+        }
     }
 }

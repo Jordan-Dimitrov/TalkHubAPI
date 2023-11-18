@@ -16,6 +16,7 @@ using TalkHubAPI.Dtos.VideoPlayerDtos;
 using TalkHubAPI.Models.VideoPlayerModels;
 using TalkHubAPI.Controllers.VideoPlayerControllers;
 using FluentAssertions;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 
 namespace TalkHubAPI.Tests.Controller.VideoPlayerControllersTests
 {

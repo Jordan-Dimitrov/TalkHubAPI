@@ -2,7 +2,7 @@
 using Microsoft.Identity.Client;
 using TalkHubAPI.Models;
 
-namespace TalkHubAPI.Interfaces
+namespace TalkHubAPI.Interfaces.ServiceInterfaces
 {
     public interface IFileProcessingService
     {

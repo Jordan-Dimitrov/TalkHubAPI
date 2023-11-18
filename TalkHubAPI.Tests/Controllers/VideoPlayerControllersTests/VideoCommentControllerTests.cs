@@ -13,6 +13,7 @@ using TalkHubAPI.Dtos.VideoPlayerDtos;
 using TalkHubAPI.Models.VideoPlayerModels;
 using TalkHubAPI.Repositories.VideoPlayerRepositories;
 using FluentAssertions;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 
 namespace TalkHubAPI.Tests.Controller.VideoPlayerControllersTests
 {

@@ -22,6 +22,12 @@ using TalkHubAPI.Hubs;
 using Microsoft.AspNetCore.Http.Features;
 using FFMpegCore;
 using TalkHubAPI.BackgroundTasks;
+using TalkHubAPI.Middlewarres;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
+using TalkHubAPI.Services;
+using Microsoft.Extensions.DependencyInjection;
+using TalkHubAPI.Models.ConfigurationModels;
+using Microsoft.Extensions.Options;
 
 namespace TalkHubAPI
 {
@@ -59,10 +65,19 @@ namespace TalkHubAPI
             builder.Services.AddHostedService<QueueService>();
             builder.Services.AddSingleton<IBackgroundQueue, BackgroundQueue>();
 
+            builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+            builder.Services.Configure<JwtTokenSettings>(builder.Configuration.GetSection("JwtTokenSettings"));
+            builder.Services.Configure<FFMpegConfig>(builder.Configuration.GetSection("FFMpegConfig"));
+
+            builder.Services.AddTransient<IMailService, MailService>();
             builder.Services.AddSignalR();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            JwtTokenSettings? jwtTokenSettings = builder.Configuration
+                .GetSection("JwtTokenSettings")
+                .Get<JwtTokenSettings>();
 
             builder.Services.AddAuthentication(x =>
             {
@@ -79,7 +94,7 @@ namespace TalkHubAPI
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtTokenSettings.Token)),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
@@ -120,12 +135,14 @@ namespace TalkHubAPI
                 options.UseSqlServer(builder.Configuration.GetConnectionString("SDR"));
             });
 
+            FFMpegConfig? ffmpegConfig = builder.Configuration
+                .GetSection("FFMpegConfig")
+                .Get<FFMpegConfig>();
+
             GlobalFFOptions.Configure(new FFOptions
             {
-                BinaryFolder = builder.Configuration
-                .GetSection("FFmpegConfig:FFmpegBinaryDirectory").Value,
-                TemporaryFilesFolder = builder.Configuration
-                .GetSection("FFmpegConfig:TemporaryFilesDirectory").Value
+                BinaryFolder = ffmpegConfig.FFMpegBinaryDirectory,
+                TemporaryFilesFolder = ffmpegConfig.TemporaryFilesDirectory
             });
 
             var app = builder.Build();
@@ -162,6 +179,8 @@ namespace TalkHubAPI
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            app.UseMiddleware<ErrorHandlingMiddleware>();
 
             app.MapControllers();
 

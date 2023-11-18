@@ -13,6 +13,7 @@ using TalkHubAPI.Controllers.PhotosManagerControllers;
 using TalkHubAPI.Dtos.PhotosDtos;
 using TalkHubAPI.Models.PhotosManagerModels;
 using FluentAssertions;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 
 namespace TalkHubAPI.Tests.Controller.PhotosManagerControllersTests
 {

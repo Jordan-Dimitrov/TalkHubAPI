@@ -17,6 +17,7 @@ using TalkHubAPI.Dtos.MessengerDtos;
 using TalkHubAPI.Models.MessengerModels;
 using TalkHubAPI.Controllers.MessengerControllers;
 using FluentAssertions;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 
 namespace TalkHubAPI.Tests.Controller.MessengerControllersTests
 {

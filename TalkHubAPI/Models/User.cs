@@ -8,6 +8,13 @@ using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Models;
 
+public enum UserRole
+{
+    Visitor,
+    User,
+    Admin
+}
+
 public partial class User
 {
     public int Id { get; set; }
@@ -23,7 +30,17 @@ public partial class User
     public int? RefreshTokenId { get; set; }
     [Required]
     [Range(0,1)]
-    public int PermissionType { get; set; }
+    public UserRole PermissionType { get; set; }
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = null!;
+    public string? VerificationToken { get; set; }
+
+    public DateTime? VerifiedAt { get; set; }
+
+    public string? PasswordResetToken { get; set; }
+
+    public DateTime? ResetTokenExpires { get; set; }
 
     public virtual ICollection<ForumMessage> ForumMessages { get; set; } = new List<ForumMessage>();
 

@@ -8,6 +8,7 @@ using TalkHubAPI.Dtos.ForumDtos;
 using TalkHubAPI.Dtos.MessengerDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.MessengerInterfaces;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;

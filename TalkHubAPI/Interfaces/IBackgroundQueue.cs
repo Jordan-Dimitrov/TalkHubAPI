@@ -6,5 +6,6 @@
         Task<Func<CancellationToken, Task>> PopQueue(CancellationToken cancellationToken);
         void AddStatus(Guid taskId, string status);
         string GetStatus(Guid taskId);
+        Task ProcessQueueAsync(CancellationToken cancellationToken);
     }
 }

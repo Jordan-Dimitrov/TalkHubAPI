@@ -13,23 +13,7 @@ namespace TalkHubAPI.Helper
 
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                var task = await _Queue.PopQueue(stoppingToken);
-
-                if (stoppingToken.IsCancellationRequested)
-                {
-                    return;
-                }
-
-                using (var source = new CancellationTokenSource())
-                {
-                    source.CancelAfter(TimeSpan.FromMinutes(1));
-                    var timeoutToken = source.Token;
-
-                    await task(timeoutToken);
-                }
-            }
+            await _Queue.ProcessQueueAsync(stoppingToken);
         }
     }
 }

@@ -8,6 +8,7 @@ using TalkHubAPI.Dtos.ForumDtos;
 using TalkHubAPI.Dtos.UserDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.ForumInterfaces;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
 

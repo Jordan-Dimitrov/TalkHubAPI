@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using TalkHubAPI.Data;
-using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;
@@ -49,6 +49,8 @@ namespace TalkHubAPI.Tests.Repositories
                         Username = "TOMAAAA",
                         PasswordHash = userPassword.PasswordHash,
                         PasswordSalt = userPassword.PasswordSalt,
+                        PermissionType = UserRole.Admin,
+                        Email = "tomaaa@gmail.com",
                         RefreshToken = token
                     },
                     new User()
@@ -56,6 +58,8 @@ namespace TalkHubAPI.Tests.Repositories
                         Username = "KristiQn Enchev",
                         PasswordHash = userPassword.PasswordHash,
                         PasswordSalt = userPassword.PasswordSalt,
+                        PermissionType = UserRole.User,
+                        Email = "tomaaa@gmail.com",
                         RefreshToken = token
                     }
                 };

@@ -10,6 +10,7 @@ using TalkHubAPI.Dtos.VideoPlayerDtos;
 using TalkHubAPI.Models.VideoPlayerModels;
 using Azure;
 using Microsoft.Extensions.Caching.Memory;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 
 namespace TalkHubAPI.Controllers.VideoPlayerControllers
 {
@@ -297,17 +298,37 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return file;
         }
 
-        [HttpPut("hide/{videoId}"), Authorize(Roles = "Admin")]
+        [HttpPut("hide/{videoId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> HideVideo(int videoId)
         {
+            string? jwtToken = Request.Cookies["jwtToken"];
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
             Video? videoToHide = await _VideoRepository.GetVideoAsync(videoId);
 
             if (videoToHide is null)
             {
                 return NotFound();
+            }
+
+            if(videoToHide.User != user && user.PermissionType != UserRole.Admin)
+            {
+                return BadRequest("Video does not belong to user");
             }
 
             if (!await _FileProcessingService.RemoveMediaAsync(videoToHide.Mp4name) ||

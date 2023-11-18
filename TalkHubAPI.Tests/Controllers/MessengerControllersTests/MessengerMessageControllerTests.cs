@@ -15,6 +15,7 @@ using TalkHubAPI.Models.MessengerModels;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using TalkHubAPI.Models;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 
 namespace TalkHubAPI.Tests.Controller.MessengerControllersTests
 {

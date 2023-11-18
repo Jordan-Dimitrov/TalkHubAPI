@@ -1,6 +1,6 @@
 ﻿using TalkHubAPI.Models;
 
-namespace TalkHubAPI.Interfaces
+namespace TalkHubAPI.Interfaces.ServiceInterfaces
 {
     public interface IAuthService
     {
@@ -14,5 +14,6 @@ namespace TalkHubAPI.Interfaces
         public void SetRefreshToken(RefreshToken newRefreshToken);
         public void SetJwtToken(string jwtToken);
         public void ClearTokens();
+        public string CreateRandomToken();
     }
 }

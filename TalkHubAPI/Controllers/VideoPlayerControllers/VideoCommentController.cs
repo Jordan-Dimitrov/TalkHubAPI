@@ -7,6 +7,7 @@ using TalkHubAPI.Dtos.UserDtos;
 using TalkHubAPI.Dtos.VideoPlayerDtos;
 using TalkHubAPI.Helper;
 using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.VideoPlayerModels;

@@ -3,13 +3,16 @@ using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System.Data;
 using System.Diagnostics.Metrics;
 using System.IdentityModel.Tokens.Jwt;
 using TalkHubAPI.Dtos.UserDtos;
 using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
 
 namespace TalkHubAPI.Controllers
@@ -23,16 +26,19 @@ namespace TalkHubAPI.Controllers
         private readonly string _UserCacheKey;
         private readonly IMemoryCache _MemoryCache;
         private readonly IAuthService _AuthService;
+        private readonly IMailService _MailService;
         public UserController(IUserRepository userRepository,
             IMapper mapper,
             IAuthService authService,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache,
+            IMailService mailService)
         {
             _UserRepository = userRepository;
             _Mapper = mapper;
             _AuthService = authService;
             _MemoryCache = memoryCache;
             _UserCacheKey = "users";
+            _MailService = mailService;
         }
 
         [HttpGet, Authorize(Roles = "User,Admin")]
@@ -79,10 +85,13 @@ namespace TalkHubAPI.Controllers
                 return NotFound();
             }
 
-            user.PermissionType = -1;
+            user.PermissionType = UserRole.Visitor;
             user.Username = "removed user";
             user.PasswordHash = new byte[2];
             user.PasswordSalt = new byte[2];
+            user.RefreshToken = null;
+            user.Email = "removed";
+            user.VerificationToken = null;
             user.RefreshToken = null;
 
             if (!await _UserRepository.UpdateUserAsync(user))
@@ -90,6 +99,8 @@ namespace TalkHubAPI.Controllers
                 ModelState.AddModelError("", "Something went wrong updating the user");
                 return StatusCode(500, ModelState);
             }
+
+            _AuthService.ClearTokens();
 
             _MemoryCache.Remove(_UserCacheKey);
 
@@ -99,14 +110,15 @@ namespace TalkHubAPI.Controllers
         [HttpPost("register")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> Register([FromBody] CreateUserDto request)
+        public async Task<IActionResult> Register([FromBody] RegisterUserDto request)
         {
             if (request is null)
             {
                 return BadRequest(ModelState);
             }
 
-            if (await _UserRepository.UsernameExistsAsync(request.Username))
+            if (await _UserRepository.UsernameExistsAsync(request.Username) 
+                || await _UserRepository.EmailExistsAsync(request.Email))
             {
                 return BadRequest("User already exists!");
             }
@@ -121,9 +133,17 @@ namespace TalkHubAPI.Controllers
             User user = _Mapper.Map<User>(request);
             user.PasswordHash = pass.PasswordHash;
             user.PasswordSalt = pass.PasswordSalt;
-            user.PermissionType = 0;
+            user.PermissionType = UserRole.Visitor;
+            user.VerificationToken = _AuthService.CreateRandomToken();
 
-            if (!await _UserRepository.CreateUserAsync(user))
+            MailData mailData = new MailData();
+            mailData.EmailToId = request.Email;
+            mailData.EmailToName = request.Username;
+            mailData.EmailSubject = "Accout verification";
+            string host = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
+            mailData.EmailBody = $"Verify your account by clicking the provided link - {host}" + $"/api/User/verify/{user.VerificationToken}";
+
+            if (!await _UserRepository.CreateUserAsync(user) || !_MailService.SendMail(mailData))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -159,7 +179,7 @@ namespace TalkHubAPI.Controllers
         [HttpPost("login")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> Login(CreateUserDto request)
+        public async Task<IActionResult> Login(LoginUserDto request)
         {
             if (request is null)
             {
@@ -171,6 +191,11 @@ namespace TalkHubAPI.Controllers
             if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
+            }
+
+            if(user.PermissionType == UserRole.Visitor)
+            {
+                return BadRequest("User not verified!");
             }
 
             if (!ModelState.IsValid)
@@ -197,6 +222,99 @@ namespace TalkHubAPI.Controllers
             _AuthService.SetJwtToken(token);
 
             return Ok("Logged in successfully");
+        }
+
+        [HttpGet("verify/{token}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> Verify(string token)
+        {
+            User? user = await _UserRepository.GetUserByVerificationTokenAsync(token);
+
+            if (user is null)
+            {
+                return BadRequest("Invalid token.");
+            }
+
+            user.VerifiedAt = DateTime.Now;
+            user.PermissionType = UserRole.User;
+            user.VerificationToken = null;
+
+            if (!await _UserRepository.UpdateUserAsync(user))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating the user");
+                return StatusCode(500, ModelState);
+            }
+
+            RefreshToken refreshToken = _AuthService.GenerateRefreshToken();
+
+            //there should be a redirect response
+            return Ok("User verified");
+        }
+
+        [HttpPost("forgot-password")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            User? user = await _UserRepository.GetUserByEmailAsync(email);
+
+            if (user is null)
+            {
+                return BadRequest("User with such email does not exist!");
+            }
+
+            user.PasswordResetToken = _AuthService.CreateRandomToken();
+            user.ResetTokenExpires = DateTime.Now.AddMinutes(30);
+
+            MailData mailData = new MailData();
+            mailData.EmailToId = user.Email;
+            mailData.EmailToName = user.Username;
+            mailData.EmailSubject = "Reset password";
+
+            //the email body should contain a url to the client that handles the password reset
+            mailData.EmailBody = user.PasswordResetToken;
+
+            if (!await _UserRepository.UpdateUserAsync(user) || !_MailService.SendMail(mailData))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating the user");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("You may now reset your password");
+        }
+
+        [HttpPost("reset-password")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> ResetPassword(UserResetPasswordDto request)
+        {
+            User? user = await _UserRepository.GetUserByPasswordResetTokenAsync(request.Token);
+
+            if (user == null || user.ResetTokenExpires < DateTime.Now)
+            {
+                return BadRequest("Invalid Token.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            UserPassword pass = _AuthService.CreatePasswordHash(request.Password);
+
+            user.PasswordHash = pass.PasswordHash;
+            user.PasswordSalt = pass.PasswordSalt;
+            user.PasswordResetToken = null;
+            user.ResetTokenExpires = null;
+
+            if (!await _UserRepository.UpdateUserAsync(user))
+            {
+                ModelState.AddModelError("", "Something went wrong while updating the user");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Password successfully reset.");
         }
 
         [HttpPost("logout")]

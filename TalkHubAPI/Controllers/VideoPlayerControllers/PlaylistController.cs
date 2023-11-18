@@ -6,6 +6,7 @@ using System.Data;
 using System.Threading;
 using TalkHubAPI.Dtos.VideoPlayerDtos;
 using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.VideoPlayerModels;
@@ -175,7 +176,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (updatedPlaylist.UserId != user.Id && user.PermissionType != 1)
+            if (updatedPlaylist.UserId != user.Id && user.PermissionType != UserRole.Admin)
             {
                 return BadRequest("Playlist does not belong to user");
             }
@@ -356,7 +357,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (playlistToDelete.User != user && user.PermissionType != 1)
+            if (playlistToDelete.User != user && user.PermissionType != UserRole.Admin)
             {
                 return BadRequest("Playlist does not belong to user");
             }

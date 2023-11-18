@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using TalkHubAPI.Data;
 using TalkHubAPI.Dtos;
 using TalkHubAPI.Helper;
-using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Repositories;
 using TalkHubAPI.Tests.Repositories;
@@ -100,6 +100,7 @@ namespace TalkHubAPI.Tests.Repository
             user.PasswordHash = userPassword.PasswordHash;
             user.PasswordSalt = userPassword.PasswordSalt;
             user.Username = "fakeName";
+            user.Email = "fakeMail";
             TalkHubContext context = _Seeder.GetDatabaseContext();
             UserRepository userRepository = new UserRepository(context);
 

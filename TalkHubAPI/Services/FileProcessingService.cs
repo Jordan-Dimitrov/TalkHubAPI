@@ -5,6 +5,9 @@ using FFMpegCore;
 using FFMpegCore.Enums;
 using System.Collections.Concurrent;
 using TalkHubAPI.Models;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
+using Microsoft.Extensions.Options;
+using TalkHubAPI.Models.ConfigurationModels;
 
 namespace TalkHubAPI.Helper
 {
@@ -14,11 +17,13 @@ namespace TalkHubAPI.Helper
         private readonly IBackgroundQueue _BackgroundQueue;
         private readonly IList<string> _SupportedImageMimeTypes;
         private readonly IList<string> _SupportedVideoMimeTypes;
-        private readonly IConfiguration _Configuration;
-        public FileProcessingService(IBackgroundQueue backgroundQueue, IConfiguration configuration)
+        private readonly FFMpegConfig _FFMpegConfig;
+        public FileProcessingService(IBackgroundQueue backgroundQueue, 
+            IConfiguration configuration, 
+            IOptions<FFMpegConfig> ffmpegConfigOptions)
         {
             _BackgroundQueue = backgroundQueue;
-            _Configuration = configuration;
+            _FFMpegConfig = ffmpegConfigOptions.Value;
 
             _SupportedImageMimeTypes = new List<string>() { "image/webp", "image/png", "image/jpg", "image/jpeg" };
             _SupportedVideoMimeTypes = new List<string>() { "video/webm", "video/mp4" };
@@ -136,13 +141,13 @@ namespace TalkHubAPI.Helper
                .OutputToFile(outputPath, false, options =>
                options.WithVideoCodec(VideoCodec.LibVpx)
                .ForceFormat("webm")
-               .WithConstantRateFactor(21)
+               .WithConstantRateFactor(18)
                .WithAudioCodec(AudioCodec.LibVorbis)
-               .WithVariableBitrate(4)
+               .WithVariableBitrate(5)
                .WithFastStart()
                .WithoutMetadata()
                .WithVideoBitrate(bitRate)
-               .UsingThreads(int.Parse(_Configuration.GetSection("FFmpegConfig:VideoConversionThreads").Value)))
+               .UsingThreads(_FFMpegConfig.VideoConversionThreads))
                .ProcessAsynchronously();
 
             await RemoveMediaAsync(inputPath);
@@ -161,7 +166,7 @@ namespace TalkHubAPI.Helper
                .OutputToFile(outputPath, false, options =>
                options.ForceFormat("webp")
                .WithFastStart()
-               .UsingThreads(int.Parse(_Configuration.GetSection("FFmpegConfig:PhotoConversionThreads").Value)))
+               .UsingThreads(_FFMpegConfig.PhotoConversionThreads))
                .ProcessAsynchronously();
 
             await RemoveMediaAsync(inputPath);

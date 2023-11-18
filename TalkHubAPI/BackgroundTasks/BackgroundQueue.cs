@@ -38,6 +38,30 @@ namespace TalkHubAPI.BackgroundTasks
             _ConversionStatuses[taskId] = status;
         }
 
+        public async Task ProcessQueueAsync(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                var task = await PopQueue(cancellationToken);
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                _ = Task.Run(async () =>
+                {
+                    using (var source = new CancellationTokenSource())
+                    {
+                        source.CancelAfter(TimeSpan.FromMinutes(1));
+                        var timeoutToken = source.Token;
+
+                        await task(timeoutToken);
+                    }
+                });
+            }
+        }
+
         public string GetStatus(Guid taskId)
         {
             if (_ConversionStatuses.ContainsKey(taskId))

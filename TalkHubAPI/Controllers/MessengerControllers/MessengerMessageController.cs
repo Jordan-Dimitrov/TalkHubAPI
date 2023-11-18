@@ -9,6 +9,7 @@ using TalkHubAPI.Helper;
 using TalkHubAPI.Hubs;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.MessengerInterfaces;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;
@@ -73,7 +74,9 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (!await _UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id))
+            if (!await _UserMessageRoomRepository
+                .UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id) 
+                && user.PermissionType != UserRole.Admin)
             {
                 ModelState.AddModelError("", "User has not joined this room");
                 return StatusCode(422, ModelState);
@@ -112,7 +115,9 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            if (!await _UserMessageRoomRepository.UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id))
+            if (!!await _UserMessageRoomRepository
+                .UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id)
+                && user.PermissionType != UserRole.Admin)
             {
                 ModelState.AddModelError("", "User has not joined this room");
                 return StatusCode(422, ModelState);
@@ -157,6 +162,14 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             if (user is null)
             {
                 return BadRequest("User with such name does not exist!");
+            }
+
+            if (!await _UserMessageRoomRepository
+                .UserMessageRoomExistsForRoomAndUserAsync(messageDto.RoomId, user.Id)
+                && user.PermissionType != UserRole.Admin)
+            {
+                ModelState.AddModelError("", "User has not joined this room");
+                return StatusCode(422, ModelState);
             }
 
             if (!ModelState.IsValid)
@@ -215,7 +228,15 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            if(!ModelState.IsValid)
+            if (!await _UserMessageRoomRepository
+                .UserMessageRoomExistsForRoomAndUserAsync(messageDto.RoomId, user.Id)
+                && user.PermissionType != UserRole.Admin)
+            {
+                ModelState.AddModelError("", "User has not joined this room");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }

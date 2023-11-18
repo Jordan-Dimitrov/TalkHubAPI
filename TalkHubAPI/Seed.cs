@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TalkHubAPI.Data;
-using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;
@@ -36,14 +36,18 @@ namespace TalkHubAPI
                         PasswordHash = pass.PasswordHash,
                         PasswordSalt = pass.PasswordSalt,
                         RefreshToken = _AuthService.GenerateRefreshToken(),
-                        PermissionType = 1
+                        PermissionType = UserRole.Admin,
+                        Email = "tomaaa@gmail.com"
+                        
                     },
                     new User()
                     {
                         Username = "KristiQn Enchev",
                         PasswordHash = pass.PasswordHash,
                         PasswordSalt = pass.PasswordSalt,
-                        RefreshToken = _AuthService.GenerateRefreshToken()
+                        PermissionType = UserRole.User,
+                        RefreshToken = _AuthService.GenerateRefreshToken(),
+                        Email = "tomaaa@gmail.com"
                     }
                 };
 

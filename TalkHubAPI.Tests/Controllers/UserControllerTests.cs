@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using TalkHubAPI.Controllers;
 using TalkHubAPI.Dtos.UserDtos;
 using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
 
 namespace TalkHubAPI.Tests.Controller
@@ -23,12 +24,14 @@ namespace TalkHubAPI.Tests.Controller
         private readonly IMapper _Mapper;
         private readonly IAuthService _AuthService;
         private readonly IMemoryCache _MemoryCache;
+        private readonly IMailService _MailService;
         public UserControllerTests()
         {
             _UserRepository = A.Fake<IUserRepository>();
             _Mapper = A.Fake<IMapper>();
             _AuthService = A.Fake<IAuthService>();
-            _MemoryCache= A.Fake<MemoryCache>();
+            _MemoryCache= A.Fake<IMemoryCache>();
+            _MailService = A.Fake<IMailService>();
         }
 
         [Fact]
@@ -38,7 +41,7 @@ namespace TalkHubAPI.Tests.Controller
             List<UserDto> usersList = A.Fake<List<UserDto>>();
 
             A.CallTo(() => _Mapper.Map<List<UserDto>>(users)).Returns(usersList);
-            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache);
+            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache, _MailService);
 
             IActionResult result = await controller.GetUsers();
 
@@ -54,7 +57,7 @@ namespace TalkHubAPI.Tests.Controller
             User user = A.Fake<User>();
             A.CallTo(() => _UserRepository.UserExistsAsync(userId)).Returns(true);
             A.CallTo(() => _UserRepository.GetUserAsync(userId)).Returns(user);
-            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache);
+            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache, _MailService);
 
             IActionResult result = await controller.GetUser(userId);
 
@@ -65,7 +68,7 @@ namespace TalkHubAPI.Tests.Controller
         [Fact]
         public async Task UserController_Register_ReturnOk()
         {
-            CreateUserDto userDto = A.Fake<CreateUserDto>();
+            RegisterUserDto userDto = A.Fake<RegisterUserDto>();
             User user = A.Fake<User>();
             UserPassword pass = A.Fake<UserPassword>();
             pass.PasswordHash = Encoding.UTF8.GetBytes("fakeHash");
@@ -75,7 +78,7 @@ namespace TalkHubAPI.Tests.Controller
             A.CallTo(() => _Mapper.Map<User>(userDto)).Returns(user);
             A.CallTo(() => _AuthService.CreatePasswordHash("fakePass")).Returns(pass);
             A.CallTo(() => _UserRepository.CreateUserAsync(user)).Returns(true);
-            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache);
+            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache, _MailService);
 
             IActionResult result = await controller.Register(userDto);
 
@@ -87,12 +90,13 @@ namespace TalkHubAPI.Tests.Controller
         public async Task UserController_Login_ReturnOk()
         {
             HttpResponse httpResponseFake = A.Fake<HttpResponse>();
-            CreateUserDto userDto = A.Fake<CreateUserDto>();
+            LoginUserDto userDto = A.Fake<LoginUserDto>();
             userDto.Password = "fakeHash";
             User user = A.Fake<User>();
             UserPassword pass = A.Fake<UserPassword>();
             user.PasswordHash = Encoding.UTF8.GetBytes("fakeHash");
             user.PasswordSalt = Encoding.UTF8.GetBytes("fakeSalt");
+            user.PermissionType = UserRole.User;
 
             RefreshToken token = A.Fake<RefreshToken>();
             token.Token = "fakeToken";
@@ -107,7 +111,7 @@ namespace TalkHubAPI.Tests.Controller
             A.CallTo(() => _AuthService.GenerateRefreshToken()).Returns(token);
             A.CallTo(() => _UserRepository.UpdateRefreshTokenToUserAsync(user, token)).Returns(true);
             A.CallTo(() => _AuthService.SetRefreshToken(token));
-            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache);
+            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache, _MailService);
 
             IActionResult result = await controller.Login(userDto);
 
@@ -135,7 +139,7 @@ namespace TalkHubAPI.Tests.Controller
             A.CallTo(() => _AuthService.GetRoleFromJwtToken("fakeToken")).Returns("Admin");
             A.CallTo(() => _UserRepository.UsernameExistsAsync(user.Username)).Returns(true);
 
-            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache)
+            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache, _MailService)
             {
                 ControllerContext = controllerContext
             };
@@ -162,7 +166,7 @@ namespace TalkHubAPI.Tests.Controller
             A.CallTo(() => httpContext.Request).Returns(fakeRequest);
             A.CallTo(() => _AuthService.ClearTokens());
 
-            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache)
+            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache, _MailService)
             {
                 ControllerContext = controllerContext
             };
@@ -196,7 +200,7 @@ namespace TalkHubAPI.Tests.Controller
             A.CallTo(() => _AuthService.GenerateRefreshToken()).Returns(token);
             A.CallTo(() => _AuthService.GenerateJwtToken(user)).Returns("fakeJwtToken");
             A.CallTo(() => _UserRepository.UpdateRefreshTokenToUserAsync(user, token)).Returns(true);
-            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache)
+            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache, _MailService)
             {
                 ControllerContext = controllerContext
             };
