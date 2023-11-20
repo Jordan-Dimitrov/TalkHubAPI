@@ -27,6 +27,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         private readonly IVideoTagRepository _VideoTagRepository;
         private readonly IPlaylistRepository _PlaylistRepository;
         private readonly IBackgroundQueue _BackgroundQueue;
+        private readonly IUserSubscribtionRepository _UserSubscribtionRepository;
         public VideoController(IVideoRepository videoRepository,
             IMapper mapper,
             IAuthService authService,
@@ -35,7 +36,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             IVideoUserLikeRepository videoUserLikeRepository,
             IVideoTagRepository videoTagRepository,
             IPlaylistRepository playlistRepository,
-            IBackgroundQueue backgroundQueue)
+            IBackgroundQueue backgroundQueue,
+            IUserSubscribtionRepository userSubscribtionRepository)
         {
             _VideoRepository = videoRepository;
             _Mapper = mapper;
@@ -46,6 +48,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             _VideoTagRepository = videoTagRepository;
             _PlaylistRepository = playlistRepository;
             _BackgroundQueue = backgroundQueue;
+            _UserSubscribtionRepository = userSubscribtionRepository;
         }
 
         [HttpGet("{videoId}"), Authorize(Roles = "User,Admin")]
@@ -134,6 +137,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             videoToUpload.Mp4name = response1.WebmFileName;
             videoToUpload.LikeCount = 0;
             videoToUpload.User = user;
+            videoToUpload.DateCreated = DateTime.Now;
 
             if (!await _VideoRepository.AddVideoAsync(videoToUpload))
             {
@@ -173,6 +177,41 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             {
                 videoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(videos[i].UserId));
                 videoDtos[i].Tag = _Mapper.Map<VideoTagDto>(tag);
+            }
+
+            return Ok(videoDtos);
+        }
+
+        [HttpGet("subscribed/user"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<VideoDto>))]
+        [ProducesResponseType(typeof(void), 404)]
+        public async Task<IActionResult> GetVideosBySubscribtions()
+        {
+            string? jwtToken = Request.Cookies["jwtToken"];
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
+
+            if (user is null)
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            List<Video> videos = (await _VideoRepository.GetAllUserSubscribedChannelVideosAsync(user.Id))
+                .ToList();
+
+            List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(videos);
+
+            for (int i = 0; i < videos.Count; i++)
+            {
+                videoDtos[i].User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(videos[i].UserId));
+                videoDtos[i].Tag = _Mapper.Map<VideoTagDto>(await _VideoTagRepository.GetVideoTagAsync(videos[i].TagId));
             }
 
             return Ok(videoDtos);
@@ -226,7 +265,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            List<Video> videos = (await _VideoRepository.GetRecommendedVideosByUserId(user.Id)).ToList();
+            List<Video> videos = (await _VideoRepository.GetRecommendedVideosByUserIdAsync(user.Id)).ToList();
 
             List<VideoDto> videoDtos = _Mapper.Map<List<VideoDto>>(videos);
 
@@ -355,12 +394,180 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return NoContent();
         }
 
+        [HttpGet("user-subscribtion/{userId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Expire3")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(void), 404)]
+        public async Task<IActionResult> GetUserSubcsribtion(int userId)
+        {
+            string? jwtToken = Request.Cookies["jwtToken"];
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User? subscriber = await _UserRepository.GetUserByNameAsync(username);
+
+            if (subscriber is null)
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            User? channel = await _UserRepository.GetUserAsync(userId);
+
+            if (channel is null)
+            {
+                return BadRequest("This channel does not exist");
+            }
+
+            UserSubscribtionDto? userSubscribtion = _Mapper
+                .Map<UserSubscribtionDto>(await _UserSubscribtionRepository
+                .GetUserSubscribtionByChannelAndSubscriberAsync(channel.Id, subscriber.Id));
+
+            if (userSubscribtion is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(userSubscribtion);
+        }
+
+        [HttpPut("subscribe-user-channel/{userId}"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> SubscribeToUserChannel(int userId)
+        {
+            string? jwtToken = Request.Cookies["jwtToken"];
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User? subscriber = await _UserRepository.GetUserByNameAsync(username);
+
+            if (subscriber is null)
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            User? channel = await _UserRepository.GetUserAsync(userId);
+
+            if (channel is null)
+            {
+                return BadRequest("This channel does not exist");
+            }
+
+            if (await _UserSubscribtionRepository
+                .UserSubscribtionExistsForChannelAndSubscriberAsync(channel.Id, subscriber.Id))
+            {
+                return BadRequest("User is already subscribed");
+            }
+
+            channel.SubscriberCount += 1;
+            UserSubscribtion userSubscribtionToAdd = new UserSubscribtion();
+            userSubscribtionToAdd.UserSubscriber = subscriber;
+            userSubscribtionToAdd.UserChannel = channel;
+
+            if (!await _UserSubscribtionRepository.AddUserSubscribtionAsync(userSubscribtionToAdd)
+                ||!await _UserRepository.UpdateUserAsync(channel))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok("Successfully created");
+        }
+
+        [HttpPut("unsubscribe-user-channel/{userId}"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(201)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> UnsubscribeToUserChannel(int userId)
+        {
+            string? jwtToken = Request.Cookies["jwtToken"];
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User? subscriber = await _UserRepository.GetUserByNameAsync(username);
+
+            if (subscriber is null)
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            User? channel = await _UserRepository.GetUserAsync(userId);
+
+            if (channel is null)
+            {
+                return BadRequest("This channel does not exist");
+            }
+
+            UserSubscribtion? userSubscribtion = await _UserSubscribtionRepository
+                .GetUserSubscribtionByChannelAndSubscriberAsync(channel.Id, subscriber.Id);
+
+            if (userSubscribtion is null)
+            {
+                return NotFound();
+            }
+
+            channel.SubscriberCount -= 1;
+
+            if (!await _UserSubscribtionRepository.RemoveUserSubscribtionAsync(userSubscribtion)
+                || !await _UserRepository.UpdateUserAsync(channel))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+
+            return NoContent();
+        }
+
+        [HttpGet("user-like/{videoId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Expire3")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(void), 404)]
+        public async Task<IActionResult> GetVideoUserLike(int videoId)
+        {
+            string? jwtToken = Request.Cookies["jwtToken"];
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+
+            VideoUserLikeDto? videoUserLike = _Mapper.Map<VideoUserLikeDto>(await _VideoUserLikeRepository
+                .GetVideoUserLikeByVideoAndUserAsync(videoId, user.Id));
+
+            if(videoUserLike is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(videoUserLike);
+        }
+
         [HttpPut("upvote/{videoId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> UpvoteVideo([FromQuery] int upvoteValue, int videoId)
         {
-            if (upvoteValue != 1 && upvoteValue != -1)
+            if (upvoteValue != 1 && upvoteValue != -1 && upvoteValue != 0)
             {
                 return BadRequest(ModelState);
             }
@@ -406,17 +613,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return NoContent();
             }
 
-            if (upvoteValue == videoUserLike.Rating)
-            {
-                videoUserLike.Rating = 0;
-                video.LikeCount -= upvoteValue;
-            }
-            else
-            {
-                int temp = videoUserLike.Rating;
-                videoUserLike.Rating = upvoteValue;
-                video.LikeCount += upvoteValue - temp;
-            }
+            video.LikeCount += upvoteValue;
+            videoUserLike.Rating = upvoteValue;
 
             if (!await _VideoRepository.UpdateVideoAsync(video) 
                 || !await _VideoUserLikeRepository.UpdateVideoUserLikeAsync(videoUserLike))

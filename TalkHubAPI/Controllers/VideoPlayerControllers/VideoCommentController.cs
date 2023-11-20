@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using System.Data;
 using TalkHubAPI.Dtos.UserDtos;
@@ -11,6 +12,7 @@ using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.VideoPlayerModels;
+using TalkHubAPI.Repositories.VideoPlayerRepositories;
 
 namespace TalkHubAPI.Controllers.VideoPlayerControllers
 {
@@ -180,12 +182,44 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return NoContent();
         }
 
+        [HttpGet("video-comment-like/{videoCommendId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Expire3")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(void), 404)]
+        public async Task<IActionResult> GetVideoCommentLike(int videoCommendId)
+        {
+            string? jwtToken = Request.Cookies["jwtToken"];
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            VideoCommentsLike? videoComment = await _VideoCommentsLikeRepository
+                .GetVideoCommentsLikeByCommentAndUserAsync(videoCommendId, user.Id);
+
+            if (videoComment is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(videoComment);
+        }
+
         [HttpPut("upvote/{videoCommentId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> UpvoteVideoComment([FromQuery] int upvoteValue, int videoCommentId)
         {
-            if (upvoteValue != 1 && upvoteValue != -1)
+            if (upvoteValue != 1 && upvoteValue != -1 && upvoteValue != 0)
             {
                 return BadRequest(ModelState);
             }
@@ -232,17 +266,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return NoContent();
             }
 
-            if (upvoteValue == videoCommentsLike.Rating)
-            {
-                videoCommentsLike.Rating = 0;
-                comment.LikeCount -= upvoteValue;
-            }
-            else
-            {
-                int temp = videoCommentsLike.Rating;
-                videoCommentsLike.Rating = upvoteValue;
-                comment.LikeCount += upvoteValue - temp;
-            }
+            comment.LikeCount += upvoteValue;
+            videoCommentsLike.Rating = upvoteValue;
 
             if (!await _VideoCommentRepository.UpdateVideoCommentAsync(comment) ||
                 !await _VideoCommentsLikeRepository.UpdateVideoCommentsLikeAsync(videoCommentsLike))

@@ -28,6 +28,7 @@ namespace TalkHubAPI.Tests.Controller.VideoPlayerControllersTests
         private readonly IVideoTagRepository _VideoTagRepository;
         private readonly IPlaylistRepository _PlaylistRepository;
         private readonly IBackgroundQueue _BackgroundQueue;
+        private readonly IUserSubscribtionRepository _UserSubscribtionRepository;
         public VideoControllerTests()
         {
             _VideoRepository = A.Fake<IVideoRepository>();
@@ -39,6 +40,7 @@ namespace TalkHubAPI.Tests.Controller.VideoPlayerControllersTests
             _VideoTagRepository = A.Fake<IVideoTagRepository>();
             _PlaylistRepository = A.Fake<IPlaylistRepository>();
             _BackgroundQueue = A.Fake<IBackgroundQueue>();
+            _UserSubscribtionRepository = A.Fake<IUserSubscribtionRepository>();
         }
 
         [Fact]
@@ -54,7 +56,7 @@ namespace TalkHubAPI.Tests.Controller.VideoPlayerControllersTests
                 _Mapper, _AuthService,
                 _UserRepository, _FileProcessingService,
                 _VideoUserLikeRepository, _VideoTagRepository,
-                _PlaylistRepository, _BackgroundQueue);
+                _PlaylistRepository, _BackgroundQueue, _UserSubscribtionRepository);
 
             IActionResult result = await controller.GetVideo(videoId);
 

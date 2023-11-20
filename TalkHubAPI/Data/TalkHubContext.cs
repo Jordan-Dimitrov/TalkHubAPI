@@ -40,6 +40,8 @@ public partial class TalkHubContext : DbContext
 
     public virtual DbSet<UserMessageRoom> UserMessageRooms { get; set; }
 
+    public virtual DbSet<UserSubscribtion> UserSubscribtions { get; set; }
+
     public virtual DbSet<UserUpvote> UserUpvotes { get; set; }
 
     public virtual DbSet<Video> Videos { get; set; }
@@ -175,6 +177,7 @@ public partial class TalkHubContext : DbContext
 
             entity.HasIndex(e => e.RefreshTokenId, "IX_Users_RefreshTokenId");
 
+            entity.Property(e => e.Email).HasDefaultValue("");
             entity.Property(e => e.ResetTokenExpires).HasColumnType("datetime");
             entity.Property(e => e.Username).HasMaxLength(30);
             entity.Property(e => e.VerifiedAt).HasColumnType("datetime");
@@ -200,6 +203,19 @@ public partial class TalkHubContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__UserMessa__UserI__4C6B5938");
+        });
+
+        modelBuilder.Entity<UserSubscribtion>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__UserSubs__3214EC07DD7515EE");
+
+            entity.HasOne(d => d.UserChannel).WithMany(p => p.UserSubscribtionUserChannels)
+                .HasForeignKey(d => d.UserChannelId)
+                .HasConstraintName("FK__UserSubsc__UserC__2739D489");
+
+            entity.HasOne(d => d.UserSubscriber).WithMany(p => p.UserSubscribtionUserSubscribers)
+                .HasForeignKey(d => d.UserSubscriberId)
+                .HasConstraintName("FK__UserSubsc__UserS__282DF8C2");
         });
 
         modelBuilder.Entity<UserUpvote>(entity =>

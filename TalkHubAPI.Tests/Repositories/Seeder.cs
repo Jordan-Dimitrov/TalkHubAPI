@@ -51,7 +51,8 @@ namespace TalkHubAPI.Tests.Repositories
                         PasswordSalt = userPassword.PasswordSalt,
                         PermissionType = UserRole.Admin,
                         Email = "tomaaa@gmail.com",
-                        RefreshToken = token
+                        RefreshToken = token,
+                        SubscriberCount = 0
                     },
                     new User()
                     {
@@ -60,7 +61,8 @@ namespace TalkHubAPI.Tests.Repositories
                         PasswordSalt = userPassword.PasswordSalt,
                         PermissionType = UserRole.User,
                         Email = "tomaaa@gmail.com",
-                        RefreshToken = token
+                        RefreshToken = token,
+                        SubscriberCount = 0
                     }
                 };
 

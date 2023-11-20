@@ -38,6 +38,8 @@ namespace TalkHubAPI.Helper
             CreateMap<CreateForumMessageDto, ForumMessage>();
             CreateMap<ForumMessage,ForumMessageDto>();
             CreateMap<ForumMessageDto, ForumMessage>();
+            CreateMap<UserUpvote, UserUpvoteDto>();
+            CreateMap<UserUpvoteDto, UserUpvote>();
 
             CreateMap<MessageRoom, MessageRoomDto>();
             CreateMap<MessageRoomDto, MessageRoom>();
@@ -67,6 +69,13 @@ namespace TalkHubAPI.Helper
 
             CreateMap<VideoPlaylist, VideoPlaylistDto>();
             CreateMap<VideoPlaylistDto, VideoPlaylist>();
+
+            CreateMap<UserSubscribtion, UserSubscribtionDto>();
+            CreateMap<UserSubscribtionDto, UserSubscribtion>();
+            CreateMap<VideoUserLike, VideoUserLikeDto>();
+            CreateMap<VideoUserLikeDto, VideoUserLike>();
+            CreateMap<VideoCommentsLike, VideoCommentsLikeDto>();
+            CreateMap<VideoCommentsLikeDto, VideoCommentsLike>();
         }
     }
 }

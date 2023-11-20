@@ -41,6 +41,9 @@ public partial class User
     public string? PasswordResetToken { get; set; }
 
     public DateTime? ResetTokenExpires { get; set; }
+    [Required]
+    [Range(0, int.MaxValue, ErrorMessage = "Value should be greater than or equal to 1")]
+    public int SubscriberCount { get; set; }
 
     public virtual ICollection<ForumMessage> ForumMessages { get; set; } = new List<ForumMessage>();
 
@@ -55,6 +58,9 @@ public partial class User
     public virtual ICollection<UserMessageRoom> UserMessageRooms { get; set; } = new List<UserMessageRoom>();
 
     public virtual ICollection<UserUpvote> UserUpvotes { get; set; } = new List<UserUpvote>();
+    public virtual ICollection<UserSubscribtion> UserSubscribtionUserChannels { get; set; } = new List<UserSubscribtion>();
+
+    public virtual ICollection<UserSubscribtion> UserSubscribtionUserSubscribers { get; set; } = new List<UserSubscribtion>();
 
     public virtual ICollection<VideoComment> VideoComments { get; set; } = new List<VideoComment>();
 

@@ -37,7 +37,8 @@ namespace TalkHubAPI
                         PasswordSalt = pass.PasswordSalt,
                         RefreshToken = _AuthService.GenerateRefreshToken(),
                         PermissionType = UserRole.Admin,
-                        Email = "tomaaa@gmail.com"
+                        Email = "tomaaa@gmail.com",
+                        SubscriberCount = 0
                         
                     },
                     new User()
@@ -47,7 +48,9 @@ namespace TalkHubAPI
                         PasswordSalt = pass.PasswordSalt,
                         PermissionType = UserRole.User,
                         RefreshToken = _AuthService.GenerateRefreshToken(),
-                        Email = "tomaaa@gmail.com"
+                        Email = "tomaaa@gmail.com",
+                        SubscriberCount = 0
+
                     }
                 };
 
@@ -224,6 +227,7 @@ namespace TalkHubAPI
                         ThumbnailName = "hidden.png",
                         VideoDescription = "The full story",
                         LikeCount = 0,
+                        DateCreated = DateTime.Now,
                         UserId = _Context.Users.First().Id,
                         TagId = _Context.VideoTags.First().Id
                     },
@@ -234,6 +238,7 @@ namespace TalkHubAPI
                         ThumbnailName = "hidden.png",
                         VideoDescription = "The full story",
                         LikeCount = 0,
+                        DateCreated = DateTime.Now,
                         UserId = _Context.Users.First().Id + 1,
                         TagId = _Context.VideoTags.First().Id
                     }

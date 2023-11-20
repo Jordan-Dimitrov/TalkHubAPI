@@ -16,6 +16,7 @@ namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
         Task<ICollection<Video>> GetVideosByTagIdAsync(int tagId);
         Task<ICollection<Video>> GetVideosByUserIdAsync(int userId);
         Task<ICollection<Video>> GetVideosByPlaylistIdAsync(int playlistId);
-        Task<ICollection<Video>> GetRecommendedVideosByUserId(int userId);
+        Task<ICollection<Video>> GetRecommendedVideosByUserIdAsync(int userId);
+        Task<ICollection<Video>> GetAllUserSubscribedChannelVideosAsync(int userId);
     }
 }

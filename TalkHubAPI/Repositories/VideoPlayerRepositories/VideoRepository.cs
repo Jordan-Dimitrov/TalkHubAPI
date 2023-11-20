@@ -21,11 +21,19 @@ namespace TalkHubAPI.Repositories.VideoPlayerRepositories
             return await SaveAsync();
         }
 
-        public async Task<ICollection<Video>> GetRecommendedVideosByUserId(int userId)
+        public async Task<ICollection<Video>> GetAllUserSubscribedChannelVideosAsync(int userId)
+        {
+            return await _Context.Videos
+                .Where(x => x.User.UserSubscribtionUserChannels.Any(a => a.UserSubscriberId == userId))
+                .Include(x => x.User)
+                .Include(x => x.Tag)
+                .ToListAsync();
+        }
+
+        public async Task<ICollection<Video>> GetRecommendedVideosByUserIdAsync(int userId)
         {
             List<VideoUserLike> videoUserLikes = await _Context.VideoUserLikes
-                .Where(x => x.UserId == userId)
-                .Where(x => x.Rating == 1)
+                .Where(x => x.UserId == userId && x.Rating == 1)
                 .Include(v => v.Video)
                 .ThenInclude(t => t.Tag)
                 .ToListAsync();
@@ -56,7 +64,11 @@ namespace TalkHubAPI.Repositories.VideoPlayerRepositories
                 List<Video> topVideosByCategory = _Context.Videos
                     .Where(x => x.Tag.Equals(item.Key))
                     .OrderByDescending(x => x.LikeCount)
-                    .Take(item.Value)
+                    .ToList();
+
+                topVideosByCategory = topVideosByCategory
+                    .OrderByDescending(v => _Context.UserSubscribtions
+                    .Any(s => s.UserSubscriberId == userId && s.UserChannelId == v.UserId))
                     .ToList();
 
                 videos.AddRange(topVideosByCategory);

@@ -136,6 +136,7 @@ namespace TalkHubAPI.Controllers
             user.PasswordSalt = pass.PasswordSalt;
             user.PermissionType = UserRole.Visitor;
             user.VerificationToken = _AuthService.CreateRandomToken();
+            user.SubscriberCount = 0;
 
             MailData mailData = new MailData();
             mailData.EmailToId = request.Email;

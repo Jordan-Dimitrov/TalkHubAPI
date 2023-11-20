@@ -261,12 +261,44 @@ namespace TalkHubAPI.Controllers.ForumControllers
             return NoContent();
         }
 
+        [HttpGet("forum-message-upvote/{messageId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Expire3")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(void), 404)]
+        public async Task<IActionResult> GetUserUpvote(int messageId)
+        {
+            string? jwtToken = Request.Cookies["jwtToken"];
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            UserUpvoteDto? userUpvote = _Mapper.Map<UserUpvoteDto>(await _UserUpvoteRepository
+                .GetUserUpvoteByMessageAndUserAsync(messageId, user.Id));
+
+            if (userUpvote is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(userUpvote);
+        }
+
         [HttpPut("upvote/{forumMessageId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> UpvoteMessage([FromQuery] int upvoteValue, int forumMessageId)
         {
-            if (upvoteValue != 1 && upvoteValue != -1)
+            if (upvoteValue != 1 && upvoteValue != -1 && upvoteValue != 0)
             {
                 return BadRequest(ModelState);
             }
@@ -313,17 +345,8 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return NoContent();
             }
 
-            if (upvoteValue == upvote.Rating)
-            {
-                upvote.Rating = 0;
-                message.UpvoteCount -= upvoteValue;
-            }
-            else
-            {
-                int temp = upvote.Rating;
-                upvote.Rating = upvoteValue;
-                message.UpvoteCount += upvoteValue - temp;
-            }
+            message.UpvoteCount += upvoteValue;
+            upvote.Rating = upvoteValue;
 
             if (!await _UserUpvoteRepository.UpdateUserUpvoteAsync(upvote) 
                 || !await _ForumMessageRepository.UpdateForumMessageAsync(message))

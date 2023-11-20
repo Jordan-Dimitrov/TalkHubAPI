@@ -88,6 +88,7 @@ namespace TalkHubAPI
             builder.Services.AddScoped<IVideoUserLikeRepository, VideoUserLikeRepository>();
             builder.Services.AddHostedService<QueueService>();
             builder.Services.AddSingleton<IBackgroundQueue, BackgroundQueue>();
+            builder.Services.AddScoped<IUserSubscribtionRepository, UserSubscribtionRepository>();
 
             builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
             builder.Services.Configure<JwtTokenSettings>(builder.Configuration.GetSection("JwtTokenSettings"));
@@ -159,6 +160,16 @@ namespace TalkHubAPI
                 options.UseSqlServer(builder.Configuration.GetConnectionString("SDR"));
             });
 
+            builder.WebHost.ConfigureKestrel(serverOptions =>
+            {
+                serverOptions.Limits.MaxRequestBodySize = int.MaxValue;
+            });
+
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = int.MaxValue;
+            });
+
             FFMpegConfig? ffmpegConfig = builder.Configuration
                 .GetSection("FFMpegConfig")
                 .Get<FFMpegConfig>();
@@ -186,7 +197,6 @@ namespace TalkHubAPI
                     service.SeedTalkHubContext();
                 }
             }
-
 
             if (app.Environment.IsDevelopment())
             {

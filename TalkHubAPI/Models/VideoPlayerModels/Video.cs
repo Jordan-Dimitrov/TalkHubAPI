@@ -21,7 +21,8 @@ public partial class Video
     [Required]
     [StringLength(255, MinimumLength = 3, ErrorMessage = "Video description must be between 3 and 255 characters")]
     public string VideoDescription { get; set; } = null!;
-
+    [Required]
+    public DateTime DateCreated { get; set; }
     [Required]
     public int LikeCount { get; set; }
 

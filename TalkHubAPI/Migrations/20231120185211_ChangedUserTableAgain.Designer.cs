@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TalkHubAPI.Data;
 
@@ -11,9 +12,11 @@ using TalkHubAPI.Data;
 namespace TalkHubAPI.Migrations
 {
     [DbContext(typeof(TalkHubContext))]
-    partial class TalkHubContextModelSnapshot : ModelSnapshot
+    [Migration("20231120185211_ChangedUserTableAgain")]
+    partial class ChangedUserTableAgain
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -282,9 +285,7 @@ namespace TalkHubAPI.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(max)")
-                        .HasDefaultValue("");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("PasswordHash")
                         .IsRequired()
@@ -360,20 +361,20 @@ namespace TalkHubAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("UserChannelId")
+                    b.Property<int>("UserChannelId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UserSubscriberId")
+                    b.Property<int>("UserSubscriberId")
                         .HasColumnType("int");
 
                     b.HasKey("Id")
-                        .HasName("PK__UserSubs__3214EC07DD7515EE");
+                        .HasName("PK__UserSubs__3214EC074F58E239");
 
                     b.HasIndex("UserChannelId");
 
                     b.HasIndex("UserSubscriberId");
 
-                    b.ToTable("UserSubscribtions");
+                    b.ToTable("UserSubscribtion", (string)null);
                 });
 
             modelBuilder.Entity("TalkHubAPI.Models.VideoPlayerModels.Video", b =>
@@ -695,12 +696,16 @@ namespace TalkHubAPI.Migrations
                     b.HasOne("TalkHubAPI.Models.User", "UserChannel")
                         .WithMany("UserSubscribtionUserChannels")
                         .HasForeignKey("UserChannelId")
-                        .HasConstraintName("FK__UserSubsc__UserC__2739D489");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK__UserSubsc__UserC__17036CC0");
 
                     b.HasOne("TalkHubAPI.Models.User", "UserSubscriber")
                         .WithMany("UserSubscribtionUserSubscribers")
                         .HasForeignKey("UserSubscriberId")
-                        .HasConstraintName("FK__UserSubsc__UserS__282DF8C2");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK__UserSubsc__UserS__160F4887");
 
                     b.Navigation("UserChannel");
 
@@ -719,8 +724,8 @@ namespace TalkHubAPI.Migrations
                     b.HasOne("TalkHubAPI.Models.User", "User")
                         .WithMany("Videos")
                         .HasForeignKey("UserId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Videos__UserId__32AB8735");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Tag");
 

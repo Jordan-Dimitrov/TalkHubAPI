@@ -51,7 +51,7 @@ namespace TalkHubAPI.Tests.Controller.VideoPlayerControllersTests
             PlaylistController controller = new PlaylistController(_PlaylistRepository,
                 _Mapper, _AuthService,
                 _UserRepository,_VideoPlaylistRepository,
-                _VideoRepository, _MemoryCache);
+                _VideoRepository);
 
             IActionResult result = await controller.GetPlaylist(playlistId);
 
