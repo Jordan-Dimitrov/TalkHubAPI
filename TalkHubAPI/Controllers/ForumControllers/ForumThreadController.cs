@@ -43,6 +43,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
         }
 
         [HttpGet("{threadId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(ForumThreadDto))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetThread(int threadId)

@@ -157,6 +157,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
         }
 
         [HttpGet("thread/{threadId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Expire3")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ForumMessageDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllMessagesByForumThread(int threadId)
@@ -205,6 +206,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
         }
 
         [HttpGet("{forumMessageId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Expire3")]
         [ProducesResponseType(200, Type = typeof(ForumMessageDto))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetForumMessage(int forumMessageId)

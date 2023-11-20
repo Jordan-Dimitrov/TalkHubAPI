@@ -61,6 +61,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         }
 
         [HttpGet("user-rooms"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Expire3")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<MessageRoomDto>))]
         public async Task<IActionResult> GetUserRooms()
         {
@@ -87,6 +88,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         }
 
         [HttpGet("{roomId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Expire3")]
         [ProducesResponseType(200, Type = typeof(MessageRoomDto))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetRoom(int roomId)

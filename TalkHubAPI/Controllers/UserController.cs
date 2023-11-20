@@ -58,6 +58,7 @@ namespace TalkHubAPI.Controllers
         }
 
         [HttpGet("{userId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(UserDto))]
         [ProducesResponseType(404)]
         public async Task<IActionResult> GetUser(int userId)
@@ -157,6 +158,7 @@ namespace TalkHubAPI.Controllers
         [HttpGet("role"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
+        [ResponseCache(CacheProfileName = "Default")]
         public async Task<IActionResult> GetUserRole()
         {
             string? jwtToken = Request.Cookies["jwtToken"];

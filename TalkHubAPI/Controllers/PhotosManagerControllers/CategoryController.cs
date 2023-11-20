@@ -34,13 +34,14 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             if (categories is null)
             {
                 categories = _Mapper.Map<List<PhotoCategoryDto>>(await _PhotoCategoryRepository.GetCategoriesAsync());
-                _MemoryCache.Set(_CategoriesCacheKey, categories, TimeSpan.FromMinutes(1));
+                _MemoryCache.Set(_CategoriesCacheKey, categories, TimeSpan.FromMinutes(30));
             }
 
             return Ok(categories);
         }
 
         [HttpGet("{categoryId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(PhotoCategoryDto))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetCategory(int categoryId)

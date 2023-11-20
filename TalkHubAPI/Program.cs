@@ -28,6 +28,7 @@ using TalkHubAPI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using TalkHubAPI.Models.ConfigurationModels;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Mvc;
 
 namespace TalkHubAPI
 {
@@ -37,7 +38,30 @@ namespace TalkHubAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddControllers();
+            builder.Services.AddResponseCaching(options =>
+            {
+                options.MaximumBodySize = 1024;
+                options.UseCaseSensitivePaths = true;
+            });
+
+            builder.Services.AddControllers(options =>
+            {
+                options.CacheProfiles.Add("Default",
+                    new CacheProfile()
+                    {
+                        Duration = 10
+                    });
+            });
+
+            builder.Services.AddControllers(options =>
+            {
+                options.CacheProfiles.Add("Expire3",
+                    new CacheProfile()
+                    {
+                        Duration = 3
+                    });
+            });
+
             builder.Services.AddTransient<Seed>();
             builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
@@ -181,6 +205,8 @@ namespace TalkHubAPI
             app.UseAuthorization();
 
             app.UseMiddleware<ErrorHandlingMiddleware>();
+
+            app.UseResponseCaching();
 
             app.MapControllers();
 

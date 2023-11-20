@@ -49,6 +49,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         }
 
         [HttpGet("{videoId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(VideoDto))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetVideo(int videoId)
@@ -68,7 +69,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         }
 
         [HttpPost, Authorize(Roles = "User,Admin")]
-        [RequestSizeLimit(2_147_483_648)]
         [ProducesResponseType(201, Type = typeof(VideoUploadResponse))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateVideo(IFormFile video, IFormFile thumbnail, [FromForm] CreateVideoDto videoDto)
@@ -145,6 +145,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         }
 
         [HttpGet("taskId/{taskId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Expire3")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(void), 404)]
         public IActionResult GetConversionStatus(Guid taskId)
@@ -153,6 +154,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         }
 
         [HttpGet("tag/{tagId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<VideoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllVideosByTag(int tagId)
@@ -177,6 +179,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         }
 
         [HttpGet("user/{userId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<VideoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllVideosByUser(int userId)
@@ -203,6 +206,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         }
 
         [HttpGet("recommend/user"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<VideoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetRecommendedVideosByUser()
@@ -236,6 +240,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         }
 
         [HttpGet("playlist/{playlistId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<VideoDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllVideosByPlaylistId(int playlistId)

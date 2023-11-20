@@ -37,13 +37,14 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             {
                 tags = _Mapper.Map<List<VideoTagDto>>(await _VideoTagRepository.GetVideoTagsAsync());
 
-                _MemoryCache.Set(_VideoTagsCacheKey, tags, TimeSpan.FromMinutes(1));
+                _MemoryCache.Set(_VideoTagsCacheKey, tags, TimeSpan.FromMinutes(30));
             }
 
             return Ok(tags);
         }
 
         [HttpGet("{tagId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(VideoTagDto))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetTag(int tagId)
@@ -58,7 +59,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return Ok(tag);
         }
 
-        [HttpPost, Authorize(Roles = "User,Admin")]
+        [HttpPost, Authorize(Roles = "Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateTag([FromBody] VideoTagDto tagCreate)

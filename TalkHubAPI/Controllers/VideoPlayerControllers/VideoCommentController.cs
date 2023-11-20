@@ -95,6 +95,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         }
 
         [HttpGet("{videoCommentId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(VideoCommentDto))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetVideoComment(int videoCommentId)
@@ -123,6 +124,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         }
 
         [HttpGet("video/{videoId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<VideoCommentDto>))]
         [ProducesResponseType(typeof(void), 404)]
         public async Task<IActionResult> GetAllCommentsByVideo(int videoId)

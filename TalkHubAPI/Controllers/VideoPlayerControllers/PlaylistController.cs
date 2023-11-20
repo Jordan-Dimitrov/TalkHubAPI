@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using TalkHubAPI.Dtos.VideoPlayerDtos;
@@ -21,8 +22,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         private readonly IMapper _Mapper;
         private readonly IAuthService _AuthService;
         private readonly IUserRepository _UserRepository;
-        private readonly string _PlaylistsCacheKey;
-        private readonly IMemoryCache _MemoryCache;
         private readonly IVideoPlaylistRepository _VideoPlaylistRepository;
         private readonly IVideoRepository _VideoRepository;
         public PlaylistController(IPlaylistRepository playlistRepository,
@@ -30,8 +29,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             IAuthService authService,
             IUserRepository userRepository,
             IVideoPlaylistRepository videoPlaylistRepository,
-            IVideoRepository videoRepository,
-            IMemoryCache memoryCache)
+            IVideoRepository videoRepository)
         {
             _PlaylistRepository = playlistRepository;
             _Mapper = mapper;
@@ -39,27 +37,21 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             _UserRepository = userRepository;
             _VideoPlaylistRepository = videoPlaylistRepository;
             _VideoRepository = videoRepository;
-            _MemoryCache = memoryCache;
-            _PlaylistsCacheKey = "playlists";
         }
 
         [HttpGet, Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PlaylistDto>))]
         public async Task<IActionResult> GetPlaylists()
         {
-            ICollection<PlaylistDto>? playlists = _MemoryCache.Get<List<PlaylistDto>>(_PlaylistsCacheKey);
-
-            if (playlists is null)
-            {
-                playlists = _Mapper.Map<List<PlaylistDto>>(await _PlaylistRepository.GetPlaylistsAsync());
-
-                _MemoryCache.Set(_PlaylistsCacheKey, playlists, TimeSpan.FromMinutes(1));
-            }
+            ICollection<PlaylistDto>? playlists = _Mapper.Map<List<PlaylistDto>>(await _PlaylistRepository
+                .GetPlaylistsAsync());
 
             return Ok(playlists);
         }
 
         [HttpGet("playlists/user/{userId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<PlaylistDto>))]
         public async Task<IActionResult> GetPlaylistsByUser(int userId)
         {
@@ -80,6 +72,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         }
 
         [HttpGet("{playlistId}"), Authorize(Roles = "User,Admin")]
+        [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(PlaylistDto))]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetPlaylist(int playlistId)
@@ -140,8 +133,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return StatusCode(500, ModelState);
             }
 
-            _MemoryCache.Remove(_PlaylistsCacheKey);
-
             return Ok("Successfully created");
         }
 
@@ -194,8 +185,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 ModelState.AddModelError("", "Something went wrong updating the playlist");
                 return StatusCode(500, ModelState);
             }
-
-            _MemoryCache.Remove(_PlaylistsCacheKey);
 
             return NoContent();
         }
@@ -260,8 +249,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return StatusCode(500, ModelState);
             }
 
-            _MemoryCache.Remove(_PlaylistsCacheKey);
-
             return Ok("Successfully created");
         }
 
@@ -324,8 +311,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return StatusCode(500, ModelState);
             }
 
-            _MemoryCache.Remove(_PlaylistsCacheKey);
-
             return NoContent();
         }
 
@@ -372,8 +357,6 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             {
                 ModelState.AddModelError("", "Something went wrong deleting the playlist");
             }
-
-            _MemoryCache.Remove(_PlaylistsCacheKey);
 
             return NoContent();
         }
