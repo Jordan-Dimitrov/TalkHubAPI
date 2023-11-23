@@ -123,5 +123,13 @@ namespace TalkHubAPI.Repositories
             return await _Context.Users.Where(x => x.PasswordResetToken == passwordResetToken)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<ICollection<User>> GetUserChannelSubscribtions(int userId)
+        {
+            return await _Context.Users
+                .Where(x => x.UserSubscribtionUserSubscribers
+                .Any(x => x.UserSubscriberId == userId))
+                .ToListAsync();
+        }
     }
 }

@@ -182,7 +182,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return Ok(videoDtos);
         }
 
-        [HttpGet("subscribed/user"), Authorize(Roles = "User,Admin")]
+        [HttpGet("subscribtions"), Authorize(Roles = "User,Admin")]
         [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<VideoDto>))]
         [ProducesResponseType(typeof(void), 404)]
@@ -196,7 +196,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
+            User? user = await _UserRepository.GetUserByNameAsync(username);
 
             if (user is null)
             {
@@ -244,7 +244,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return Ok(videoDtos);
         }
 
-        [HttpGet("recommend/user"), Authorize(Roles = "User,Admin")]
+        [HttpGet("recommended"), Authorize(Roles = "User,Admin")]
         [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<VideoDto>))]
         [ProducesResponseType(typeof(void), 404)]
@@ -258,7 +258,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest(ModelState);
             }
 
-            User user = _Mapper.Map<User>(await _UserRepository.GetUserByNameAsync(username));
+            User? user = await _UserRepository.GetUserByNameAsync(username);
 
             if (user is null)
             {

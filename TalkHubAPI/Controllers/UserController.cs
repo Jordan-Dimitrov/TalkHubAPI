@@ -57,6 +57,31 @@ namespace TalkHubAPI.Controllers
             return Ok(users);
         }
 
+        [HttpGet("subscribtions"), Authorize(Roles = "User,Admin")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<UserDto>))]
+        public async Task<IActionResult> GetUserSubscribtions()
+        {
+            string? jwtToken = Request.Cookies["jwtToken"];
+            string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
+
+            if (username is null)
+            {
+                return BadRequest(ModelState);
+            }
+
+            User? user = await _UserRepository.GetUserByNameAsync(username);
+
+            if (user is null)
+            {
+                return BadRequest("User with such name does not exist!");
+            }
+
+            ICollection<UserDto>? users = _Mapper.Map<List<UserDto>>(await _UserRepository
+                .GetUserChannelSubscribtions(user.Id));
+
+            return Ok(users);
+        }
+
         [HttpGet("{userId}"), Authorize(Roles = "User,Admin")]
         [ResponseCache(CacheProfileName = "Default")]
         [ProducesResponseType(200, Type = typeof(UserDto))]

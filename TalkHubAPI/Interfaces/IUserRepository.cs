@@ -20,5 +20,6 @@ namespace TalkHubAPI.Interfaces
         Task<User?> GetUserByPasswordResetTokenAsync(string passwordResetToken);
         Task<User?> GetUserByEmailAsync(string email);
         Task<bool> RefreshTokenExistsForUserAsync(string refreshToken);
+        Task<ICollection<User>> GetUserChannelSubscribtions(int userId);
     }
 }
