@@ -13,8 +13,37 @@ Before you begin, ensure you have the following installed:
 3. [FFmpeg](https://www.ffmpeg.org/download.html)
 
 ### Installation
-1. Configure `appsettings.json` according to your preferences
-2. Navigate to the project directory:
+1. Go to `appsettings.json`
+   - Change your Token to a 64 character string
+     ```bash
+     "JwtTokenSettings": {
+     "Token": "token-here"
+     }
+   - Add your path to the FFMpeg directories and change the conversion threads
+     ```bash
+     "FFMpegConfig": {
+     "FFMpegBinaryDirectory": "path",
+     "TemporaryFilesDirectory": "path",
+     "VideoConversionThreads": 10,
+     "PhotoConversionThreads": 8
+     }
+   - Change your SQL Connection string
+     ```bash
+     "ConnectionStrings": {
+     "SDR": "connection-string"
+     }
+    - Setup your mail server and configure the MailSettings
+        ```bash
+       "MailSettings": {
+      "Server": "server",
+      "Port": 2525,
+      "SenderName": "TalkHub",
+      "SenderEmail": "email",
+      "UserName": "username",
+      "Password": "password"
+       }
+     
+3. Navigate to the project directory:
 ```bash
 cd TalkHubAPI
 ```
