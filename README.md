@@ -22,15 +22,15 @@ Before you begin, ensure you have the following installed:
    - Add your path to the FFMpeg directories and change the conversion threads
      ```bash
      "FFMpegConfig": {
-     "FFMpegBinaryDirectory": "path",
-     "TemporaryFilesDirectory": "path",
+     "FFMpegBinaryDirectory": "path-here",
+     "TemporaryFilesDirectory": "path-here",
      "VideoConversionThreads": 10,
      "PhotoConversionThreads": 8
      }
    - Change your SQL Connection string
      ```bash
      "ConnectionStrings": {
-     "SDR": "connection-string"
+     "SDR": "connection-string-here"
      }
     - Setup your mail server and configure the MailSettings
         ```bash
