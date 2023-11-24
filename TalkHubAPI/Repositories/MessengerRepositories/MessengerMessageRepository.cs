@@ -23,7 +23,8 @@ namespace TalkHubAPI.Repositories.MessengerRepositories
 
         public async Task<MessengerMessage?> GetMessengerMessageAsync(int id)
         {
-            return await _Context.MessengerMessages.FindAsync(id);
+            return await _Context.MessengerMessages.Include(x => x.User)
+                .Include(x => x.Room).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<ICollection<MessengerMessage>> GetMessengerMessagesAsync()
@@ -34,7 +35,7 @@ namespace TalkHubAPI.Repositories.MessengerRepositories
         public async Task<ICollection<MessengerMessage>> GetLastTenMessengerMessagesFromLastMessageIdAsync(int messageId, int roomId)
         {
             return await _Context.MessengerMessages
-                .Where(x => x.Id < messageId && x.RoomId == roomId)
+                .Where(x => x.Id <= messageId && x.RoomId == roomId)
                 .OrderBy(x => x.Id)
                 .Take(_MessagesToRetrieve)
                 .ToListAsync();
@@ -74,6 +75,8 @@ namespace TalkHubAPI.Repositories.MessengerRepositories
         public async Task<MessengerMessage?> GetLastMessageAsync()
         {
             return await _Context.MessengerMessages
+                .Include(x => x.User)
+                .Include(x => x.Room)
                 .OrderByDescending(x => x.Id)
                 .FirstOrDefaultAsync();
         }

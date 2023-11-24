@@ -80,12 +80,14 @@ namespace TalkHubAPI.Repositories.VideoPlayerRepositories
 
         public async Task<Video?> GetVideoAsync(int id)
         {
-            return await _Context.Videos.FindAsync(id);
+            return await _Context.Videos.Include(x => x.User).Include(x => x.Tag)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Video?> GetVideoByNameAsync(string name)
         {
-            return await _Context.Videos.FirstOrDefaultAsync(x => x.VideoName == name);
+            return await _Context.Videos.Include(x => x.User).Include(x => x.Tag)
+                .FirstOrDefaultAsync(x => x.VideoName == name);
         }
 
         public async Task<ICollection<Video>> GetVideosAsync()

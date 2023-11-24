@@ -11,7 +11,7 @@ namespace TalkHubAPI.Dtos.UserDtos
         [EmailAddress]
         public string Email { get; set; } = null!;
         [Required]
-        [RegularExpression(@"^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$%^&+=]).{8,}$")]
+        //[RegularExpression(@"^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[@#$%^&+=]).{8,}$")]
         public string Password { get; set; } = string.Empty;
 
     }

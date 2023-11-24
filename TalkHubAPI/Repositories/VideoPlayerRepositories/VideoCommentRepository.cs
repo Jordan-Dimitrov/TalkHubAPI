@@ -23,12 +23,14 @@ namespace TalkHubAPI.Repositories.VideoPlayerRepositories
 
         public async Task<VideoComment?> GetVideoCommentAsync(int id)
         {
-            return await _Context.VideoComments.FindAsync(id);
+            return await _Context.VideoComments.Include(x => x.User).Include(x => x.Video)
+                .Include(x => x.Reply).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<VideoComment?> GetVideoCommentByNameAsync(string name)
         {
-            return await _Context.VideoComments.FirstOrDefaultAsync(x => x.MessageContent == name);
+            return await _Context.VideoComments.Include(x => x.User).Include(x => x.Video)
+                .Include(x => x.Reply).FirstOrDefaultAsync(x => x.MessageContent == name);
         }
 
         public async Task<ICollection<VideoComment>> GetVideoCommentsAsync()

@@ -32,7 +32,9 @@ namespace TalkHubAPI.Repositories.ForumRepositories
 
         public async Task<ForumMessage?> GetForumMessageAsync(int id)
         {
-            return await _Context.ForumMessages.FindAsync(id);
+            return await _Context.ForumMessages.Include(x => x.User)
+                .Include(x => x.ForumThread).Include(x => x.Reply)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<ForumMessage?> GetForumMessageByNameAsync(string name)

@@ -31,7 +31,7 @@ namespace TalkHubAPI.Repositories
 
         public async Task<User?> GetUserAsync(int id)
         {
-            return await _Context.Users.FindAsync(id);
+            return await _Context.Users.FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<ICollection<User>> GetUsersAsync()

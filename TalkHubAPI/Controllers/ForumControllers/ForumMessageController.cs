@@ -11,6 +11,7 @@ using TalkHubAPI.Interfaces.ForumInterfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
+using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Controllers.ForumControllers
 {
@@ -74,6 +75,16 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest("This thread does not exist");
             }
 
+            if(messageDto.ReplyId is not null)
+            {
+                ForumMessage? parent = await _ForumMessageRepository.GetForumMessageAsync(messageDto.ReplyId ?? -1);
+
+                if (parent is null || parent.ForumThreadId != messageDto.ForumThreadId)
+                {
+                    return BadRequest("Invalid reply");
+                }
+            }
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -125,6 +136,16 @@ namespace TalkHubAPI.Controllers.ForumControllers
             if (thread is null)
             {
                 return BadRequest("This thread does not exist");
+            }
+
+            if (messageDto.ReplyId is not null)
+            {
+                ForumMessage? parent = await _ForumMessageRepository.GetForumMessageAsync(messageDto.ReplyId ?? -1);
+
+                if (parent is null || parent.ForumThreadId != messageDto.ForumThreadId)
+                {
+                    return BadRequest("Invalid reply");
+                }
             }
 
             if (!ModelState.IsValid)
@@ -220,9 +241,10 @@ namespace TalkHubAPI.Controllers.ForumControllers
 
             ForumMessageDto messageDto = _Mapper.Map<ForumMessageDto>(message);
 
-            messageDto.User = _Mapper.Map<UserDto>(await _UserRepository.GetUserAsync(message.UserId));
-            messageDto.ForumThread = _Mapper.Map<ForumThreadDto>(await _ForumThreadRepository
-                .GetForumThreadAsync(message.ForumThreadId));
+            await Console.Out.WriteLineAsync(message.User.Username);
+
+            messageDto.User = _Mapper.Map<UserDto>(message.User);
+            messageDto.ForumThread = _Mapper.Map<ForumThreadDto>(message.ForumThread);
 
             return Ok(messageDto);
         }
@@ -345,6 +367,12 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return NoContent();
             }
 
+            if(upvote.Rating == upvoteValue)
+            {
+                return NoContent();
+            }
+
+            message.UpvoteCount -= upvote.Rating;
             message.UpvoteCount += upvoteValue;
             upvote.Rating = upvoteValue;
 

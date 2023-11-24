@@ -24,14 +24,15 @@ namespace TalkHubAPI.Repositories.VideoPlayerRepositories
 
         public async Task<VideoPlaylist?> GetVideoPlaylistAsync(int id)
         {
-            return await _Context.VideoPlaylists.FindAsync(id);
+            return await _Context.VideoPlaylists.Include(x => x.Video).Include(x => x.Playlist)
+                .FirstOrDefaultAsync(x => x.Id == id);
+                
         }
 
         public async Task<VideoPlaylist?> GetVideoPlaylistByVideoIdAndPlaylistIdAsync(int videoId, int playlistId)
         {
-            return await _Context.VideoPlaylists
-                .Where(x => x.PlaylistId == playlistId && x.VideoId == videoId)
-                .FirstOrDefaultAsync();
+            return await _Context.VideoPlaylists.Include(x => x.Video).Include(x => x.Playlist)
+                .FirstOrDefaultAsync(x => x.PlaylistId == playlistId && x.VideoId == videoId);
         }
 
         public async Task<ICollection<VideoPlaylist>> GetVideoPlaylistsAsync()

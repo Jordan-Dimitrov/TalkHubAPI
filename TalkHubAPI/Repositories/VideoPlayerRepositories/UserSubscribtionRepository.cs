@@ -22,14 +22,16 @@ namespace TalkHubAPI.Repositories.VideoPlayerRepositories
 
         public async Task<UserSubscribtion?> GetUserSubscribtionAsync(int id)
         {
-            return await _Context.UserSubscribtions.FindAsync(id);
+            return await _Context.UserSubscribtions.Include(x => x.UserSubscriber)
+                .Include(x => x.UserChannel).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<UserSubscribtion?> GetUserSubscribtionByChannelAndSubscriberAsync(int channelId, int subscriberId)
         {
             return await _Context.UserSubscribtions
-            .Where(x => x.UserChannelId == channelId && x.UserSubscriberId == subscriberId)
-            .FirstOrDefaultAsync();
+            .Include(x => x.UserSubscriber)
+            .Include(x => x.UserChannel)
+            .FirstOrDefaultAsync(x => x.UserChannelId == channelId && x.UserSubscriberId == subscriberId);
         }
 
         public async Task<ICollection<UserSubscribtion>> GetUserSubscribtionsAsync()

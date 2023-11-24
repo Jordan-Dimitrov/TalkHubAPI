@@ -214,7 +214,7 @@ namespace TalkHubAPI
 
             app.UseAuthorization();
 
-            app.UseMiddleware<ErrorHandlingMiddleware>();
+            //app.UseMiddleware<ErrorHandlingMiddleware>();
 
             app.UseResponseCaching();
 

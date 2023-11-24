@@ -98,7 +98,7 @@ namespace TalkHubAPI.Controllers
             return Ok(user);
         }
 
-        [HttpPut("{userId}"), Authorize(Roles = "Admin")]
+        [HttpPut("hide/{userId}"), Authorize(Roles = "Admin")]
         [ProducesResponseType(400)]
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
@@ -125,8 +125,6 @@ namespace TalkHubAPI.Controllers
                 ModelState.AddModelError("", "Something went wrong updating the user");
                 return StatusCode(500, ModelState);
             }
-
-            _AuthService.ClearTokens();
 
             _MemoryCache.Remove(_UserCacheKey);
 

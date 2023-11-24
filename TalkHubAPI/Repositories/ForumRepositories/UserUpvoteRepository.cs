@@ -23,12 +23,14 @@ namespace TalkHubAPI.Repositories.ForumRepositories
 
         public async Task<UserUpvote?> GetUserUpvoteAsync(int id)
         {
-            return await _Context.UserUpvotes.FindAsync(id);
+            return await _Context.UserUpvotes.Include(x => x.User)
+                .Include(x => x.Message).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<UserUpvote?> GetUserUpvoteByMessageAndUserAsync(int messageId, int userId)
         {
-            return await _Context.UserUpvotes.FirstOrDefaultAsync(x => x.MessageId == messageId && x.UserId == userId);
+            return await _Context.UserUpvotes.Include(x => x.User).Include(x => x.Message)
+                .FirstOrDefaultAsync(x => x.MessageId == messageId && x.UserId == userId);
         }
 
         public async Task<ICollection<UserUpvote>> GetUserUpvotesAsync()

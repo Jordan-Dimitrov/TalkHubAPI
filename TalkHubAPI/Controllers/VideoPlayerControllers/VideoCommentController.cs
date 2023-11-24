@@ -11,8 +11,10 @@ using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models;
+using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.VideoPlayerModels;
 using TalkHubAPI.Repositories.VideoPlayerRepositories;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TalkHubAPI.Controllers.VideoPlayerControllers
 {
@@ -74,6 +76,16 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             if (video is null)
             {
                 return BadRequest("This video does not exist");
+            }
+
+            if (commentDto.ReplyId is not null)
+            {
+                VideoComment? parent = await _VideoCommentRepository.GetVideoCommentAsync(commentDto.ReplyId ?? -1);
+
+                if (parent is null || parent.VideoId != commentDto.VideoId)
+                {
+                    return BadRequest("Invalid reply");
+                }
             }
 
             if (!ModelState.IsValid)
@@ -182,11 +194,11 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             return NoContent();
         }
 
-        [HttpGet("video-comment-like/{videoCommendId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("video-comment-like/{videoCommentId}"), Authorize(Roles = "User,Admin")]
         [ResponseCache(CacheProfileName = "Expire3")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(void), 404)]
-        public async Task<IActionResult> GetVideoCommentLike(int videoCommendId)
+        public async Task<IActionResult> GetVideoCommentLike(int videoCommentId)
         {
             string? jwtToken = Request.Cookies["jwtToken"];
             string username = _AuthService.GetUsernameFromJwtToken(jwtToken);
@@ -203,8 +215,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            VideoCommentsLike? videoComment = await _VideoCommentsLikeRepository
-                .GetVideoCommentsLikeByCommentAndUserAsync(videoCommendId, user.Id);
+            VideoCommentsLikeDto? videoComment = _Mapper.Map<VideoCommentsLikeDto>(await _VideoCommentsLikeRepository
+                .GetVideoCommentsLikeByCommentAndUserAsync(videoCommentId, user.Id));
 
             if (videoComment is null)
             {
@@ -266,6 +278,12 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return NoContent();
             }
 
+            if (videoCommentsLike.Rating == upvoteValue)
+            {
+                return NoContent();
+            }
+
+            comment.LikeCount -= videoCommentsLike.Rating;
             comment.LikeCount += upvoteValue;
             videoCommentsLike.Rating = upvoteValue;
 

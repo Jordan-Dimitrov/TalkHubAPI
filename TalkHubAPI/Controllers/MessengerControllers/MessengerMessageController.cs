@@ -88,10 +88,10 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             return Ok(messages);
         }
 
-        [HttpGet("last/{messageId}"), Authorize(Roles = "User,Admin")]
+        [HttpGet("last-messages/{roomId}"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(200, Type = typeof(MessageRoomDto))]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> GetLastTenMessengerMessages([FromQuery] int roomId, int messageId)
+        public async Task<IActionResult> GetLastTenMessengerMessages(int roomId)
         {
             MessageRoom? room = await _MessageRoomRepository.GetMessageRoomAsync(roomId);
 
@@ -128,8 +128,10 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return NotFound();
             }
 
+            MessengerMessage? messengerMessage = await _MessengerMessageRepository.GetLastMessageAsync();
+
             ICollection<MessengerMessageDto> messages = _Mapper.Map<List<MessengerMessageDto>>(await _MessengerMessageRepository
-                .GetLastTenMessengerMessagesFromLastMessageIdAsync(messageId, roomId));
+                .GetLastTenMessengerMessagesFromLastMessageIdAsync(messengerMessage.Id, roomId));
 
             return Ok(messages);
         }
@@ -170,6 +172,11 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             {
                 ModelState.AddModelError("", "User has not joined this room");
                 return StatusCode(422, ModelState);
+            }
+
+            if(messageDto.MessageContent is null)
+            {
+                return BadRequest("Invalid message");
             }
 
             if (!ModelState.IsValid)

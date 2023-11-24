@@ -23,14 +23,15 @@ namespace TalkHubAPI.Repositories.VideoPlayerRepositories
 
         public async Task<VideoUserLike?> GetVideoUserLikeAsync(int id)
         {
-            return await _Context.VideoUserLikes.FindAsync(id);
+            return await _Context.VideoUserLikes.Include(x => x.Video).Include(x => x.User)
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<VideoUserLike?> GetVideoUserLikeByVideoAndUserAsync(int videoId, int userId)
         {
             return await _Context.VideoUserLikes
-                .Where(x => x.VideoId == videoId && x.UserId == userId)
-                .FirstOrDefaultAsync();
+                .Include(x => x.Video).Include(x => x.User)
+                .FirstOrDefaultAsync(x => x.VideoId == videoId && x.UserId == userId);
         }
 
         public async Task<ICollection<VideoUserLike>> GetVideoUserLikesAsync()

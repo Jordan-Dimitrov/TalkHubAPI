@@ -21,7 +21,8 @@ namespace TalkHubAPI.Repositories.PhotosManagerRepositories
 
         public async Task<Photo?> GetPhotoAsync(int id)
         {
-            return await _Context.Photos.FindAsync(id);
+            return await _Context.Photos.Include(x => x.User)
+                .Include(x => x.Category).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<ICollection<Photo>> GetPhotosAsync()

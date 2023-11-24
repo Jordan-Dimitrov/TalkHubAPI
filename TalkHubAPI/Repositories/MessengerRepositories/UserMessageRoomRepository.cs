@@ -22,7 +22,8 @@ namespace TalkHubAPI.Repositories.MessengerRepositories
 
         public async Task<UserMessageRoom?> GetUserMessageRoomAsync(int id)
         {
-            return await _Context.UserMessageRooms.FindAsync(id);
+            return await _Context.UserMessageRooms.Include(x => x.User)
+                .Include(x => x.Room).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<ICollection<UserMessageRoom>> GetUserMessageRoomsAsync()
@@ -72,8 +73,9 @@ namespace TalkHubAPI.Repositories.MessengerRepositories
         public async Task<UserMessageRoom?> GetUserMessageRoomForRoomAndUserAsync(int roomId, int userId)
         {
             return await _Context.UserMessageRooms
-                .Where(x => x.RoomId == roomId && x.UserId == userId)
-                .FirstOrDefaultAsync();
+                .Include(x => x.User)
+                .Include(x => x.Room)
+                .FirstOrDefaultAsync(x => x.RoomId == roomId && x.UserId == userId);
         }
     }
 }

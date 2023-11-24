@@ -479,7 +479,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return StatusCode(500, ModelState);
             }
 
-            return Ok("Successfully created");
+            return NoContent();
         }
 
         [HttpPut("unsubscribe-user-channel/{userId}"), Authorize(Roles = "User,Admin")]
@@ -613,6 +613,12 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return NoContent();
             }
 
+            if (videoUserLike.Rating == upvoteValue)
+            {
+                return NoContent();
+            }
+
+            video.LikeCount -= videoUserLike.Rating;
             video.LikeCount += upvoteValue;
             videoUserLike.Rating = upvoteValue;
 
