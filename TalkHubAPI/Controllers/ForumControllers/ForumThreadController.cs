@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using System.Threading;
 using TalkHubAPI.Dtos.ForumDtos;
 using TalkHubAPI.Interfaces.ForumInterfaces;
+using TalkHubAPI.Models.ConfigurationModels;
 using TalkHubAPI.Models.ForumModels;
 
 namespace TalkHubAPI.Controllers.ForumControllers
@@ -17,12 +19,18 @@ namespace TalkHubAPI.Controllers.ForumControllers
         private readonly string _ThreadsCacheKey;
         private readonly IMemoryCache _MemoryCache;
         private readonly IMapper _Mapper;
-        public ForumThreadController(IForumThreadRepository forumThreadRepository, IMapper mapper, IMemoryCache memoryCache)
+        private readonly MemoryCacheSettings _MemoryCacheSettings;
+
+        public ForumThreadController(IForumThreadRepository forumThreadRepository,
+            IMapper mapper,
+            IMemoryCache memoryCache,
+            IOptions<MemoryCacheSettings> memoryCacheSettings)
         {
             _ForumThreadRepository = forumThreadRepository;
             _Mapper = mapper;
             _MemoryCache = memoryCache;
             _ThreadsCacheKey = "forumThreads";
+            _MemoryCacheSettings = memoryCacheSettings.Value;
         }
 
         [HttpGet, Authorize(Roles = "User,Admin")]
@@ -36,7 +44,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 threads = _Mapper.Map<List<ForumThreadDto>>(await _ForumThreadRepository
                     .GetForumThreadsAsync());
 
-                _MemoryCache.Set(_ThreadsCacheKey, threads, TimeSpan.FromMinutes(1));
+                _MemoryCache.Set(_ThreadsCacheKey, threads, TimeSpan.FromHours(_MemoryCacheSettings.HoursExpiry));
             }
 
             return Ok(threads);
@@ -121,6 +129,8 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 ModelState.AddModelError("", "Something went wrong updating the thread");
                 return StatusCode(500, ModelState);
             }
+
+            _MemoryCache.Remove(_ThreadsCacheKey);
 
             return NoContent();
         }

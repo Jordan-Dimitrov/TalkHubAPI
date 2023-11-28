@@ -91,6 +91,12 @@ namespace TalkHubAPI
             builder.Services.AddScoped<IUserSubscribtionRepository, UserSubscribtionRepository>();
 
             builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+            builder.Services.Configure<PasswordResetTokenSettings>(builder.Configuration
+                .GetSection("PasswordResetTokenSettings"));
+            builder.Services.Configure<RefreshTokenSettings>(builder.Configuration
+                .GetSection("RefreshTokenSettings"));
+            builder.Services.Configure<MemoryCacheSettings>(builder.Configuration
+                .GetSection("MemoryCacheSettings"));
             builder.Services.Configure<JwtTokenSettings>(builder.Configuration.GetSection("JwtTokenSettings"));
             builder.Services.Configure<FFMpegConfig>(builder.Configuration.GetSection("FFMpegConfig"));
 
@@ -214,7 +220,7 @@ namespace TalkHubAPI
 
             app.UseAuthorization();
 
-            //app.UseMiddleware<ErrorHandlingMiddleware>();
+            app.UseMiddleware<ErrorHandlingMiddleware>();
 
             app.UseResponseCaching();
 

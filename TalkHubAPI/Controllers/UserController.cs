@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System.Data;
@@ -14,6 +15,7 @@ using TalkHubAPI.Dtos.UserDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
+using TalkHubAPI.Models.ConfigurationModels;
 
 namespace TalkHubAPI.Controllers
 {
@@ -27,11 +29,15 @@ namespace TalkHubAPI.Controllers
         private readonly IMemoryCache _MemoryCache;
         private readonly IAuthService _AuthService;
         private readonly IMailService _MailService;
+        private readonly PasswordResetTokenSettings _PasswordResetTokenSettings;
+        private readonly MemoryCacheSettings _MemoryCacheSettings;
         public UserController(IUserRepository userRepository,
             IMapper mapper,
             IAuthService authService,
             IMemoryCache memoryCache,
-            IMailService mailService)
+            IMailService mailService,
+            IOptions<PasswordResetTokenSettings> passwordResetTokenSettings,
+            IOptions<MemoryCacheSettings> memoryCacheSettings)
         {
             _UserRepository = userRepository;
             _Mapper = mapper;
@@ -39,6 +45,8 @@ namespace TalkHubAPI.Controllers
             _MemoryCache = memoryCache;
             _UserCacheKey = "users";
             _MailService = mailService;
+            _PasswordResetTokenSettings = passwordResetTokenSettings.Value;
+            _MemoryCacheSettings = memoryCacheSettings.Value;
         }
 
         [HttpGet, Authorize(Roles = "User,Admin")]
@@ -51,7 +59,7 @@ namespace TalkHubAPI.Controllers
             {
                 users = _Mapper.Map<List<UserDto>>(await _UserRepository.GetUsersAsync());
 
-                _MemoryCache.Set(_UserCacheKey, users, TimeSpan.FromMinutes(1));
+                _MemoryCache.Set(_UserCacheKey, users, TimeSpan.FromHours(_MemoryCacheSettings.HoursExpiry));
             }
  
             return Ok(users);
@@ -291,7 +299,7 @@ namespace TalkHubAPI.Controllers
             }
 
             user.PasswordResetToken = _AuthService.CreateRandomToken();
-            user.ResetTokenExpires = DateTime.Now.AddMinutes(30);
+            user.ResetTokenExpires = DateTime.Now.AddMinutes(_PasswordResetTokenSettings.MinutesExpiry);
 
             MailData mailData = new MailData();
             mailData.EmailToId = user.Email;

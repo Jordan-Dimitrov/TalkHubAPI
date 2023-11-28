@@ -1,8 +1,7 @@
 ﻿namespace TalkHubAPI.Models.ConfigurationModels
 {
-    public class JwtTokenSettings
+    public class PasswordResetTokenSettings
     {
-        public string Token { get; set; } = null!;
         public int MinutesExpiry { get; set; }
     }
 }

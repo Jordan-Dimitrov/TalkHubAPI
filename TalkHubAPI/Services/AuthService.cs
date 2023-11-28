@@ -15,12 +15,16 @@ namespace TalkHubAPI.Helper
     public class AuthService : IAuthService
     {
         private readonly JwtTokenSettings _JwtTokenSettings;
+        private readonly RefreshTokenSettings _RefreshTokenSettings;
         private readonly IHttpContextAccessor _HttpContextAccessor;
 
-        public AuthService(IOptions<JwtTokenSettings> jwtTokenSettings, IHttpContextAccessor httpContextAccessor)
+        public AuthService(IOptions<JwtTokenSettings> jwtTokenSettings,
+            IHttpContextAccessor httpContextAccessor,
+            IOptions<RefreshTokenSettings> refreshTokenSettings)
         {
             _JwtTokenSettings = jwtTokenSettings.Value;
             _HttpContextAccessor = httpContextAccessor;
+            _RefreshTokenSettings = refreshTokenSettings.Value;
         }
         public string GenerateJwtToken(User user)
         {
@@ -37,7 +41,7 @@ namespace TalkHubAPI.Helper
 
             JwtSecurityToken token = new JwtSecurityToken(
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(15),
+                expires: DateTime.Now.AddMinutes(_JwtTokenSettings.MinutesExpiry),
                 signingCredentials: creds);
 
             string jwt = new JwtSecurityTokenHandler().WriteToken(token);
@@ -55,7 +59,7 @@ namespace TalkHubAPI.Helper
             RefreshToken refreshToken = new RefreshToken
             {
                 Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-                TokenExpires = DateTime.Now.AddDays(7),
+                TokenExpires = DateTime.Now.AddDays(_RefreshTokenSettings.DaysExpiry),
                 TokenCreated = DateTime.Now
             };
 

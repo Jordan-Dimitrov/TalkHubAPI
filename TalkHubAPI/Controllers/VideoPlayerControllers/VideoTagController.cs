@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using System.Data;
 using System.Threading;
 using TalkHubAPI.Dtos.VideoPlayerDtos;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
+using TalkHubAPI.Models.ConfigurationModels;
 using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Controllers.VideoPlayerControllers
@@ -18,13 +20,18 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         private readonly string _VideoTagsCacheKey;
         private readonly IMemoryCache _MemoryCache;
         private readonly IMapper _Mapper;
+        private readonly MemoryCacheSettings _MemoryCacheSettings;
 
-        public VideoTagController(IVideoTagRepository videoTagRepository, IMapper mapper, IMemoryCache memoryCache)
+        public VideoTagController(IVideoTagRepository videoTagRepository,
+            IMapper mapper,
+            IMemoryCache memoryCache,
+            IOptions<MemoryCacheSettings> memoryCacheSettings)
         {
             _VideoTagRepository = videoTagRepository;
             _MemoryCache = memoryCache;
             _VideoTagsCacheKey = "videoTags";
             _Mapper = mapper;
+            _MemoryCacheSettings = memoryCacheSettings.Value;
         }
 
         [HttpGet, Authorize(Roles = "User,Admin")]
@@ -37,7 +44,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             {
                 tags = _Mapper.Map<List<VideoTagDto>>(await _VideoTagRepository.GetVideoTagsAsync());
 
-                _MemoryCache.Set(_VideoTagsCacheKey, tags, TimeSpan.FromMinutes(30));
+                _MemoryCache.Set(_VideoTagsCacheKey, tags, TimeSpan.FromHours(_MemoryCacheSettings.HoursExpiry));
             }
 
             return Ok(tags);
