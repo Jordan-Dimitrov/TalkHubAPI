@@ -13,12 +13,28 @@ Before you begin, ensure you have the following installed:
 3. [FFmpeg](https://www.ffmpeg.org/download.html)
 
 ### Installation
-1. Go to `appsettings.json`
-   - Change your Token to a 64 character string
+1. Go to `appsettings.Production.json`
+   - Change your Token to a 64 character string and it's expiry
      ```bash
      "JwtTokenSettings": {
-     "Token": "token-here"
+     "Token": "token-here",
+     "MinutesExpiry": 15
      }
+   - Change your RefreshToken expiry
+     ```bash
+     "RefreshTokenSettings": {
+     "DaysExpiry": 7
+      }
+   - Change your MemoryCache expiry
+     ```bash
+     "MemoryCacheSettings": {
+     "HoursExpiry": 12
+      }
+   - Change your PasswordResetToken expiry
+     ```bash
+     "PasswordResetTokenSettings": {
+     "MinutesExpiry": 15
+      }
    - Add your path to the FFMpeg directories and change the conversion threads
      ```bash
      "FFMpegConfig": {
