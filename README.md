@@ -14,28 +14,28 @@ Before you begin, ensure you have the following installed:
 
 ### Installation
 1. Go to `appsettings.Production.json`
-   - Change your Token to a 64 character string and it's expiry
+   - Change your token to a 64-character string and adjust its expiry
      ```bash
      "JwtTokenSettings": {
      "Token": "token-here",
      "MinutesExpiry": 15
      }
-   - Change your RefreshToken expiry
+   - Adjust your RefreshToken expiry
      ```bash
      "RefreshTokenSettings": {
      "DaysExpiry": 7
       }
-   - Change your MemoryCache expiry
+   - Adjust your MemoryCache expiry
      ```bash
      "MemoryCacheSettings": {
      "HoursExpiry": 12
       }
-   - Change your PasswordResetToken expiry
+   - Adjust your PasswordResetToken expiry
      ```bash
      "PasswordResetTokenSettings": {
      "MinutesExpiry": 15
       }
-   - Add your path to the FFMpeg directories and change the conversion threads
+   - Add your path to the FFMpeg directories and adjust the conversion threads
      ```bash
      "FFMpegConfig": {
      "FFMpegBinaryDirectory": "path-here",
@@ -73,5 +73,5 @@ dotnet run seeddata
 ```
 5. Run the project:
 ```bash
-dotnet run
+dotnet run --environment Production
 ```
