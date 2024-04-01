@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using TalkHubAPI.Data;
+﻿using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
@@ -39,7 +36,7 @@ namespace TalkHubAPI
                         PermissionType = UserRole.Admin,
                         Email = "tomaaa@gmail.com",
                         SubscriberCount = 0
-                        
+
                     },
                     new User()
                     {

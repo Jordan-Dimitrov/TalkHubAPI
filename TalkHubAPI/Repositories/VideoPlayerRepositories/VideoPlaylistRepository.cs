@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.Design;
 using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
-using TalkHubAPI.Models;
 using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Repositories.VideoPlayerRepositories
@@ -26,7 +24,7 @@ namespace TalkHubAPI.Repositories.VideoPlayerRepositories
         {
             return await _Context.VideoPlaylists.Include(x => x.Video).Include(x => x.Playlist)
                 .FirstOrDefaultAsync(x => x.Id == id);
-                
+
         }
 
         public async Task<VideoPlaylist?> GetVideoPlaylistByVideoIdAndPlaylistIdAsync(int videoId, int playlistId)

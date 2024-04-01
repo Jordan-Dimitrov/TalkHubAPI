@@ -1,19 +1,13 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
-using TalkHubAPI.Interfaces;
 using FakeItEasy;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using TalkHubAPI.Controllers.VideoPlayerControllers;
 using TalkHubAPI.Dtos.VideoPlayerDtos;
-using TalkHubAPI.Models.VideoPlayerModels;
-using TalkHubAPI.Repositories.VideoPlayerRepositories;
-using FluentAssertions;
+using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
+using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
+using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Tests.Controller.VideoPlayerControllersTests
 {
@@ -52,7 +46,7 @@ namespace TalkHubAPI.Tests.Controller.VideoPlayerControllersTests
 
             A.CallTo(() => _VideoRepository.GetVideoAsync(videoId))
                 .Returns(video);
-            VideoController controller = new VideoController(_VideoRepository, 
+            VideoController controller = new VideoController(_VideoRepository,
                 _Mapper, _AuthService,
                 _UserRepository, _FileProcessingService,
                 _VideoUserLikeRepository, _VideoTagRepository,

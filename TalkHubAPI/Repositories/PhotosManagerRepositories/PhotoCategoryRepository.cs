@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TalkHubAPI.Data;
-using TalkHubAPI.Dtos;
 using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
 using TalkHubAPI.Models.PhotosManagerModels;
 

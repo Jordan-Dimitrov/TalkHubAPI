@@ -1,12 +1,6 @@
-﻿using AutoMapper;
-using FakeItEasy;
+﻿using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
 
 namespace TalkHubAPI.Tests.Services
@@ -39,6 +33,6 @@ namespace TalkHubAPI.Tests.Services
             result.Should().BeOfType<FileContentResult>();
             result.ContentType.Should().Be("image/webp");
         }
-        
+
     }
 }

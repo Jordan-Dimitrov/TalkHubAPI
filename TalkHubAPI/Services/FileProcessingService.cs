@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using TalkHubAPI.Interfaces;
-using System.Diagnostics;
-using FFMpegCore;
+﻿using FFMpegCore;
 using FFMpegCore.Enums;
-using System.Collections.Concurrent;
-using TalkHubAPI.Models;
-using TalkHubAPI.Interfaces.ServiceInterfaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.ServiceInterfaces;
+using TalkHubAPI.Models;
 using TalkHubAPI.Models.ConfigurationModels;
 
 namespace TalkHubAPI.Helper
@@ -18,8 +16,8 @@ namespace TalkHubAPI.Helper
         private readonly IList<string> _SupportedImageMimeTypes;
         private readonly IList<string> _SupportedVideoMimeTypes;
         private readonly FFMpegConfig _FFMpegConfig;
-        public FileProcessingService(IBackgroundQueue backgroundQueue, 
-            IConfiguration configuration, 
+        public FileProcessingService(IBackgroundQueue backgroundQueue,
+            IConfiguration configuration,
             IOptions<FFMpegConfig> ffmpegConfigOptions)
         {
             _BackgroundQueue = backgroundQueue;
@@ -134,7 +132,7 @@ namespace TalkHubAPI.Helper
             _BackgroundQueue.AddStatus(taskId, "In progress");
 
             var mediaInfo = await FFProbe.AnalyseAsync(inputPath);
-            int bitRate = (int) (mediaInfo.Format.BitRate * 0.75) / 1024;
+            int bitRate = (int)(mediaInfo.Format.BitRate * 0.75) / 1024;
 
             await FFMpegArguments
                .FromFileInput(inputPath)
@@ -241,7 +239,7 @@ namespace TalkHubAPI.Helper
 
         public bool ImageMimeTypeValid(IFormFile file)
         {
-            if(file is null || file.Length == 0)
+            if (file is null || file.Length == 0)
             {
                 return false;
             }

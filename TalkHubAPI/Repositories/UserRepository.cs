@@ -1,10 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
 using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Models;
-using TalkHubAPI.Models.MessengerModels;
-using TalkHubAPI.Models.PhotosManagerModels;
 
 namespace TalkHubAPI.Repositories
 {
@@ -73,7 +70,7 @@ namespace TalkHubAPI.Repositories
 
         public async Task<bool> UpdateRefreshTokenToUserAsync(User user, RefreshToken newRefreshToken)
         {
-            if(user.RefreshToken is not null)
+            if (user.RefreshToken is not null)
             {
                 _Context.Remove(user.RefreshToken);
             }
@@ -84,7 +81,7 @@ namespace TalkHubAPI.Repositories
 
         public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken)
         {
-            if(refreshToken is null)
+            if (refreshToken is null)
             {
                 return null;
             }

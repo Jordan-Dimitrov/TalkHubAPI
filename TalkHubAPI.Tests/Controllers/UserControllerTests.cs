@@ -4,17 +4,14 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
+using Microsoft.Extensions.Options;
 using System.Text;
-using System.Threading.Tasks;
 using TalkHubAPI.Controllers;
 using TalkHubAPI.Dtos.UserDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
+using TalkHubAPI.Models.ConfigurationModels;
 
 namespace TalkHubAPI.Tests.Controller
 {
@@ -25,13 +22,17 @@ namespace TalkHubAPI.Tests.Controller
         private readonly IAuthService _AuthService;
         private readonly IMemoryCache _MemoryCache;
         private readonly IMailService _MailService;
+        private readonly IOptions<PasswordResetTokenSettings> _PasswordResetTokenSettings;
+        private readonly IOptions<MemoryCacheSettings> _MemoryCacheSettings;
         public UserControllerTests()
         {
             _UserRepository = A.Fake<IUserRepository>();
             _Mapper = A.Fake<IMapper>();
             _AuthService = A.Fake<IAuthService>();
-            _MemoryCache= A.Fake<IMemoryCache>();
+            _MemoryCache = A.Fake<IMemoryCache>();
             _MailService = A.Fake<IMailService>();
+            _PasswordResetTokenSettings = A.Fake<IOptions<PasswordResetTokenSettings>>();
+            _MemoryCacheSettings = A.Fake<IOptions<MemoryCacheSettings>>();
         }
 
         [Fact]
@@ -41,7 +42,8 @@ namespace TalkHubAPI.Tests.Controller
             List<UserDto> usersList = A.Fake<List<UserDto>>();
 
             A.CallTo(() => _Mapper.Map<List<UserDto>>(users)).Returns(usersList);
-            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache, _MailService);
+            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService,
+                _MemoryCache, _MailService, _PasswordResetTokenSettings, _MemoryCacheSettings);
 
             IActionResult result = await controller.GetUsers();
 
@@ -57,7 +59,8 @@ namespace TalkHubAPI.Tests.Controller
             User user = A.Fake<User>();
             A.CallTo(() => _UserRepository.UserExistsAsync(userId)).Returns(true);
             A.CallTo(() => _UserRepository.GetUserAsync(userId)).Returns(user);
-            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache, _MailService);
+            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService,
+                _MemoryCache, _MailService, _PasswordResetTokenSettings, _MemoryCacheSettings);
 
             IActionResult result = await controller.GetUser(userId);
 
@@ -78,7 +81,8 @@ namespace TalkHubAPI.Tests.Controller
             A.CallTo(() => _Mapper.Map<User>(userDto)).Returns(user);
             A.CallTo(() => _AuthService.CreatePasswordHash("fakePass")).Returns(pass);
             A.CallTo(() => _UserRepository.CreateUserAsync(user)).Returns(true);
-            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache, _MailService);
+            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService,
+                _MemoryCache, _MailService, _PasswordResetTokenSettings, _MemoryCacheSettings);
 
             IActionResult result = await controller.Register(userDto);
 
@@ -111,7 +115,8 @@ namespace TalkHubAPI.Tests.Controller
             A.CallTo(() => _AuthService.GenerateRefreshToken()).Returns(token);
             A.CallTo(() => _UserRepository.UpdateRefreshTokenToUserAsync(user, token)).Returns(true);
             A.CallTo(() => _AuthService.SetRefreshToken(token));
-            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache, _MailService);
+            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService,
+                _MemoryCache, _MailService, _PasswordResetTokenSettings, _MemoryCacheSettings);
 
             IActionResult result = await controller.Login(userDto);
 
@@ -139,7 +144,8 @@ namespace TalkHubAPI.Tests.Controller
             A.CallTo(() => _AuthService.GetRoleFromJwtToken("fakeToken")).Returns("Admin");
             A.CallTo(() => _UserRepository.UsernameExistsAsync(user.Username)).Returns(true);
 
-            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache, _MailService)
+            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService,
+                _MemoryCache, _MailService, _PasswordResetTokenSettings, _MemoryCacheSettings)
             {
                 ControllerContext = controllerContext
             };
@@ -166,11 +172,13 @@ namespace TalkHubAPI.Tests.Controller
             A.CallTo(() => httpContext.Request).Returns(fakeRequest);
             A.CallTo(() => _AuthService.ClearTokens());
 
-            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache, _MailService)
+            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService,
+                _MemoryCache, _MailService, _PasswordResetTokenSettings, _MemoryCacheSettings)
             {
                 ControllerContext = controllerContext
             };
-            IActionResult result = controller.Logout();
+
+            var result = controller.Logout();
 
             result.Should().NotBeNull();
             result.Should().BeOfType<OkObjectResult>();
@@ -200,7 +208,8 @@ namespace TalkHubAPI.Tests.Controller
             A.CallTo(() => _AuthService.GenerateRefreshToken()).Returns(token);
             A.CallTo(() => _AuthService.GenerateJwtToken(user)).Returns("fakeJwtToken");
             A.CallTo(() => _UserRepository.UpdateRefreshTokenToUserAsync(user, token)).Returns(true);
-            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService, _MemoryCache, _MailService)
+            UserController controller = new UserController(_UserRepository, _Mapper, _AuthService,
+                _MemoryCache, _MailService, _PasswordResetTokenSettings, _MemoryCacheSettings)
             {
                 ControllerContext = controllerContext
             };

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.MessengerInterfaces;
-using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;
 
 namespace TalkHubAPI.Repositories.MessengerRepositories

@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata.Ecma335;
 using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
-using TalkHubAPI.Models;
 using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Repositories.VideoPlayerRepositories
@@ -44,7 +42,7 @@ namespace TalkHubAPI.Repositories.VideoPlayerRepositories
             {
                 if (!tags.ContainsKey(item.Video.Tag))
                 {
-                    tags[item.Video.Tag] = 0;   
+                    tags[item.Video.Tag] = 0;
                 }
 
                 tags[item.Video.Tag] += 1;

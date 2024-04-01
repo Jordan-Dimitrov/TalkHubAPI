@@ -1,16 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 using TalkHubAPI.Dtos.UserDtos;
-using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
-using TalkHubAPI.Interfaces;
-using TalkHubAPI.Models;
 using TalkHubAPI.Dtos.VideoPlayerDtos;
-using TalkHubAPI.Models.VideoPlayerModels;
-using Azure;
-using Microsoft.Extensions.Caching.Memory;
+using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
+using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
+using TalkHubAPI.Models;
+using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Controllers.VideoPlayerControllers
 {
@@ -76,8 +73,8 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateVideo(IFormFile video, IFormFile thumbnail, [FromForm] CreateVideoDto videoDto)
         {
-            if (videoDto is null 
-                || !_FileProcessingService.VideoMimeTypeValid(video) 
+            if (videoDto is null
+                || !_FileProcessingService.VideoMimeTypeValid(video)
                 || !_FileProcessingService.ImageMimeTypeValid(thumbnail))
             {
                 return BadRequest(ModelState);
@@ -370,7 +367,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
                 return NotFound();
             }
 
-            if(videoToHide.User != user && user.PermissionType != UserRole.Admin)
+            if (videoToHide.User != user && user.PermissionType != UserRole.Admin)
             {
                 return BadRequest("Video does not belong to user");
             }
@@ -473,7 +470,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             userSubscribtionToAdd.UserChannel = channel;
 
             if (!await _UserSubscribtionRepository.AddUserSubscribtionAsync(userSubscribtionToAdd)
-                ||!await _UserRepository.UpdateUserAsync(channel))
+                || !await _UserRepository.UpdateUserAsync(channel))
             {
                 ModelState.AddModelError("", "Something went wrong while saving");
                 return StatusCode(500, ModelState);
@@ -554,7 +551,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             VideoUserLikeDto? videoUserLike = _Mapper.Map<VideoUserLikeDto>(await _VideoUserLikeRepository
                 .GetVideoUserLikeByVideoAndUserAsync(videoId, user.Id));
 
-            if(videoUserLike is null)
+            if (videoUserLike is null)
             {
                 return NotFound();
             }
@@ -622,7 +619,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             video.LikeCount += upvoteValue;
             videoUserLike.Rating = upvoteValue;
 
-            if (!await _VideoRepository.UpdateVideoAsync(video) 
+            if (!await _VideoRepository.UpdateVideoAsync(video)
                 || !await _VideoUserLikeRepository.UpdateVideoUserLikeAsync(videoUserLike))
             {
                 ModelState.AddModelError("", "Something went wrong while updating");

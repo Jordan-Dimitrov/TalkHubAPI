@@ -1,16 +1,9 @@
 ﻿using AutoMapper;
-using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Org.BouncyCastle.Asn1.Ocsp;
-using System.Data;
-using System.Diagnostics.Metrics;
-using System.IdentityModel.Tokens.Jwt;
 using TalkHubAPI.Dtos.UserDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
@@ -55,13 +48,13 @@ namespace TalkHubAPI.Controllers
         {
             ICollection<UserDto>? users = _MemoryCache.Get<List<UserDto>>(_UserCacheKey);
 
-            if(users is null)
+            if (users is null)
             {
                 users = _Mapper.Map<List<UserDto>>(await _UserRepository.GetUsersAsync());
 
                 _MemoryCache.Set(_UserCacheKey, users, TimeSpan.FromHours(_MemoryCacheSettings.HoursExpiry));
             }
- 
+
             return Ok(users);
         }
 
@@ -114,7 +107,7 @@ namespace TalkHubAPI.Controllers
         {
             User? user = await _UserRepository.GetUserAsync(userId);
 
-            if(user is null)
+            if (user is null)
             {
                 return NotFound();
             }
@@ -149,7 +142,7 @@ namespace TalkHubAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (await _UserRepository.UsernameExistsAsync(request.Username) 
+            if (await _UserRepository.UsernameExistsAsync(request.Username)
                 || await _UserRepository.EmailExistsAsync(request.Email))
             {
                 return BadRequest("User already exists!");
@@ -227,7 +220,7 @@ namespace TalkHubAPI.Controllers
                 return BadRequest("User with such name does not exist!");
             }
 
-            if(user.PermissionType == UserRole.Visitor)
+            if (user.PermissionType == UserRole.Visitor)
             {
                 return BadRequest("User not verified!");
             }
@@ -250,7 +243,7 @@ namespace TalkHubAPI.Controllers
             {
                 ModelState.AddModelError("", "Something went wrong while updating the refresh token");
                 return StatusCode(500, ModelState);
-            } 
+            }
 
             _AuthService.SetRefreshToken(refreshToken);
             _AuthService.SetJwtToken(token);
@@ -354,7 +347,7 @@ namespace TalkHubAPI.Controllers
         [HttpPost("logout")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout()
         {
             string? refreshToken = Request.Cookies["refreshToken"];
             string? jwtToken = Request.Cookies["jwtToken"];
@@ -363,6 +356,17 @@ namespace TalkHubAPI.Controllers
             {
                 return BadRequest("No tokens to log out");
             }
+
+            User? user = await _UserRepository.GetUserByRefreshTokenAsync(refreshToken);
+
+            if (user is null)
+            {
+                return BadRequest("Invalid user");
+            }
+
+            RefreshToken token = _AuthService.GenerateRefreshToken();
+
+            await _UserRepository.UpdateRefreshTokenToUserAsync(user, token);
 
             _AuthService.ClearTokens();
             return Ok("Logged out successfully");

@@ -1,9 +1,4 @@
 ﻿using FluentAssertions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TalkHubAPI.Data;
 using TalkHubAPI.Models.VideoPlayerModels;
 using TalkHubAPI.Repositories.VideoPlayerRepositories;

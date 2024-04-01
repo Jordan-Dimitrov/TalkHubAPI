@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using TalkHubAPI.Dtos.UserDtos;
-using TalkHubAPI.Models;
 
 namespace TalkHubAPI.Dtos.ForumDtos
 {

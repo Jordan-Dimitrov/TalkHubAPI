@@ -1,5 +1,4 @@
-﻿using TalkHubAPI.Models;
-using TalkHubAPI.Models.VideoPlayerModels;
+﻿using TalkHubAPI.Models.VideoPlayerModels;
 namespace TalkHubAPI.Interfaces.VideoPlayerInterfaces
 {
     public interface IVideoRepository

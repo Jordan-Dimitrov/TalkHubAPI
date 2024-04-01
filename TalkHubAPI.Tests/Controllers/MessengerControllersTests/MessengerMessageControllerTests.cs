@@ -1,21 +1,16 @@
 ﻿using AutoMapper;
 using FakeItEasy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TalkHubAPI.Controllers.MessengerControllers;
-using TalkHubAPI.Dtos.MessengerDtos;
-using TalkHubAPI.Interfaces.MessengerInterfaces;
-using TalkHubAPI.Interfaces;
-using TalkHubAPI.Models.MessengerModels;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using TalkHubAPI.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using TalkHubAPI.Controllers.MessengerControllers;
+using TalkHubAPI.Dtos.MessengerDtos;
+using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.MessengerInterfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
+using TalkHubAPI.Models;
+using TalkHubAPI.Models.MessengerModels;
 
 namespace TalkHubAPI.Tests.Controller.MessengerControllersTests
 {

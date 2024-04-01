@@ -1,20 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Caching.Memory;
-using System.Data;
 using TalkHubAPI.Dtos.UserDtos;
 using TalkHubAPI.Dtos.VideoPlayerDtos;
-using TalkHubAPI.Helper;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models;
-using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.VideoPlayerModels;
-using TalkHubAPI.Repositories.VideoPlayerRepositories;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TalkHubAPI.Controllers.VideoPlayerControllers
 {
@@ -45,7 +38,7 @@ namespace TalkHubAPI.Controllers.VideoPlayerControllers
             _VideoCommentsLikeRepository = videoCommentsLikeRepository;
             _VideoTagRepository = videoTagRepository;
         }
-        
+
         [HttpPost, Authorize(Roles = "User,Admin")]
         [ProducesResponseType(201)]
         [ProducesResponseType(400)]

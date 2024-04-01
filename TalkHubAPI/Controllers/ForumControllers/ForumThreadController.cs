@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using System.Threading;
 using TalkHubAPI.Dtos.ForumDtos;
 using TalkHubAPI.Interfaces.ForumInterfaces;
 using TalkHubAPI.Models.ConfigurationModels;
@@ -38,7 +37,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
         public async Task<IActionResult> GetThreads()
         {
             ICollection<ForumThreadDto>? threads = _MemoryCache.Get<List<ForumThreadDto>>(_ThreadsCacheKey);
-            
+
             if (threads is null)
             {
                 threads = _Mapper.Map<List<ForumThreadDto>>(await _ForumThreadRepository

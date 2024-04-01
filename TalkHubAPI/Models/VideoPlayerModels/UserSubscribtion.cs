@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using TalkHubAPI.Models;
-
-namespace TalkHubAPI.Models.VideoPlayerModels;
+﻿namespace TalkHubAPI.Models.VideoPlayerModels;
 
 public partial class UserSubscribtion
 {

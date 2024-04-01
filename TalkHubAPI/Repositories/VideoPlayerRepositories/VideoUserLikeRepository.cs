@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.Design;
 using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models.VideoPlayerModels;

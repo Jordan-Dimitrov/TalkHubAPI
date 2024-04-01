@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace TalkHubAPI.Dtos.VideoPlayerDtos
+﻿namespace TalkHubAPI.Dtos.VideoPlayerDtos
 {
     public class UserSubscribtionDto
     {

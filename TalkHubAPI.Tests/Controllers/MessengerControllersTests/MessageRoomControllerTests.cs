@@ -1,23 +1,14 @@
 ﻿using AutoMapper;
 using FakeItEasy;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TalkHubAPI.Controllers.ForumControllers;
-using TalkHubAPI.Dtos.ForumDtos;
-using TalkHubAPI.Interfaces.ForumInterfaces;
-using TalkHubAPI.Interfaces;
-using TalkHubAPI.Models.ForumModels;
-using TalkHubAPI.Interfaces.MessengerInterfaces;
-using TalkHubAPI.Dtos.MessengerDtos;
-using TalkHubAPI.Models.MessengerModels;
 using TalkHubAPI.Controllers.MessengerControllers;
-using FluentAssertions;
+using TalkHubAPI.Dtos.MessengerDtos;
+using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.MessengerInterfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
+using TalkHubAPI.Models.MessengerModels;
 
 namespace TalkHubAPI.Tests.Controller.MessengerControllersTests
 {
@@ -48,7 +39,7 @@ namespace TalkHubAPI.Tests.Controller.MessengerControllersTests
             A.CallTo(() => _MessageRoomRepository.GetMessageRoomAsync(roomId)).Returns(message);
 
             MessageRoomController controller = new MessageRoomController(_MessageRoomRepository, _Mapper,
-                _AuthService, _UserRepository, 
+                _AuthService, _UserRepository,
                 _UserMessageRoomRepository, _MemoryCache);
 
             IActionResult result = await controller.GetRoom(roomId);

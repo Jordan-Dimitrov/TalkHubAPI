@@ -1,5 +1,4 @@
-﻿using TalkHubAPI.Models.ForumModels;
-using TalkHubAPI.Models.MessengerModels;
+﻿using TalkHubAPI.Models.MessengerModels;
 
 namespace TalkHubAPI.Interfaces.MessengerInterfaces
 {

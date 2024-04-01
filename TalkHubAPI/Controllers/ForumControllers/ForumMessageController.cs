@@ -1,9 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using System.Data;
-using System.Threading;
 using TalkHubAPI.Dtos.ForumDtos;
 using TalkHubAPI.Dtos.UserDtos;
 using TalkHubAPI.Interfaces;
@@ -11,7 +8,6 @@ using TalkHubAPI.Interfaces.ForumInterfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
-using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Controllers.ForumControllers
 {
@@ -75,7 +71,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return BadRequest("This thread does not exist");
             }
 
-            if(messageDto.ReplyId is not null)
+            if (messageDto.ReplyId is not null)
             {
                 ForumMessage? parent = await _ForumMessageRepository.GetForumMessageAsync(messageDto.ReplyId ?? -1);
 
@@ -194,7 +190,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 .GetForumMessagesByForumThreadIdAsync(threadId)).ToList();
 
             List<ForumMessageDto> messageDtos = _Mapper.Map<List<ForumMessageDto>>(messages);
-            
+
             for (int i = 0; i < messages.Count; i++)
             {
                 messageDtos[i].ForumThread = _Mapper.Map<ForumThreadDto>(thread);
@@ -255,7 +251,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> HideMessage(int forumMessageId)
         {
-            
+
             ForumMessage? messageToHide = await _ForumMessageRepository.GetForumMessageAsync(forumMessageId);
 
             if (messageToHide is null)
@@ -367,7 +363,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
                 return NoContent();
             }
 
-            if(upvote.Rating == upvoteValue)
+            if (upvote.Rating == upvoteValue)
             {
                 return NoContent();
             }
@@ -376,7 +372,7 @@ namespace TalkHubAPI.Controllers.ForumControllers
             message.UpvoteCount += upvoteValue;
             upvote.Rating = upvoteValue;
 
-            if (!await _UserUpvoteRepository.UpdateUserUpvoteAsync(upvote) 
+            if (!await _UserUpvoteRepository.UpdateUserUpvoteAsync(upvote)
                 || !await _ForumMessageRepository.UpdateForumMessageAsync(message))
             {
                 ModelState.AddModelError("", "Something went wrong while updating");

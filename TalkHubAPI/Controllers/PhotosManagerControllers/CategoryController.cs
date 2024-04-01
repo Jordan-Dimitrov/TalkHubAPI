@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using System.Data;
 using TalkHubAPI.Dtos.PhotosDtos;
 using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
 using TalkHubAPI.Models.ConfigurationModels;
@@ -27,7 +26,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
             IOptions<MemoryCacheSettings> memoryCacheSettings)
         {
             _PhotoCategoryRepository = photoCategoryRepository;
-            _MemoryCache= memoryCache;
+            _MemoryCache = memoryCache;
             _CategoriesCacheKey = "photoCategories";
             _Mapper = mapper;
             _MemoryCacheSettings = memoryCacheSettings.Value;

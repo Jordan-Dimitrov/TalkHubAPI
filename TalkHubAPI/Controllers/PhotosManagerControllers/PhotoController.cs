@@ -1,22 +1,14 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using System.IO;
-using TalkHubAPI.Interfaces;
-using Microsoft.AspNetCore.Cors;
-using Azure.Core;
-using System;
 using Microsoft.AspNetCore.Authorization;
-using TalkHubAPI.Models;
-using TalkHubAPI.Dtos.UserDtos;
-using TalkHubAPI.Dtos.PhotosDtos;
-using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
-using TalkHubAPI.Models.PhotosManagerModels;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using System.Threading;
-using System.Diagnostics;
-using TalkHubAPI.Models.VideoPlayerModels;
+using TalkHubAPI.Dtos.PhotosDtos;
+using TalkHubAPI.Dtos.UserDtos;
+using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
+using TalkHubAPI.Models;
+using TalkHubAPI.Models.PhotosManagerModels;
 
 namespace TalkHubAPI.Controllers.PhotosManagerControllers
 {
@@ -51,7 +43,7 @@ namespace TalkHubAPI.Controllers.PhotosManagerControllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> UploadMedia(IFormFile file, [FromForm] CreatePhotoDto photoDto)
         {
-            if(photoDto is null || !_FileProcessingService.ImageMimeTypeValid(file))
+            if (photoDto is null || !_FileProcessingService.ImageMimeTypeValid(file))
             {
                 return BadRequest(ModelState);
             }

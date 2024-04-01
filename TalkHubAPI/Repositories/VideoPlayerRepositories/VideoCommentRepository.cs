@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
-using TalkHubAPI.Models;
 using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Repositories.VideoPlayerRepositories

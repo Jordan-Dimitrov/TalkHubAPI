@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -17,7 +16,7 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ThreadName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    ThreadName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     ThreadDescription = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
                 },
                 constraints: table =>
@@ -44,7 +43,7 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CategoryName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
+                    CategoryName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -57,7 +56,7 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Token = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Token = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TokenCreated = table.Column<DateTime>(type: "datetime", nullable: false),
                     TokenExpires = table.Column<DateTime>(type: "datetime", nullable: false)
                 },
@@ -72,7 +71,7 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TagName = table.Column<string>(type: "nvarchar(45)", maxLength: 45, nullable: false)
+                    TagName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -85,11 +84,17 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Username = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Username = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     RefreshTokenId = table.Column<int>(type: "int", nullable: true),
-                    PermissionType = table.Column<int>(type: "int", nullable: false)
+                    PermissionType = table.Column<int>(type: "int", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: ""),
+                    VerificationToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VerifiedAt = table.Column<DateTime>(type: "datetime", nullable: true),
+                    PasswordResetToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ResetTokenExpires = table.Column<DateTime>(type: "datetime", nullable: true),
+                    SubscriberCount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -107,7 +112,7 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MessageContent = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MessageContent = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ReplyId = table.Column<int>(type: "int", nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: false),
@@ -122,7 +127,8 @@ namespace TalkHubAPI.Migrations
                         name: "FK__ForumMess__Forum__5CD6CB2B",
                         column: x => x.ForumThreadId,
                         principalTable: "ForumThreads",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK__ForumMess__Reply__5AEE82B9",
                         column: x => x.ReplyId,
@@ -143,7 +149,7 @@ namespace TalkHubAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     RoomId = table.Column<int>(type: "int", nullable: false),
-                    MessageContent = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MessageContent = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateCreated = table.Column<DateTime>(type: "datetime", nullable: false)
                 },
@@ -154,7 +160,8 @@ namespace TalkHubAPI.Migrations
                         name: "FK__Messenger__RoomI__18EBB532",
                         column: x => x.RoomId,
                         principalTable: "MessageRooms",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK__Messenger__UserI__17F790F9",
                         column: x => x.UserId,
@@ -170,7 +177,7 @@ namespace TalkHubAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Timestamp = table.Column<DateTime>(type: "datetime", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -181,7 +188,8 @@ namespace TalkHubAPI.Migrations
                         name: "FK_Photos_PhotoCategory",
                         column: x => x.CategoryId,
                         principalTable: "PhotoCategories",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK__Photos__userId__31EC6D26",
                         column: x => x.UserId,
@@ -195,7 +203,7 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    PlaylistName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PlaylistName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -224,10 +232,35 @@ namespace TalkHubAPI.Migrations
                         name: "FK__UserMessa__RoomI__4D5F7D71",
                         column: x => x.RoomId,
                         principalTable: "MessageRooms",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK__UserMessa__UserI__4C6B5938",
                         column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserSubscribtions",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserSubscriberId = table.Column<int>(type: "int", nullable: true),
+                    UserChannelId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK__UserSubs__3214EC07DD7515EE", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK__UserSubsc__UserC__2739D489",
+                        column: x => x.UserChannelId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK__UserSubsc__UserS__282DF8C2",
+                        column: x => x.UserSubscriberId,
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
@@ -238,10 +271,11 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    VideoName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VideoName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     MP4Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ThumbnailName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    VideoDescription = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    VideoDescription = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LikeCount = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     TagId = table.Column<int>(type: "int", nullable: false)
@@ -253,7 +287,8 @@ namespace TalkHubAPI.Migrations
                         name: "FK__Videos__TagId__339FAB6E",
                         column: x => x.TagId,
                         principalTable: "VideoTags",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK__Videos__UserId__32AB8735",
                         column: x => x.UserId,
@@ -278,7 +313,8 @@ namespace TalkHubAPI.Migrations
                         name: "FK__UserUpvot__Messa__74AE54BC",
                         column: x => x.MessageId,
                         principalTable: "ForumMessages",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK__UserUpvot__UserI__73BA3083",
                         column: x => x.UserId,
@@ -292,7 +328,7 @@ namespace TalkHubAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MessageContent = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MessageContent = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     DateCreated = table.Column<DateTime>(type: "datetime", nullable: false),
                     LikeCount = table.Column<int>(type: "int", nullable: false),
                     ReplyId = table.Column<int>(type: "int", nullable: true),
@@ -316,7 +352,8 @@ namespace TalkHubAPI.Migrations
                         name: "FK__VideoComm__Video__3F115E1A",
                         column: x => x.VideoId,
                         principalTable: "Videos",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -335,12 +372,14 @@ namespace TalkHubAPI.Migrations
                         name: "FK__VideoPlay__Playl__395884C4",
                         column: x => x.PlaylistId,
                         principalTable: "Playlists",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK__VideoPlay__Video__3A4CA8FD",
                         column: x => x.VideoId,
                         principalTable: "Videos",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -365,7 +404,8 @@ namespace TalkHubAPI.Migrations
                         name: "FK__VideoUser__Video__70DDC3D8",
                         column: x => x.VideoId,
                         principalTable: "Videos",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -390,7 +430,8 @@ namespace TalkHubAPI.Migrations
                         name: "FK__VideoComm__Video__489AC854",
                         column: x => x.VideoCommentId,
                         principalTable: "VideoComments",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -447,6 +488,16 @@ namespace TalkHubAPI.Migrations
                 name: "IX_Users_RefreshTokenId",
                 table: "Users",
                 column: "RefreshTokenId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserSubscribtions_UserChannelId",
+                table: "UserSubscribtions",
+                column: "UserChannelId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserSubscribtions_UserSubscriberId",
+                table: "UserSubscribtions",
+                column: "UserSubscriberId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserUpvotes_MessageId",
@@ -525,6 +576,9 @@ namespace TalkHubAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserMessageRooms");
+
+            migrationBuilder.DropTable(
+                name: "UserSubscribtions");
 
             migrationBuilder.DropTable(
                 name: "UserUpvotes");

@@ -1,22 +1,14 @@
 ﻿using AutoMapper;
-using Microsoft.Extensions.Caching.Memory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
-using TalkHubAPI.Interfaces;
 using FakeItEasy;
-using Microsoft.AspNetCore.Mvc;
-using TalkHubAPI.Controllers.PhotosManagerControllers;
-using TalkHubAPI.Dtos.PhotosDtos;
-using TalkHubAPI.Models.PhotosManagerModels;
-using TalkHubAPI.Dtos.VideoPlayerDtos;
-using TalkHubAPI.Models.VideoPlayerModels;
-using TalkHubAPI.Controllers.VideoPlayerControllers;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using TalkHubAPI.Controllers.VideoPlayerControllers;
+using TalkHubAPI.Dtos.VideoPlayerDtos;
+using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
+using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
+using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Tests.Controller.VideoPlayerControllersTests
 {
@@ -50,7 +42,7 @@ namespace TalkHubAPI.Tests.Controller.VideoPlayerControllersTests
             A.CallTo(() => _PlaylistRepository.GetPlaylistAsync(playlistId)).Returns(playlist);
             PlaylistController controller = new PlaylistController(_PlaylistRepository,
                 _Mapper, _AuthService,
-                _UserRepository,_VideoPlaylistRepository,
+                _UserRepository, _VideoPlaylistRepository,
                 _VideoRepository);
 
             IActionResult result = await controller.GetPlaylist(playlistId);

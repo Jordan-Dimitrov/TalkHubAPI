@@ -1,16 +1,8 @@
-﻿using AutoMapper;
-using FakeItEasy;
+﻿using FakeItEasy;
 using FluentAssertions;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using TalkHubAPI.Data;
-using TalkHubAPI.Dtos;
-using TalkHubAPI.Helper;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Repositories;
@@ -33,7 +25,7 @@ namespace TalkHubAPI.Tests.Repository
         {
             string name = "TOMAAAA";
             TalkHubContext context = _Seeder.GetDatabaseContext();
-            UserRepository userRepository= new UserRepository(context);
+            UserRepository userRepository = new UserRepository(context);
 
             User result = await userRepository.GetUserByNameAsync(name);
 

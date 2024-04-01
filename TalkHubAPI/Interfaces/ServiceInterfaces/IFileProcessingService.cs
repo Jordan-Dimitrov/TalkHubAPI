@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Client;
 using TalkHubAPI.Models;
 
 namespace TalkHubAPI.Interfaces.ServiceInterfaces

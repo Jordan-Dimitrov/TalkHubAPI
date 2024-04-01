@@ -36,7 +36,7 @@ namespace TalkHubAPI.Helper
             CreateMap<ForumThreadDto, ForumThread>();
             CreateMap<ForumMessage, CreateForumMessageDto>();
             CreateMap<CreateForumMessageDto, ForumMessage>();
-            CreateMap<ForumMessage,ForumMessageDto>();
+            CreateMap<ForumMessage, ForumMessageDto>();
             CreateMap<ForumMessageDto, ForumMessage>();
             CreateMap<UserUpvote, UserUpvoteDto>();
             CreateMap<UserUpvoteDto, UserUpvote>();

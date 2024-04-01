@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;
 using TalkHubAPI.Models.PhotosManagerModels;
@@ -29,7 +27,7 @@ public partial class User
 
     public int? RefreshTokenId { get; set; }
     [Required]
-    [Range(0,1)]
+    [Range(0, 1)]
     public UserRole PermissionType { get; set; }
     [Required]
     [EmailAddress]

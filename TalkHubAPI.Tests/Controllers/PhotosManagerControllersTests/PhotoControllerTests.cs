@@ -1,19 +1,14 @@
 ﻿using AutoMapper;
-using Microsoft.Extensions.Caching.Memory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
-using TalkHubAPI.Interfaces;
 using FakeItEasy;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using TalkHubAPI.Controllers.PhotosManagerControllers;
 using TalkHubAPI.Dtos.PhotosDtos;
-using TalkHubAPI.Models.PhotosManagerModels;
-using FluentAssertions;
+using TalkHubAPI.Interfaces;
+using TalkHubAPI.Interfaces.PhotosManagerInterfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
+using TalkHubAPI.Models.PhotosManagerModels;
 
 namespace TalkHubAPI.Tests.Controller.PhotosManagerControllersTests
 {
@@ -48,9 +43,9 @@ namespace TalkHubAPI.Tests.Controller.PhotosManagerControllersTests
             A.CallTo(() => _PhotoRepository.GetPhotoAsync(photoId)).Returns(photo);
             A.CallTo(() => _PhotoCategoryRepository.GetCategoryAsync(categoryId)).Returns(category);
             PhotoController controller = new PhotoController(_PhotoRepository,
-                _Mapper, _FileProcessingService, 
+                _Mapper, _FileProcessingService,
                 _UserRepository, _AuthService,
-                _PhotoCategoryRepository,  _MemoryCache);
+                _PhotoCategoryRepository, _MemoryCache);
 
             IActionResult result = await controller.GetPhoto(photoId);
 

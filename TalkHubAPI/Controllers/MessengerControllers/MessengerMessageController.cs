@@ -1,17 +1,13 @@
 ﻿using AutoMapper;
-using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using System.Data;
 using TalkHubAPI.Dtos.MessengerDtos;
-using TalkHubAPI.Helper;
 using TalkHubAPI.Hubs;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.MessengerInterfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
-using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;
 
 namespace TalkHubAPI.Controllers.MessengerControllers
@@ -75,7 +71,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
             }
 
             if (!await _UserMessageRoomRepository
-                .UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id) 
+                .UserMessageRoomExistsForRoomAndUserAsync(room.Id, user.Id)
                 && user.PermissionType != UserRole.Admin)
             {
                 ModelState.AddModelError("", "User has not joined this room");
@@ -174,7 +170,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return StatusCode(422, ModelState);
             }
 
-            if(messageDto.MessageContent is null)
+            if (messageDto.MessageContent is null)
             {
                 return BadRequest("Invalid message");
             }

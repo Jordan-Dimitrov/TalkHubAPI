@@ -3,19 +3,11 @@ using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TalkHubAPI.Controllers;
 using TalkHubAPI.Controllers.ForumControllers;
 using TalkHubAPI.Dtos.ForumDtos;
-using TalkHubAPI.Dtos.UserDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.ForumInterfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
-using TalkHubAPI.Models;
 using TalkHubAPI.Models.ForumModels;
 
 namespace TalkHubAPI.Tests.Controller.ForumControllerTests
@@ -50,9 +42,9 @@ namespace TalkHubAPI.Tests.Controller.ForumControllerTests
             ForumMessage message = A.Fake<ForumMessage>();
             A.CallTo(() => _ForumMessageRepository.GetForumMessageAsync(messageId)).Returns(message);
 
-            ForumMessageController controller = new ForumMessageController(_ForumMessageRepository, 
-                _Mapper, _FileProcessingService, 
-                _UserRepository, _AuthService, 
+            ForumMessageController controller = new ForumMessageController(_ForumMessageRepository,
+                _Mapper, _FileProcessingService,
+                _UserRepository, _AuthService,
                 _ForumThreadRepository, _UserUpvoteRepository);
 
             IActionResult result = await controller.GetForumMessage(messageId);

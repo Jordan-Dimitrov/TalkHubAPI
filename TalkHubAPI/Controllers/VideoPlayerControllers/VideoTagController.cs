@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using System.Data;
-using System.Threading;
 using TalkHubAPI.Dtos.VideoPlayerDtos;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
 using TalkHubAPI.Models.ConfigurationModels;

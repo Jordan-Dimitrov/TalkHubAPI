@@ -2,15 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using System.Data;
-using System.Threading;
-using TalkHubAPI.Dtos.ForumDtos;
 using TalkHubAPI.Dtos.MessengerDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.MessengerInterfaces;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
-using TalkHubAPI.Models.ForumModels;
 using TalkHubAPI.Models.MessengerModels;
 
 namespace TalkHubAPI.Controllers.MessengerControllers
@@ -141,7 +137,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
         [HttpPost("joinRoom"), Authorize(Roles = "User,Admin")]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> JoinRoom([FromBody]int roomId)
+        public async Task<IActionResult> JoinRoom([FromBody] int roomId)
         {
             MessageRoom? room = await _MessageRoomRepository.GetMessageRoomAsync(roomId);
 
@@ -276,7 +272,7 @@ namespace TalkHubAPI.Controllers.MessengerControllers
                 return NotFound();
             }
 
-            if (!await _UserMessageRoomRepository.RemoveUserMessageRoomForRoomId(roomId) 
+            if (!await _UserMessageRoomRepository.RemoveUserMessageRoomForRoomId(roomId)
                 || !await _MessageRoomRepository.RemoveMessageRoomAsync(roomToDelete))
             {
                 ModelState.AddModelError("", "Something went wrong deleting the room");

@@ -15,10 +15,10 @@ namespace TalkHubAPI.BackgroundTasks
         {
             _Tasks = new ConcurrentQueue<Func<CancellationToken, Task>>();
             _Signal = new SemaphoreSlim(0);
-            _ConversionStatuses= new ConcurrentDictionary<Guid, string>();
+            _ConversionStatuses = new ConcurrentDictionary<Guid, string>();
         }
 
-        
+
         public void QueueTask(Func<CancellationToken, Task> task)
         {
             _Tasks.Enqueue(task);

@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
 using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.ForumInterfaces;
 using TalkHubAPI.Models.ForumModels;

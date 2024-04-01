@@ -1,11 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Win32;
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Data;
-using System.Security.Claims;
 using TalkHubAPI.Dtos.MessengerDtos;
 using TalkHubAPI.Interfaces;
 using TalkHubAPI.Interfaces.MessengerInterfaces;
@@ -43,13 +39,13 @@ namespace TalkHubAPI.Hubs
         [Authorize(Roles = "User,Admin")]
         public async Task TestMe(string temp)
         {
-            await Clients.All.SendAsync($"{this.Context.User.Identity.Name} : {temp}",CancellationToken.None);
+            await Clients.All.SendAsync($"{this.Context.User.Identity.Name} : {temp}", CancellationToken.None);
         }
 
         [Authorize(Roles = "User,Admin")]
         public async Task JoinRoom(MessageRoomDto request)
         {
-            if(request is null)
+            if (request is null)
             {
                 Context.Abort();
                 return;

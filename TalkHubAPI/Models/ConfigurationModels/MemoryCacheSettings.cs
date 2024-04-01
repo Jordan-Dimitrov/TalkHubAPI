@@ -2,6 +2,6 @@
 {
     public class MemoryCacheSettings
     {
-        public int HoursExpiry {  get; set; }
+        public int HoursExpiry { get; set; }
     }
 }

@@ -1,12 +1,5 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TalkHubAPI.Helper;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
 
 namespace TalkHubAPI.Tests.Services
@@ -14,7 +7,7 @@ namespace TalkHubAPI.Tests.Services
     public class AuthServiceTests
     {
         private readonly IAuthService _AuthService;
-        public AuthServiceTests() 
+        public AuthServiceTests()
         {
             _AuthService = A.Fake<IAuthService>();
         }

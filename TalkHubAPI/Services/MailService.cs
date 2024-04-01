@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+﻿using MailKit.Net.Smtp;
+using Microsoft.Extensions.Options;
 using MimeKit;
-using MailKit.Net.Smtp;
 using TalkHubAPI.Interfaces.ServiceInterfaces;
 using TalkHubAPI.Models;
 using TalkHubAPI.Models.ConfigurationModels;
@@ -34,7 +34,7 @@ namespace TalkHubAPI.Services
                     emailBodyBuilder.TextBody = mailData.EmailBody;
 
                     emailMessage.Body = emailBodyBuilder.ToMessageBody();
-                   
+
                     using (SmtpClient mailClient = new SmtpClient())
                     {
                         mailClient.Connect(_MailSettings.Server, _MailSettings.Port, MailKit.Security.SecureSocketOptions.StartTls);

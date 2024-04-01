@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.Design;
 using TalkHubAPI.Data;
 using TalkHubAPI.Interfaces.VideoPlayerInterfaces;
-using TalkHubAPI.Models;
 using TalkHubAPI.Models.VideoPlayerModels;
 
 namespace TalkHubAPI.Repositories.VideoPlayerRepositories
@@ -10,7 +8,7 @@ namespace TalkHubAPI.Repositories.VideoPlayerRepositories
     public class UserSubscribtionRepository : IUserSubscribtionRepository
     {
         private readonly TalkHubContext _Context;
-        public UserSubscribtionRepository(TalkHubContext context) 
+        public UserSubscribtionRepository(TalkHubContext context)
         {
             _Context = context;
         }
